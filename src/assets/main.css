@@ -1,1 +1,12 @@
 @import './base.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+    .wrapper {
+        @apply mx-auto w-[95%];
+    }
+}

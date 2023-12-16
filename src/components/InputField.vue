@@ -8,6 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 interface Props {
+  modelValue: any
   label: string
   name: string
   type?: string
@@ -19,6 +20,14 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: (props) => props.label,
   required: true
 })
+
+const emit = defineEmits(['update:modelValue'])
+
+function updateInput(event: Event) {
+  const target = event.target as HTMLInputElement
+  const value = target.value
+  emit('update:modelValue', value)
+}
 </script>
 
 <template>
@@ -32,6 +41,8 @@ const props = withDefaults(defineProps<Props>(), {
       :placeholder="props.placeholder"
       :required="true"
       class="border-2 rounded-lg py-2 px-4"
+      :value="props.modelValue"
+      @input="updateInput"
     />
   </div>
 </template>

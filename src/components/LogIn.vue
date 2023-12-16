@@ -2,7 +2,7 @@
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { modal, type ModalActions } from '@/types/keys'
-import { defineComponent, inject } from 'vue'
+import { defineComponent, inject, ref } from 'vue'
 
 export default defineComponent({
   name: 'LogIn'
@@ -11,12 +11,19 @@ export default defineComponent({
 
 <script setup lang="ts">
 const { closeModal, openModal } = inject(modal) as ModalActions
+
+const credentials = ref({ email: '', password: '' })
+
+function submitForm() {
+  console.log('submitting form')
+}
 </script>
 
 <template>
   <form
     class="bg-neutral w-full rounded-lg p-6 flex flex-col gap-4 relative max-w-sm mx-auto"
     @click.stop.prevent
+    @submit.prevent="submitForm"
   >
     <font-awesome-icon
       icon="fa-solid fa-xmark"
@@ -29,10 +36,12 @@ const { closeModal, openModal } = inject(modal) as ModalActions
       <h2 class="text-2xl font-bold">Welcome to Pinfluence</h2>
     </header>
 
-    <InputField name="email" type="email" label="Email" />
-    <InputField name="password" type="password" label="Password" />
+    <InputField name="email" type="email" label="Email" v-model="credentials.email" />
+    <InputField name="password" type="password" label="Password" v-model="credentials.password" />
 
-    <BaseButton type="submit" class="bg-primary w-full text-neutral mt-2">Log In</BaseButton>
+    <BaseButton @click="submitForm" type="submit" class="bg-primary w-full text-neutral mt-2"
+      >Log In</BaseButton
+    >
 
     <p class="text-sm text-center">
       Not on pinterest yet?

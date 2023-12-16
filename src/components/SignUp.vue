@@ -2,7 +2,7 @@
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { modal, type ModalActions } from '@/types/keys'
-import { defineComponent, inject } from 'vue'
+import { defineComponent, inject, ref } from 'vue'
 
 export default defineComponent({
   name: 'SignUp'
@@ -11,6 +11,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 const { closeModal, openModal } = inject(modal) as ModalActions
+
+const credentials = ref({ email: '', password: '' })
 </script>
 
 <template>
@@ -32,8 +34,8 @@ const { closeModal, openModal } = inject(modal) as ModalActions
       </div>
     </header>
 
-    <InputField name="email" type="email" label="Email" />
-    <InputField name="password" type="password" label="Password" />
+    <InputField name="email" type="email" label="Email" v-model="credentials.email" />
+    <InputField name="password" type="password" label="Password" v-model="credentials.password" />
 
     <BaseButton type="submit" class="bg-primary w-full text-neutral mt-2">Sign In</BaseButton>
 

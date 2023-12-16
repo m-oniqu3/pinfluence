@@ -8,12 +8,16 @@ export default defineComponent({
 
 <script setup lang="ts">
 import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+import PrivateHome from '@/components/pages/PrivateHome.vue'
+import PublicHome from '@/components/pages/PublicHome.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
 </script>
 
 <template>
   <DefaultLayout>
-    <div class="wrapper">
-      <h1 class="text-4xl font-bold">Home</h1>
-    </div>
+    <PrivateHome v-if="auth.isAuth" />
+    <PublicHome v-else />
   </DefaultLayout>
 </template>

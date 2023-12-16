@@ -9,4 +9,10 @@
     .wrapper {
         @apply mx-auto w-[95%];
     }
+
+    .link {
+        @apply px-4 h-12 rounded-full text-black font-medium transition-colors duration-300 ease-in-out flex items-center justify-center;
+    }
+
+
 }

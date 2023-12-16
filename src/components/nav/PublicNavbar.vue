@@ -19,7 +19,7 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
 
       <div class="flex items-center gap-2">
         <BaseButton class="bg-primary text-neutral">Log in</BaseButton>
-        <BaseButton class="bg-gray-100 text-black">Sign up</BaseButton>
+        <BaseButton class="bg-neutral-100 text-black">Sign up</BaseButton>
       </div>
     </nav>
   </BaseNavbar>

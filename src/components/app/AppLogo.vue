@@ -10,7 +10,7 @@ export default defineComponent({
 
 <template>
   <p class="flex gap-2 items-center">
-    <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
+    <span class="fa-brands fa-pinterest fa-xl text-primary"></span>
     <span class="hidden font-bold text-lg text-primary">Pinfluence</span>
   </p>
 </template>

@@ -21,7 +21,7 @@ const props = withDefaults(defineProps<Props>(), {
   required: true
 })
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue', 'validateInput'])
 
 function updateInput(event: Event) {
   const target = event.target as HTMLInputElement
@@ -43,6 +43,7 @@ function updateInput(event: Event) {
       class="border-2 rounded-lg py-2 px-4"
       :value="props.modelValue"
       @input="updateInput"
+      @blur="emit('validateInput', props.name, props.modelValue)"
     />
   </div>
 </template>

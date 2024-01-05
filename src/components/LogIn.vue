@@ -1,6 +1,8 @@
 <script lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
+import { supabase } from '@/lib/supabaseClient'
+import router from '@/router'
 import { modal, type ModalActions } from '@/types/keys'
 import { validateEmail, validatePassword } from '@/utils/validation'
 import { defineComponent, inject, ref } from 'vue'
@@ -16,19 +18,34 @@ const { closeModal, openModal } = inject(modal) as ModalActions
 const credentials = ref({ email: '', password: '' })
 const errors = ref({ isEmailValid: false, isPasswordValid: false })
 
-function validateField(field: string, value: string) {
+function validateField(field: string) {
   switch (field) {
     case 'email':
-      errors.value.isEmailValid = !validateEmail(value)
+      errors.value.isEmailValid = !validateEmail(credentials.value.email)
       break
     case 'password':
-      errors.value.isPasswordValid = !validatePassword(value)
+      errors.value.isPasswordValid = !validatePassword(credentials.value.password)
       break
   }
 }
 
-function submitForm() {
+async function submitForm() {
   console.log('submitting form')
+
+  try {
+    let { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.value.email,
+      password: credentials.value.password
+    })
+    if (error) throw error
+
+    closeModal()
+    // navigate home
+
+    router.push({ name: 'home' })
+  } catch (error) {
+    console.error('error', error)
+  }
 }
 </script>
 
@@ -50,22 +67,22 @@ function submitForm() {
     </header>
 
     <InputField
+      v-model="credentials.email"
       name="email"
       type="email"
       label="Email"
-      v-model="credentials.email"
-      @validate-input="validateField"
+      @blur="validateField('email')"
     />
     <p class="text-sm text-red-500 h-4 mb-4">
       <span v-if="errors.isEmailValid"> Email is invalid. </span>
     </p>
 
     <InputField
+      v-model="credentials.password"
       name="password"
       type="password"
       label="Password"
-      v-model="credentials.password"
-      @validate-input="validateField"
+      @blur="validateField('password')"
     />
 
     <p class="text-sm text-red-500 h-4 mb-4">
@@ -76,7 +93,7 @@ function submitForm() {
       >Log In</BaseButton
     >
 
-    <p class="text-sm text-center">
+    <p class="text-sm text-center mt-4">
       Not on pinterest yet?
       <span class="font-bold cursor-pointer" @click="openModal('sign-up')">Sign up</span>
     </p>

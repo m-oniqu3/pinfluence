@@ -1,3 +1,4 @@
+import { useAuthStore } from '@/stores/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 
@@ -12,7 +13,8 @@ const router = createRouter({
     {
       path: '/create',
       name: 'create',
-      component: () => import('../views/CreateView.vue')
+      component: () => import('../views/CreateView.vue'),
+      meta: { requiresAuth: true }
     },
     {
       path: '/about',
@@ -23,6 +25,18 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     }
   ]
+})
+
+// global navigation guard
+
+router.beforeEach((to, _from, next) => {
+  const auth = useAuthStore()
+
+  if (to.meta.requiresAuth && !auth.isAuth) {
+    next({ name: 'home' })
+  } else {
+    next()
+  }
 })
 
 export default router

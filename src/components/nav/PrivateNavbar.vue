@@ -17,7 +17,7 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
     <nav class="wrapper flex justify-between items-center gap-4">
       <AppLogo />
 
-      <ul class="hidden sm:flex">
+      <ul class="xs:hidden sm:flex">
         <li>
           <router-link to="/" class="link">Home</router-link>
         </li>

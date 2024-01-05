@@ -12,7 +12,8 @@ export default {
       colors: {
         neutral: '#ffffff',
         primary: '#E60023',
-        'neutral-100': 'rgba(51, 51, 51, 0.1)'
+        'neutral-100': 'rgba(51, 51, 51, 0.1)',
+        'neutral-200': '#E9E9E9'
       }
     }
   },

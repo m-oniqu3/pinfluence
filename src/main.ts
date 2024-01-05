@@ -13,11 +13,13 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import {
   faChevronDown,
+  faCircleArrowUp,
   faCircleUser,
   faMagnifyingGlass,
+  faPen,
   faXmark
 } from '@fortawesome/free-solid-svg-icons'
-library.add(faMagnifyingGlass, faChevronDown, faCircleUser, faXmark)
+library.add(faMagnifyingGlass, faChevronDown, faCircleUser, faXmark, faCircleArrowUp, faPen)
 
 const app = createApp(App)
 

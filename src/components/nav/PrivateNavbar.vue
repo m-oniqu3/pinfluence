@@ -19,10 +19,10 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
 
       <ul class="xs:hidden sm:flex">
         <li>
-          <router-link to="/" class="link">Home</router-link>
+          <router-link to="/" class="btn text-black">Home</router-link>
         </li>
         <li>
-          <router-link to="/create" class="link">Create</router-link>
+          <router-link to="/create" class="btn text-black">Create</router-link>
         </li>
       </ul>
 
@@ -37,7 +37,7 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
 </template>
 
 <style scoped lang="css">
-.link.router-link-active {
+.btn.router-link-active {
   background-color: black;
   color: white;
 }

@@ -18,6 +18,8 @@ const loading = ref(false)
 
 const isProfileUpdated = ref(false)
 const originalProfileDetails = ref({})
+
+// use store info here and init it in onmount
 const profileDetails = ref({
   firstName: '',
   lastName: '',
@@ -58,6 +60,7 @@ onMounted(() => {
     })
 })
 
+// use computed instead of watch
 watchEffect(() => {
   isProfileUpdated.value =
     JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
@@ -98,6 +101,7 @@ async function updateProfile() {
 
     if (error) throw error
 
+    // get profile to update store
     //TODO: Show success message
   } catch (error: any) {
     console.error(error, error.message)

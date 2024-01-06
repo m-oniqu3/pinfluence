@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppNavbar from '@/components/app/AppNavbar.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import type { User } from '@/types/auth'
@@ -28,7 +29,11 @@ onMounted(() => {
 
 <template>
   <p v-if="isLoading">Loading...</p>
-  <RouterView v-else />
+
+  <template v-else>
+    <AppNavbar />
+    <RouterView />
+  </template>
 </template>
 
 <style scoped></style>

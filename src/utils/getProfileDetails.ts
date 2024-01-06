@@ -16,6 +16,7 @@ export async function getProfileDetails() {
 
     if (error) throw error
 
+    // save to store instead of returning
     return data as ProfileData
   } catch (error: any) {
     console.error(error, error.message)

@@ -47,7 +47,7 @@ onMounted(() => {
         avatar_url: data.avatar_url,
         username: data.username,
         about: data.about,
-        full_name: data.full_name.split(' ')[0]
+        full_name: data.full_name
       })
     })
     .then(() => {

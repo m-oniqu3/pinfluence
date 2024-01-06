@@ -43,6 +43,7 @@ async function submitForm() {
     // navigate home
 
     router.push({ name: 'home' })
+    // call get profile details here
   } catch (error) {
     console.error('error', error)
   }

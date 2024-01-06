@@ -6,39 +6,35 @@ export default defineComponent({
 })
 </script>
 
-<script setup lang="ts">
-import DefaultLayout from '@/components/layout/DefaultLayout.vue'
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <DefaultLayout>
-    <div class="wrapper mt-4 md:grid md:grid-cols-[25%,1fr] md:gap-4">
-      <aside class="h-14 flex items-start md:h-full">
-        <ul class="flex gap-6 items-center md:flex-col md:items-start">
-          <li>
-            <router-link to="/settings/profile">Profile</router-link>
-          </li>
-          <li>
-            <router-link to="/settings/account">Account Management</router-link>
-          </li>
+  <div class="wrapper mt-4 md:grid md:grid-cols-[25%,1fr] md:gap-4">
+    <aside class="h-14 flex items-start md:h-full">
+      <ul class="flex gap-6 items-center md:flex-col md:items-start">
+        <li>
+          <router-link to="/settings/profile">Profile</router-link>
+        </li>
+        <li>
+          <router-link to="/settings/account">Account Management</router-link>
+        </li>
 
-          <li>
-            <router-link to="/settings/notifications">Notifications</router-link>
-          </li>
+        <li>
+          <router-link to="/settings/notifications">Notifications</router-link>
+        </li>
 
-          <li>
-            <router-link to="/settings/privacy">Privacy</router-link>
-          </li>
+        <li>
+          <router-link to="/settings/privacy">Privacy</router-link>
+        </li>
 
-          <li>
-            <router-link to="/settings/billing">Profile Visibility</router-link>
-          </li>
-        </ul>
-      </aside>
+        <li>
+          <router-link to="/settings/billing">Profile Visibility</router-link>
+        </li>
+      </ul>
+    </aside>
 
-      <router-view />
-    </div>
-  </DefaultLayout>
+    <router-view />
+  </div>
 </template>
 
 <style scoped>

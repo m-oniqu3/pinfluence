@@ -28,6 +28,8 @@ import AppLogo from '@/components/app/AppLogo.vue'
       voluptate, mollitia exercitationem.
     </p>
 
-    <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
+    <router-link to="/settings/profile">
+      <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
+    </router-link>
   </header>
 </template>

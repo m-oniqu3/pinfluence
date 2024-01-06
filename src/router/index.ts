@@ -29,6 +29,29 @@ const router = createRouter({
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/account',
+      name: 'account',
+      component: () => import('../views/AccountView.vue')
+    },
+    {
+      path: '/settings',
+      name: 'settings',
+      redirect: { name: 'settings.profile' },
+      component: () => import('../views/SettingsView.vue'),
+      children: [
+        {
+          path: 'profile',
+          name: 'settings.profile',
+          component: () => import('@/components/settings/ProfileSettings.vue')
+        },
+        {
+          path: 'account',
+          name: 'settings.account',
+          component: () => import('@/components/settings/AccountSettings.vue')
+        }
+      ]
     }
   ]
 })

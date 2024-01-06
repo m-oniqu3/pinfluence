@@ -19,6 +19,7 @@ onMounted(() => {
         email: session.user.email as string,
         id: session.user.id
       }
+
       auth.setUser(user)
     }
     isLoading.value = false

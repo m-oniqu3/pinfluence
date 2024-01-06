@@ -13,7 +13,7 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
 import { useAuthStore } from '@/stores/auth'
 
 const auth = useAuthStore()
-const user = auth.user?.id as string
+const user = auth.user?.email.split('@')[0] as string
 </script>
 
 <template>

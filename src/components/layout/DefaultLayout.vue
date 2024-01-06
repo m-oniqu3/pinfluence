@@ -17,7 +17,7 @@ console.log(auth.isAuth)
 </script>
 
 <template>
-  <AppLayout class="">
+  <AppLayout>
     <PrivateNavbar v-if="auth.isAuth" />
     <PublicNavbar v-else />
 

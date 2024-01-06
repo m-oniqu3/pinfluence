@@ -27,7 +27,7 @@ provide(modal, { openModal, closeModal })
 <template>
   <BaseNavbar>
     <nav class="wrapper flex justify-between items-center">
-      <AppLogo />
+      <AppLogo class="fa-xl" />
 
       <div class="flex items-center gap-2">
         <BaseButton class="bg-primary text-neutral" @click="openModal('log-in')">Log in</BaseButton>
@@ -44,4 +44,3 @@ provide(modal, { openModal, closeModal })
     </KeepAlive>
   </AppModal>
 </template>
-@/types/keys

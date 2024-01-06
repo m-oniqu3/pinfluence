@@ -10,12 +10,16 @@ export default defineComponent({
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import BaseNavbar from '@/components/nav/BaseNavbar.vue'
+import { useAuthStore } from '@/stores/auth'
+
+const auth = useAuthStore()
+const user = auth.user?.id as string
 </script>
 
 <template>
   <BaseNavbar>
     <nav class="wrapper flex justify-between items-center gap-4">
-      <AppLogo />
+      <AppLogo class="fa-xl" />
 
       <ul class="xs:hidden sm:flex">
         <li>
@@ -29,7 +33,9 @@ import BaseNavbar from '@/components/nav/BaseNavbar.vue'
       <SearchBar class="w-[60%] md:w-10/12" />
 
       <div class="flex gap-3 items-center">
-        <font-awesome-icon icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
+        <router-link :to="user">
+          <font-awesome-icon icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
+        </router-link>
         <font-awesome-icon icon="fa-solid fa-chevron-down" class="fa-lg text-gray-600" />
       </div>
     </nav>

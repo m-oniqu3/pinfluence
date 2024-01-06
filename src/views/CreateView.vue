@@ -55,9 +55,7 @@ const changeImage = () => {
     <header class="h-20 border-y-[1px] border-gray-300 flex items-center">
       <div class="wrapper flex items-center justify-between">
         <h2 class="text-xl font-semibold">Create Pin</h2>
-        <BaseButton type="submit" class="bg-primary text-neutral btn" id="submit"
-          >Publish</BaseButton
-        >
+        <BaseButton type="submit" class="bg-primary text-neutral">Publish</BaseButton>
       </div>
     </header>
 
@@ -123,9 +121,5 @@ const changeImage = () => {
 <style scoped>
 #file {
   display: none;
-}
-
-#submit {
-  border-radius: 9999px;
 }
 </style>

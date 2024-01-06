@@ -113,6 +113,7 @@ async function submitForm() {
       class="bg-primary w-full text-neutral mt-2"
       :disabled="isLoading"
       @click="submitForm"
+      id="submit"
     >
       {{ isLoading ? 'Loading...' : 'Sign Up' }}
     </BaseButton>
@@ -130,3 +131,9 @@ async function submitForm() {
     </div>
   </form>
 </template>
+
+<style scoped>
+#submit {
+  border-radius: 0.5rem; /* 8px */
+}
+</style>

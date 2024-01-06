@@ -89,7 +89,11 @@ async function submitForm() {
       <span v-if="errors.isPasswordValid"> Password must be at least 8 characters. </span>
     </p>
 
-    <BaseButton @click="submitForm" type="submit" class="bg-primary w-full text-neutral mt-2"
+    <BaseButton
+      @click="submitForm"
+      type="submit"
+      class="bg-primary w-full text-neutral mt-2"
+      id="submit"
       >Log In</BaseButton
     >
 
@@ -99,4 +103,9 @@ async function submitForm() {
     </p>
   </form>
 </template>
-@/types/keys
+
+<style scoped>
+#submit {
+  border-radius: 0.5rem; /* 8px */
+}
+</style>

@@ -13,7 +13,6 @@ onMounted(() => {
     isLoading.value = true
 
     if (session && session.user) {
-      console.log(session.user)
       const user: User = {
         aud: session.user.aud,
         email: session.user.email as string,

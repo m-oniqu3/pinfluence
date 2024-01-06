@@ -5,11 +5,7 @@ import HomeView from '../views/HomeView.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView
-    },
+    { path: '/', name: 'home', component: HomeView },
     {
       path: '/create',
       name: 'create',
@@ -30,16 +26,13 @@ const router = createRouter({
       component: () => import('../views/ProfileView.vue'),
       meta: { requiresAuth: true }
     },
-    {
-      path: '/account',
-      name: 'account',
-      component: () => import('../views/AccountView.vue')
-    },
+
     {
       path: '/settings',
       name: 'settings',
       redirect: { name: 'settings.profile' },
       component: () => import('../views/SettingsView.vue'),
+      meta: { requiresAuth: true },
       children: [
         {
           path: 'profile',

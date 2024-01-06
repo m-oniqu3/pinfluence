@@ -1,3 +1,11 @@
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'ProfileAvatar'
+})
+</script>
+
 <script setup lang="ts">
 import { supabase } from '@/lib/supabaseClient'
 import { ref, toRefs, watchEffect } from 'vue'
@@ -50,19 +58,19 @@ watchEffect(() => {
 </script>
 
 <template>
-  <div>
+  <form class="flex gap-4 items-center">
     <img
       v-if="src"
       :src="src"
       alt="Avatar"
-      class="avatar image"
-      :style="{ height: size + 'em', width: size + 'em' }"
+      class="h-[7.5rem] w-[7.5rem] object-cover rounded-full"
     />
-    <div v-else class="avatar no-image" :style="{ height: size + 'em', width: size + 'em' }" />
 
-    <div :style="{ width: size + 'em' }">
-      <label class="button primary block" for="single">
-        {{ uploading ? 'Uploading ...' : 'Upload' }}
+    <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-7x text-gray-600" />
+
+    <div>
+      <label class="btn bg-neutral-200 w-fit cursor-pointer" for="single">
+        {{ uploading ? 'Uploading ...' : 'Change' }}
       </label>
       <input
         style="visibility: hidden; position: absolute"
@@ -73,5 +81,5 @@ watchEffect(() => {
         :disabled="uploading"
       />
     </div>
-  </div>
+  </form>
 </template>

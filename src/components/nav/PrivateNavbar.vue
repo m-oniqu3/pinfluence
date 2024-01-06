@@ -10,10 +10,6 @@ export default defineComponent({
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import BaseNavbar from '@/components/nav/BaseNavbar.vue'
-import { useAuthStore } from '@/stores/auth'
-
-const auth = useAuthStore()
-const user = auth.user?.email.split('@')[0] as string
 </script>
 
 <template>
@@ -33,7 +29,7 @@ const user = auth.user?.email.split('@')[0] as string
       <SearchBar class="w-[60%] md:w-10/12" />
 
       <div class="flex gap-3 items-center">
-        <router-link :to="user">
+        <router-link :to="{ name: 'profile' }">
           <font-awesome-icon icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
         </router-link>
         <font-awesome-icon icon="fa-solid fa-chevron-down" class="fa-lg text-gray-600" />

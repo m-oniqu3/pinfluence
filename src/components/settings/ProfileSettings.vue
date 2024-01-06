@@ -4,7 +4,7 @@ import InputField from '@/components/InputField.vue'
 import ProfileAvatar from '@/components/settings/ProfileAvatar.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
-import { computed, defineComponent, onMounted, ref } from 'vue'
+import { computed, defineComponent, onMounted, ref, watchEffect } from 'vue'
 
 export default defineComponent({
   name: 'ProfileSettings'
@@ -15,6 +15,9 @@ export default defineComponent({
 import { getProfileDetails } from '@/utils/getProfileDetails'
 
 const loading = ref(false)
+
+const isProfileUpdated = ref(false)
+const originalProfileDetails = ref({})
 const profileDetails = ref({
   firstName: '',
   lastName: '',
@@ -36,14 +39,16 @@ onMounted(() => {
       if (!data) return
 
       const [firstName, lastName] = data.full_name.split(' ')
-      Object.assign(profileDetails.value, {
+      const res = {
         firstName,
         lastName,
         about: data.about,
         website: data.website,
         username: data.username,
         avatar_url: data.avatar_url
-      })
+      }
+      Object.assign(profileDetails.value, res)
+      Object.assign(originalProfileDetails.value, res)
     })
     .catch((error) => {
       console.error(error)
@@ -53,13 +58,13 @@ onMounted(() => {
     })
 })
 
+watchEffect(() => {
+  isProfileUpdated.value =
+    JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
+})
+
 const isValidForm = computed(() => {
-  return (
-    !errors.value.isFirstNameValid &&
-    !errors.value.isUserNameValid &&
-    profileDetails.value.firstName.length > 0 &&
-    profileDetails.value.username.length > 0
-  )
+  return !errors.value.isFirstNameValid && !errors.value.isUserNameValid && isProfileUpdated.value
 })
 
 function validateField(field: string) {
@@ -92,6 +97,8 @@ async function updateProfile() {
     const { error } = await supabase.from('profiles').upsert(updates)
 
     if (error) throw error
+
+    //TODO: Show success message
   } catch (error: any) {
     console.error(error, error.message)
   } finally {
@@ -101,13 +108,14 @@ async function updateProfile() {
 </script>
 
 <template>
-  <form class="space-y-8 max-w-xl">
+  <p v-if="loading" class="text-center">Loading...</p>
+  <form v-else class="space-y-8 max-w-xl" id="profile-form">
     <header class="mb-4">
       <div class="flex justify-between items-center">
         <h1 class="font-medium text-3xl">Edit profile</h1>
         <BaseButton
           type="submit"
-          class="bg-neutral-200 disabled:opacity-25"
+          class="bg-primary text-white disabled:bg-neutral-200 disabled:text-black"
           :disabled="loading || !isValidForm"
           @click="updateProfile"
         >
@@ -130,7 +138,7 @@ async function updateProfile() {
           label="First name"
           name="firstname"
           type="text"
-          v-model="profileDetails.firstName"
+          v-model.trim="profileDetails.firstName"
           @blur="validateField('firstName')"
         />
         <p class="text-sm text-red-500 h-4 mb-4">
@@ -138,19 +146,24 @@ async function updateProfile() {
         </p>
       </div>
 
-      <InputField label="Last name" name="lastname" type="text" v-model="profileDetails.lastName" />
+      <InputField
+        label="Last name"
+        name="lastname"
+        type="text"
+        v-model.trim="profileDetails.lastName"
+      />
     </div>
 
-    <InputField label="About" name="about" type="textarea" v-model="profileDetails.about" />
+    <InputField label="About" name="about" type="textarea" v-model.trim="profileDetails.about" />
 
-    <InputField label="Website" name="website" type="text" v-model="profileDetails.website" />
+    <InputField label="Website" name="website" type="text" v-model.trim="profileDetails.website" />
 
     <div>
       <InputField
         label="Username"
         name="username"
         type="text"
-        v-model="profileDetails.username"
+        v-model.trim="profileDetails.username"
         @blur="validateField('username')"
       />
       <p class="text-sm text-red-500 h-4 mb-4">

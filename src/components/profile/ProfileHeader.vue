@@ -30,16 +30,10 @@ onMounted(async () => {
   try {
     loading.value = true
 
-    if (!auth.isAuth) {
-      throw new Error('You must be logged in to update your profile.')
-    }
+    if (!auth.isAuth || !profileDetails.value.avatar_url) return
 
-    if (profileDetails.value.avatar_url) {
-      const image = await downloadImage(profileDetails.value.avatar_url)
-      if (image) {
-        profileDetails.value.avatar_url = image
-      }
-    }
+    const image = await downloadImage(profileDetails.value.avatar_url)
+    if (image) profileDetails.value.avatar_url = image
   } catch (error) {
     console.log(error)
   } finally {
@@ -62,7 +56,7 @@ onMounted(async () => {
     </figure>
     <h1 class="font-semibold text-4xl">{{ profileDetails.full_name }}</h1>
     <div class="flex gap-1 items-center text-gray-600">
-      <AppLogo class="fa-1x text-inherit" />
+      <AppLogo class="fa-1x" id="logo" />
       <p class="text-sm lowercase">{{ profileDetails.username }}</p>
     </div>
     <p>
@@ -74,3 +68,10 @@ onMounted(async () => {
     </router-link>
   </header>
 </template>
+
+<style scoped>
+#logo {
+  color: inherit;
+  font-size: large;
+}
+</style>

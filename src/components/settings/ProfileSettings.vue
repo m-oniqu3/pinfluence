@@ -13,6 +13,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+const auth = useAuthStore()
 const userProfile = useProfileStore()
 
 const loading = ref(false)
@@ -26,14 +27,13 @@ const profileDetails = ref({
   avatar_url: userProfile.details?.avatar_url ?? '',
   about: userProfile.details?.about ?? ''
 })
-
-const auth = useAuthStore()
+const originalProfileDetails = ref({ ...profileDetails.value })
 
 const errors = ref({ isFirstNameValid: false, isUserNameValid: false })
 
 // use computed instead of watch
 const isProfileUpdated = computed(() => {
-  return JSON.stringify(userProfile.details) !== JSON.stringify(profileDetails.value)
+  return JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
 })
 
 const isValidForm = computed(() => {

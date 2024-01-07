@@ -3,7 +3,9 @@ import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { supabase } from '@/lib/supabaseClient'
 import router from '@/router'
+import { getProfileDetails } from '@/services/profileServices'
 import { modal, type ModalActions } from '@/types/keys'
+
 import { validateEmail, validatePassword } from '@/utils/validation'
 import { defineComponent, inject, ref } from 'vue'
 
@@ -44,6 +46,7 @@ async function submitForm() {
 
     router.push({ name: 'home' })
     // call get profile details here
+    getProfileDetails()
   } catch (error) {
     console.error('error', error)
   }

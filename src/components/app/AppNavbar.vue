@@ -11,12 +11,39 @@ import BaseButton from '@/components/BaseButton.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import AppModal from '@/components/app/AppModal.vue'
+import { downloadImage } from '@/services/profileServices'
 import { useAuthStore } from '@/stores/auth'
+import { useProfileStore } from '@/stores/profile'
 import type { AuthComponent } from '@/types/keys'
 import { modal } from '@/types/keys'
-import { provide, ref, type Ref } from 'vue'
+import { onMounted, provide, ref, watch, type Ref } from 'vue'
 
 const auth = useAuthStore()
+const profile = useProfileStore()
+const avatar = ref(profile.details?.avatar_url)
+
+async function updateAvatar(url: string) {
+  const image = await downloadImage(url)
+  if (image) {
+    avatar.value = image
+  }
+}
+
+onMounted(async () => {
+  if (avatar.value && auth.isAuth) {
+    await updateAvatar(avatar.value)
+  }
+})
+
+watch(
+  () => profile.details?.avatar_url,
+  async (newAvatarUrl) => {
+    console.log('newAvatarUrl', newAvatarUrl)
+    if (newAvatarUrl && auth.isAuth) {
+      await updateAvatar(newAvatarUrl)
+    }
+  }
+)
 
 const selectedComponent: Ref<AuthComponent | null> = ref(null)
 
@@ -50,9 +77,15 @@ provide(modal, { openModal, closeModal })
 
         <SearchBar class="w-[60%] md:w-10/12" />
 
-        <div class="flex gap-3 items-center">
+        <div class="flex gap-3 items-center min-w-max">
           <router-link :to="{ name: 'profile' }">
-            <font-awesome-icon icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
+            <img
+              v-if="avatar"
+              :src="avatar"
+              alt="avatar"
+              class="w-12 h-12 object-cover rounded-full border-2 border-gray-300"
+            />
+            <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
           </router-link>
           <font-awesome-icon icon="fa-solid fa-chevron-down" class="fa-lg text-gray-600" />
         </div>

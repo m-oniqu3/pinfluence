@@ -17,9 +17,20 @@ import {
   faCircleUser,
   faMagnifyingGlass,
   faPen,
+  faPlus,
+  faSliders,
   faXmark
 } from '@fortawesome/free-solid-svg-icons'
-library.add(faMagnifyingGlass, faChevronDown, faCircleUser, faXmark, faCircleArrowUp, faPen)
+library.add(
+  faMagnifyingGlass,
+  faChevronDown,
+  faCircleUser,
+  faXmark,
+  faCircleArrowUp,
+  faPen,
+  faPlus,
+  faSliders
+)
 
 const app = createApp(App)
 

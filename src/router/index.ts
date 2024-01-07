@@ -24,7 +24,20 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
-      meta: { requiresAuth: true }
+      meta: { requiresAuth: true },
+      redirect: { name: 'profile.created' },
+      children: [
+        {
+          path: 'created',
+          name: 'profile.created',
+          component: () => import('@/components/pins/CreatedPins.vue')
+        },
+        {
+          path: 'saved',
+          name: 'profile.saved',
+          component: () => import('@/components/pins/SavedPins.vue')
+        }
+      ]
     },
 
     {

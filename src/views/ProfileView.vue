@@ -13,7 +13,7 @@ import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 
 <template>
   <ProfileHeader />
-  <ProfileBody class="wrapper" />
+  <ProfileBody />
 </template>
 
 <style scoped></style>

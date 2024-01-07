@@ -13,10 +13,10 @@ export default defineComponent({
     <aside class="h-14 flex items-start md:h-full">
       <ul class="flex gap-6 items-center md:flex-col md:items-start">
         <li>
-          <router-link to="/settings/profile">Profile</router-link>
+          <router-link :to="{ name: 'settings.profile' }">Profile</router-link>
         </li>
         <li>
-          <router-link to="/settings/account">Account Management</router-link>
+          <router-link :to="{ name: 'settings.account' }">Account Management</router-link>
         </li>
 
         <li>

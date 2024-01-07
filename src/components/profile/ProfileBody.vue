@@ -2,12 +2,12 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'BaseNavbar'
+  name: 'ProfileBody'
 })
 </script>
 
+<script setup lang="ts"></script>
+
 <template>
-  <header class="h-20 flex justify-center items-center">
-    <slot />
-  </header>
+  <p>ProfileBody</p>
 </template>

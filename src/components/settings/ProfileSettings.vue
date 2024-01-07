@@ -4,7 +4,8 @@ import InputField from '@/components/InputField.vue'
 import ProfileAvatar from '@/components/settings/ProfileAvatar.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
-import { computed, defineComponent, onMounted, ref, watchEffect } from 'vue'
+import { useProfileStore } from '@/stores/profile'
+import { computed, defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'ProfileSettings'
@@ -12,55 +13,27 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { getProfileDetails } from '@/utils/getProfileDetails'
+const auth = useAuthStore()
+const userProfile = useProfileStore()
 
 const loading = ref(false)
 
-const isProfileUpdated = ref(false)
-const originalProfileDetails = ref({})
+// use store info here and init it in onmount
 const profileDetails = ref({
-  firstName: '',
-  lastName: '',
-  about: '',
-  website: '',
-  username: '',
-  avatar_url: ''
+  firstName: userProfile.details?.firstName ?? '',
+  lastName: userProfile.details?.lastName ?? '',
+  username: userProfile.details?.username ?? '',
+  website: userProfile.details?.website ?? '',
+  avatar_url: userProfile.details?.avatar_url ?? '',
+  about: userProfile.details?.about ?? ''
 })
-
-const auth = useAuthStore()
+const originalProfileDetails = ref({ ...profileDetails.value })
 
 const errors = ref({ isFirstNameValid: false, isUserNameValid: false })
 
-onMounted(() => {
-  loading.value = true
-
-  getProfileDetails()
-    .then((data) => {
-      if (!data) return
-
-      const [firstName, lastName] = data.full_name.split(' ')
-      const res = {
-        firstName,
-        lastName,
-        about: data.about,
-        website: data.website,
-        username: data.username,
-        avatar_url: data.avatar_url
-      }
-      Object.assign(profileDetails.value, res)
-      Object.assign(originalProfileDetails.value, res)
-    })
-    .catch((error) => {
-      console.error(error)
-    })
-    .finally(() => {
-      loading.value = false
-    })
-})
-
-watchEffect(() => {
-  isProfileUpdated.value =
-    JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
+// use computed instead of watch
+const isProfileUpdated = computed(() => {
+  return JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
 })
 
 const isValidForm = computed(() => {
@@ -98,6 +71,8 @@ async function updateProfile() {
 
     if (error) throw error
 
+    userProfile.setProfile(updates)
+    // get profile to update store
     //TODO: Show success message
   } catch (error: any) {
     console.error(error, error.message)

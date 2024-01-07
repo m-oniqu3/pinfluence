@@ -7,7 +7,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import DefaultLayout from '@/components/layout/DefaultLayout.vue'
 import PrivateHome from '@/components/pages/PrivateHome.vue'
 import PublicHome from '@/components/pages/PublicHome.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -16,8 +15,6 @@ const auth = useAuthStore()
 </script>
 
 <template>
-  <DefaultLayout>
-    <PrivateHome v-if="auth.isAuth" />
-    <PublicHome v-else />
-  </DefaultLayout>
+  <PrivateHome v-if="auth.isAuth" />
+  <PublicHome v-else />
 </template>

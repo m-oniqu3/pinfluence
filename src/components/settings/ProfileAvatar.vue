@@ -8,6 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import { supabase } from '@/lib/supabaseClient'
+import { downloadImage } from '@/services/profileServices'
 import { ref, toRefs, watchEffect } from 'vue'
 
 const prop = defineProps(['path', 'size'])
@@ -17,16 +18,6 @@ const emit = defineEmits(['upload', 'update:path'])
 const uploading = ref(false)
 const src = ref('')
 const files = ref()
-
-const downloadImage = async () => {
-  try {
-    const { data, error } = await supabase.storage.from('avatars').download(path?.value)
-    if (error) throw error
-    src.value = URL.createObjectURL(data)
-  } catch (error: any) {
-    console.error('Error downloading image: ', error.message)
-  }
-}
 
 const uploadAvatar = async (evt: Event) => {
   files.value = (evt.target as HTMLInputElement)?.files
@@ -52,8 +43,13 @@ const uploadAvatar = async (evt: Event) => {
   }
 }
 
-watchEffect(() => {
-  if (path?.value) downloadImage()
+watchEffect(async () => {
+  if (path?.value) {
+    const image = await downloadImage(path?.value)
+    if (image) {
+      src.value = image
+    }
+  }
 })
 </script>
 

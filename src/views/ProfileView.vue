@@ -7,14 +7,13 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import DefaultLayout from '@/components/layout/DefaultLayout.vue'
+import ProfileBody from '@/components/profile/ProfileBody.vue'
 import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 </script>
 
 <template>
-  <DefaultLayout>
-    <ProfileHeader />
-  </DefaultLayout>
+  <ProfileHeader />
+  <ProfileBody class="wrapper" />
 </template>
 
 <style scoped></style>

@@ -93,7 +93,7 @@ provide(modal, { openModal, closeModal })
     </nav>
   </header>
 
-  <AppModal v-if="selectedComponent" :close-modal="closeModal">
+  <AppModal v-if="selectedComponent" @close-modal="closeModal">
     <KeepAlive>
       <component :is="selectedComponent" />
     </KeepAlive>

@@ -7,15 +7,15 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-const props = defineProps<{
-  closeModal: () => null
+const emit = defineEmits<{
+  (event: 'closeModal'): void
 }>()
 </script>
 
 <template>
   <Teleport to="body">
     <div
-      @click="props.closeModal"
+      @click="emit('closeModal')"
       class="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center"
     >
       <div class="wrapper">

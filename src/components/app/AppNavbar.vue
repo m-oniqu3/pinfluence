@@ -83,7 +83,7 @@ provide(modal, { openModal, closeModal })
               v-if="avatar"
               :src="avatar"
               alt="avatar"
-              class="w-12 h-12 object-cover rounded-full border-2 border-gray-300"
+              class="w-8 h-8 object-cover rounded-full border-2 border-gray-600"
             />
             <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
           </router-link>

@@ -9,16 +9,16 @@ export default defineComponent({
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
+import { createBoard } from '@/services/boardServices'
+import { useAuthStore } from '@/stores/auth'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
 }>()
 
-const boardDetails = ref({
-  name: '',
-  secret: false
-})
-
+const auth = useAuthStore()
+const boardDetails = ref({ name: '', secret: false })
+const loading = ref(false)
 const error = ref('')
 
 function validateInput() {
@@ -29,8 +29,24 @@ function validateInput() {
   }
 }
 
-function createBoard() {
-  console.log(boardDetails.value)
+async function submit() {
+  if (!auth.user) return
+
+  try {
+    loading.value = true
+    const { data, error: boardError } = await createBoard({
+      ...boardDetails.value,
+      user_id: auth.user.id
+    })
+
+    if (boardError) throw boardError
+
+    emit('closeModal')
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -38,7 +54,7 @@ function createBoard() {
   <form
     class="bg-neutral relative rounded-lg p-8 w-3/6 space-y-8"
     @click.stop
-    @submit.prevent="createBoard"
+    @submit.prevent="submit"
   >
     <font-awesome-icon
       icon="fa-solid fa-xmark"
@@ -81,7 +97,8 @@ function createBoard() {
       type="submit"
       class="bg-primary text-neutral float-right disabled:bg-neutral-200"
       :disabled="!!error"
-      >Create</BaseButton
     >
+      {{ loading ? 'Creating...' : 'Create' }}
+    </BaseButton>
   </form>
 </template>

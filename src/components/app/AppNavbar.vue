@@ -16,7 +16,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import type { AuthComponent } from '@/types/keys'
 import { modal } from '@/types/keys'
-import { onMounted, provide, ref, watch, type Ref } from 'vue'
+import { computed, onMounted, provide, ref, watch, type Ref } from 'vue'
 
 const auth = useAuthStore()
 const profile = useProfileStore()
@@ -51,6 +51,8 @@ const openModal = (component: AuthComponent) => (selectedComponent.value = compo
 const closeModal = () => (selectedComponent.value = null)
 
 provide(modal, { openModal, closeModal })
+
+const isModalOpen = computed(() => selectedComponent.value !== null)
 </script>
 
 <template>
@@ -93,9 +95,11 @@ provide(modal, { openModal, closeModal })
     </nav>
   </header>
 
-  <AppModal v-if="selectedComponent" @close-modal="closeModal">
+  <AppModal @close-modal="closeModal" :open="isModalOpen">
     <KeepAlive>
-      <component :is="selectedComponent" />
+      <Transition name="fade" mode="out-in">
+        <component :is="selectedComponent" />
+      </Transition>
     </KeepAlive>
   </AppModal>
 </template>
@@ -104,5 +108,15 @@ provide(modal, { openModal, closeModal })
 .btn.router-link-active {
   background-color: black;
   color: white;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0.5;
 }
 </style>

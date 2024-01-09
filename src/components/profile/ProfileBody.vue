@@ -7,21 +7,26 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import CreateBoard from '@/components/CreateBoard.vue'
 import AppMenu from '@/components/app/AppMenu.vue'
+import AppModal from '@/components/app/AppModal.vue'
 import MenuItem from '@/components/menu/MenuItem.vue'
 import MenuOption from '@/components/menu/MenuOption.vue'
 
 const isMenuOpen = ref(false)
+const isBoardModalOpen = ref(false)
 
 const openMenu = () => (isMenuOpen.value = true)
-
 const closeMenu = () => (isMenuOpen.value = false)
 const positions = ref({ x: 0, y: 0 })
+const activeOption = ref(0)
+
+const openBoardModal = () => (isBoardModalOpen.value = true)
+const closeBoardModal = () => (isBoardModalOpen.value = false)
 
 function getPosition(event: MouseEvent) {
   // Get mouse coordinates
   const { clientX, clientY } = event
-
   positions.value = { x: clientX, y: clientY }
 }
 </script>
@@ -67,24 +72,40 @@ function getPosition(event: MouseEvent) {
         <span class="text-xs pb-1">Create</span>
       </template>
 
-      <ul class="w-[10.5rem]" id="content">
-        <MenuItem>
+      <ul class="w-[10.5rem]" id="content" @click="closeMenu">
+        <MenuItem :id="0" :activeOption="activeOption" @enter="activeOption = 0">
           <router-link :to="{ name: 'create' }">Pin</router-link>
         </MenuItem>
 
-        <MenuItem><p>Board</p></MenuItem>
+        <MenuItem
+          :id="1"
+          :activeOption="activeOption"
+          @enter="activeOption = 1"
+          @click="openBoardModal"
+        >
+          Board
+        </MenuItem>
       </ul>
     </MenuOption>
   </AppMenu>
+
+  <AppModal @close-modal="closeBoardModal" :open="isBoardModalOpen">
+    <CreateBoard @close-modal="closeBoardModal" />
+  </AppModal>
 </template>
 
 <style scoped>
-a {
+nav a {
   font-weight: 600;
   padding: 0.3rem 0;
 }
 
-a.router-link-active {
+nav a.router-link-active {
   border-bottom: 3px solid;
+}
+
+#content,
+#content * {
+  font-weight: 600;
 }
 </style>

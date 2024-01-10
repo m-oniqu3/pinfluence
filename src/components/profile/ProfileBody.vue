@@ -36,7 +36,7 @@ function getPosition(event: MouseEvent) {
     <nav class="h-32">
       <ul class="flex justify-center items-center gap-8 h-1/2 text-base">
         <li>
-          <router-link :to="{ name: 'profile.created' }">Created </router-link>
+          <router-link :to="{ name: 'profile.created' }">Created</router-link>
         </li>
         <li>
           <router-link :to="{ name: 'profile.saved' }">Saved</router-link>

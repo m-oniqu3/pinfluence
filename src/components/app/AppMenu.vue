@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, defineEmits, onMounted, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'AppMenu'
@@ -7,6 +7,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import { defineEmits, onMounted, onUnmounted, ref } from 'vue'
+
 const props = defineProps<{
   positions: { x: number; y: number }
 }>()
@@ -32,13 +34,15 @@ function positionMenu(resize = false) {
 // get menu width to calculate position
 onMounted(() => {
   positionMenu()
+
+  window.addEventListener('resize', () => {
+    positionMenu(true)
+  })
 })
 
-window.addEventListener('resize', () => {
-  positionMenu(true)
+onUnmounted(() => {
+  window.removeEventListener('resize', () => positionMenu(true))
 })
-
-window.removeEventListener('resize', () => positionMenu(true))
 </script>
 
 <template>

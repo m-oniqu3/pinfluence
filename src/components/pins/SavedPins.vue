@@ -6,8 +6,17 @@ export default defineComponent({
 })
 </script>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useBoardStore } from '@/stores/board'
+
+const userBoards = useBoardStore()
+</script>
 
 <template>
-  <p>SavedPins</p>
+  <ul>
+    <h2>Boards</h2>
+    <li v-for="board in userBoards.boards" :key="board.id">
+      {{ board.name }}
+    </li>
+  </ul>
 </template>

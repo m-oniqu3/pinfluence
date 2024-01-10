@@ -3,6 +3,7 @@ import AppNavbar from '@/components/app/AppNavbar.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { updateProfile } from '@/services/profileServices'
 import { useAuthStore } from '@/stores/auth'
+import { useBoardStore } from '@/stores/board'
 import { useProfileStore } from '@/stores/profile'
 import type { User } from '@/types/auth'
 
@@ -11,6 +12,7 @@ import { RouterView } from 'vue-router'
 
 const auth = useAuthStore()
 const profile = useProfileStore()
+const boards = useBoardStore()
 const isLoading = ref(true)
 
 onMounted(() => {
@@ -34,6 +36,11 @@ onMounted(() => {
     if (auth.isAuth && !profile.details) {
       isLoading.value = true
       updateProfile().finally(() => (isLoading.value = false))
+    }
+
+    if (auth.isAuth && !boards.boards) {
+      isLoading.value = true
+      boards.getBoards().finally(() => (isLoading.value = false))
     }
   })
 

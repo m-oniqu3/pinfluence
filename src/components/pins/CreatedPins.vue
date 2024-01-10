@@ -9,5 +9,5 @@ export default defineComponent({
 <script setup lang="ts"></script>
 
 <template>
-  <p>CreatedPins</p>
+  <p>created pins</p>
 </template>

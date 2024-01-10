@@ -5,3 +5,9 @@ export interface Board {
   created_at: string
   secret: boolean
 }
+
+export interface NewBoard {
+  name: string
+  description?: string
+  secret: boolean
+}

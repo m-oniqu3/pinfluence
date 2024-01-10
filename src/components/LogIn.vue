@@ -3,7 +3,8 @@ import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { supabase } from '@/lib/supabaseClient'
 import router from '@/router'
-import { getProfileDetails } from '@/services/profileServices'
+import { useProfileStore } from '@/stores/profile'
+
 import { modal, type ModalActions } from '@/types/keys'
 
 import { validateEmail, validatePassword } from '@/utils/validation'
@@ -15,6 +16,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+const profileStore = useProfileStore()
 const { closeModal, openModal } = inject(modal) as ModalActions
 
 const credentials = ref({ email: '', password: '' })
@@ -46,7 +48,7 @@ async function submitForm() {
 
     router.push({ name: 'home' })
     // call get profile details here
-    getProfileDetails()
+    await profileStore.getProfileDetails()
   } catch (error) {
     console.error('error', error)
   }

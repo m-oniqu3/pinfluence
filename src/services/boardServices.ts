@@ -8,13 +8,13 @@ type BoardData = {
   secret: boolean
   user_id: string
 }
-export async function createBoard(boardData: BoardData) {
+async function createBoard(boardData: BoardData) {
   const { data, error } = await supabase.from('boards').insert(boardData).single()
 
   return { data, error }
 }
 
-export async function getBoards() {
+async function getBoards() {
   const board = useBoardStore()
   const auth = useAuthStore()
   try {

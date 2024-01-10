@@ -3,7 +3,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useProfileStore } from '@/stores/profile'
 import type { ProfileData } from '@/types/profile'
 
-export async function getProfileDetails() {
+async function getProfileDetails() {
   const profile = useProfileStore()
   try {
     const auth = useAuthStore()
@@ -25,7 +25,7 @@ export async function getProfileDetails() {
   }
 }
 
-export const updateProfile = async () => {
+const updateProfile = async () => {
   console.log('update profile')
   const profile = useProfileStore()
   const auth = useAuthStore()

@@ -27,6 +27,7 @@ const profileDetails = ref({
   avatar_url: userProfile.details?.avatar_url ?? '',
   about: userProfile.details?.about ?? ''
 })
+
 const originalProfileDetails = ref({ ...profileDetails.value })
 
 const errors = ref({ isFirstNameValid: false, isUserNameValid: false })

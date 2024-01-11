@@ -8,7 +8,8 @@ export default defineComponent({
 
 <script setup lang="ts">
 import PhotoPin from '@/components/PhotoPin.vue'
-import { type PexelsPhoto } from '@/composables/usePexel'
+import type { PexelsPhoto } from '@/types/pexels'
+
 import { defineProps } from 'vue'
 
 const props = defineProps<{
@@ -17,7 +18,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+  <ul class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-8">
     <li v-for="photo in props.photos" :key="photo.id" class="break-inside-avoid">
       <PhotoPin :photo="photo" />
     </li>

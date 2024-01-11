@@ -7,7 +7,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import type { PexelsPhoto } from '@/composables/usePexel'
+import type { PexelsPhoto } from '@/types/pexels'
 import { defineProps } from 'vue'
 const props = defineProps<{
   photo: PexelsPhoto
@@ -20,13 +20,15 @@ function loadImage(event: Event) {
 </script>
 
 <template>
-  <img
-    :src="props.photo.src.original"
-    :alt="props.photo.alt"
-    class="rounded-2xl h-full w-full mb-8 object-cover"
-    :style="{ backgroundColor: photo.avg_color, minHeight: '300px' }"
-    @load="loadImage"
-  />
+  <router-link :to="{ name: 'pin-details', params: { id: props.photo.id } }">
+    <img
+      :src="props.photo.src.original"
+      :alt="props.photo.alt"
+      class="rounded-2xl h-full w-full mb-8 object-cover"
+      :style="{ backgroundColor: photo.avg_color, minHeight: '300px' }"
+      @load="loadImage"
+    />
+  </router-link>
 </template>
 
 <style scoped>

@@ -64,6 +64,11 @@ const router = createRouter({
       path: '/search/pins/:query',
       name: 'search',
       component: SearchView
+    },
+    {
+      path: '/pin/:id',
+      name: 'pin-details',
+      component: () => import('../views/PinDetailsView.vue')
     }
   ]
 })

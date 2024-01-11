@@ -1,7 +1,7 @@
-import type { PexelsPhoto, PexelsResponse } from '@/composables/usePexel'
 import { ref, type Ref } from 'vue'
 
 import pexelsClient from '@/lib/pexelsClient'
+import type { PexelsPhoto, PexelsResponse } from '@/types/pexels'
 
 export function useSearchPexels() {
   const photos: Ref<PexelsPhoto[]> = ref([])
@@ -13,7 +13,8 @@ export function useSearchPexels() {
       const response = (await pexelsClient.photos.search({
         query: value,
         per_page: 25,
-        page: 1
+        page: 1,
+        size: 'medium'
       })) as unknown as PexelsResponse
 
       if (response && 'photos' in response) {

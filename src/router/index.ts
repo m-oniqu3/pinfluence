@@ -1,6 +1,7 @@
 import { useAuthStore } from '@/stores/auth'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import SearchView from '../views/SearchView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -58,6 +59,11 @@ const router = createRouter({
           component: () => import('@/components/settings/AccountSettings.vue')
         }
       ]
+    },
+    {
+      path: '/search/pins/:query',
+      name: 'search',
+      component: SearchView
     }
   ]
 })

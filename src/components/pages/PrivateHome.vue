@@ -10,9 +10,8 @@ export default defineComponent({
 import InfiniteScroll from '@/components/InfiniteScroll.vue'
 import PhotoList from '@/components/PhotoList.vue'
 import { usePexels } from '@/composables/usePexel'
-import { ref } from 'vue'
 
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 
 const { fetchfirstBatchOfPhotos, loadMorePhotos, photos, isLoading } = usePexels()
 const page = ref(2)
@@ -26,7 +25,8 @@ onMounted(() => {
 <template>
   <div class="wrapper">
     <InfiniteScroll :isLoading="isLoading" @load-more="loadMorePhotos(page++)">
-      <PhotoList :photos="photos" />
+      <p v-if="isLoading" class="text-center">Loading...</p>
+      <PhotoList v-else :photos="photos" />
     </InfiniteScroll>
   </div>
 </template>

@@ -11,12 +11,12 @@ const observerElement = ref<HTMLDivElement>(document.getElementById('obs') as HT
 const observer = new IntersectionObserver(handleIntersection, {
   root: null,
   rootMargin: '0px',
-  threshold: 0.7
+  threshold: 0.2
 })
 
 function handleIntersection(entries: IntersectionObserverEntry[]) {
   entries.forEach((entry) => {
-    if (entry.isIntersecting) {
+    if (entry.isIntersecting && !props.isLoading) {
       emit('load-more')
     }
   })
@@ -31,7 +31,7 @@ onMounted(() => {
 <template>
   <div>
     <slot></slot>
-    <p v-if="props.isLoading" class="text-center">Loading...</p>
+
     <div ref="observerElement" id="obs" class="h-1"></div>
   </div>
 </template>

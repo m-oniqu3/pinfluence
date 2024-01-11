@@ -38,7 +38,7 @@ onMounted(async () => {
 
   <template v-else>
     <AppNavbar />
-    <RouterView />
+    <RouterView class="mt-24" />
   </template>
 </template>
 

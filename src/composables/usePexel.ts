@@ -24,7 +24,7 @@ export type PexelsPhoto = {
   alt: string
 }
 
-type PexelsResponse = {
+export type PexelsResponse = {
   page: number
   per_page: number
   photos: PexelsPhoto[]

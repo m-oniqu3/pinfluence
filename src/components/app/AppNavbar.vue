@@ -56,7 +56,7 @@ const isModalOpen = computed(() => selectedComponent.value !== null)
 </script>
 
 <template>
-  <header class="h-20 flex justify-center items-center">
+  <header class="h-20 flex justify-center items-center fixed top-0 left-0 right-0 z-50 bg-white">
     <nav class="wrapper flex justify-between items-center gap-4">
       <AppLogo class="fa-xl" />
 

@@ -7,12 +7,9 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import PhotoPin from '@/components/PhotoPin.vue'
 import { type PexelsPhoto } from '@/composables/usePexel'
-
-// const { fetchPhotos, photos, isLoading } = usePexels()
-
-// const observerElement = ref<HTMLDivElement | null>(null)
-// const page = ref(1)
+import { defineProps } from 'vue'
 
 const props = defineProps<{
   photos: PexelsPhoto[]
@@ -20,13 +17,9 @@ const props = defineProps<{
 </script>
 
 <template>
-  <ul class="column-2 sm:columns-3 md:columns-3 lg:columns-4 xl:columns-5 gap-8">
+  <ul class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
     <li v-for="photo in props.photos" :key="photo.id" class="break-inside-avoid">
-      <img
-        :src="photo.src.original"
-        alt="photo.alt"
-        class="rounded-2xl h-auto w-full mx-auto mb-8"
-      />
+      <PhotoPin :photo="photo" />
     </li>
   </ul>
 </template>

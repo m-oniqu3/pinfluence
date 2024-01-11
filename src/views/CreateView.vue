@@ -1,6 +1,7 @@
 <script lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
+import { useBoardStore } from '@/stores/board'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -9,6 +10,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+const boardStore = useBoardStore()
 const pinDetails = ref({
   title: '',
   description: '',
@@ -104,9 +106,10 @@ const changeImage = () => {
           class="border-2 rounded-lg py-2 px-4 bg-inherit"
         >
           <option value="" disabled selected>Choose a board</option>
-          <option value="1">Board 1</option>
-          <option value="2">Board 2</option>
-          <option value="3">Board 3</option>
+          <option v-for="board in boardStore.boards" :key="board.id" :value="board.id">
+            {{ board.name }}
+          </option>
+          <button>Create Board</button>
         </select>
       </div>
 

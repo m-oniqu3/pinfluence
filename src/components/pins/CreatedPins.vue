@@ -13,7 +13,7 @@ const createdPinsStore = useCreatedPinsStore()
 
 <template>
   <section class="wrapper pt-8 pb-12">
-    <ul class="columns-2 sm:columns-3 md:columns-3 lg:columns-4 gap-8">
+    <ul class="columns-2 sm:columns-3 md:columns-3 lg:columns-4 xl:columns-5 gap-8">
       <li v-for="photo in createdPinsStore.sortedPins" :key="photo.id" class="break-inside-avoid">
         <img :src="photo.image_url" alt="pin image" class="rounded-2xl h-full w-full mb-8" />
       </li>

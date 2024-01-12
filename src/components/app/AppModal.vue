@@ -21,11 +21,11 @@ const props = defineProps<{ open: boolean }>()
     <div
       v-if="props.open"
       @click="emit('closeModal')"
-      class="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center"
+      class="bg-black bg-opacity-50 fixed top-0 left-0 w-full h-full flex justify-center items-center z-20"
     />
     <transition name="modal" mode="out-in">
       <div
-        class="wrapper absolute top-0 left-0 w-full h-full flex justify-center items-center"
+        class="wrapper absolute top-0 left-0 w-full h-full flex justify-center items-center z-30"
         v-if="props.open"
         @click="emit('closeModal')"
       >

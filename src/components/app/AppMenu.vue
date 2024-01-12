@@ -20,19 +20,24 @@ const emit = defineEmits<{
 const menuWidth = ref(0)
 const pos = ref({ x: 0, y: 0 })
 
+const menu = ref<HTMLElement | null>(null)
+
 function positionMenu(resize = false) {
-  const menu = document.getElementById('menu') as HTMLElement
-  menuWidth.value = menu.clientWidth
+  if (menu.value) {
+    menuWidth.value = menu.value.offsetWidth
 
-  const xValue = resize
-    ? window.innerWidth - menuWidth.value - 20
-    : props.positions.x - menuWidth.value + 20
+    const xValue = resize
+      ? window.innerWidth - menuWidth.value - 20
+      : props.positions.x - menuWidth.value + 20
 
-  pos.value = { x: xValue, y: props.positions.y + 40 }
+    pos.value = { x: xValue, y: props.positions.y + 40 }
+  }
 }
 
 // get menu width to calculate position
 onMounted(() => {
+  menu.value = document.getElementById('menu') as HTMLElement
+
   positionMenu()
 
   window.addEventListener('resize', () => {
@@ -42,6 +47,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   window.removeEventListener('resize', () => positionMenu(true))
+  menu.value = null
 })
 </script>
 

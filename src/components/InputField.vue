@@ -46,7 +46,7 @@ function updateInput(event: Event) {
       :placeholder="'placeholder' in $attrs ? ($attrs.placeholder as string) : props.label"
       :required="'required' in $attrs ? ($attrs.required as boolean) : true"
       :value="props.modelValue"
-      class="border-2 rounded-lg py-2 px-4"
+      class="border-2 rounded-lg py-2 px-4 m-0"
     />
   </div>
 </template>

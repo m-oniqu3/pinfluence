@@ -2,6 +2,7 @@
 import AppNavbar from '@/components/app/AppNavbar.vue'
 import { useAuthStore } from '@/stores/auth'
 import { useBoardStore } from '@/stores/board'
+import { useCreatedPinsStore } from '@/stores/createdPins'
 import { useProfileStore } from '@/stores/profile'
 
 import { computed, onMounted, watchEffect } from 'vue'
@@ -10,6 +11,7 @@ import { RouterView } from 'vue-router'
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const boardsStore = useBoardStore()
+const createdPinsStore = useCreatedPinsStore()
 
 const isLoading = computed(() => {
   return authStore.isLoading || profileStore.isLoading || boardsStore.isLoading
@@ -27,6 +29,9 @@ onMounted(async () => {
 
       if (!boardsStore.boards) {
         boardsStore.getBoards()
+      }
+      if (!createdPinsStore.createdPins) {
+        createdPinsStore.getCreatedPins()
       }
     }
   })

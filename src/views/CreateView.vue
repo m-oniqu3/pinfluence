@@ -4,6 +4,7 @@ import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
+import { useCreatedPinsStore } from '@/stores/createdPins'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -13,26 +14,103 @@ export default defineComponent({
 
 <script setup lang="ts">
 const auth = useAuthStore()
-const pinDetails = ref({
+const createdPinStore = useCreatedPinsStore()
+const loading = ref(false)
+
+const isSelectBoardModalOpen = ref(false)
+const positions = ref({ x: 0, y: 0 })
+
+const initialPin = {
   imageUrl: '',
   file: new File([], ''),
   title: '',
   description: '',
   link: '',
-  board: { id: '', name: '' },
+  board: { id: null, name: '' },
   tags: []
-})
+}
 
-const loading = ref(false)
+const pinDetails = ref({ ...initialPin })
 
+const adjustBoardModal = (val: boolean) => {
+  isSelectBoardModalOpen.value = val
+}
+
+function getPosition(event: MouseEvent) {
+  positions.value = {
+    x: event.clientX < 350 ? 400 : event.clientX,
+    y: 200
+  }
+}
+
+function handleBoardModal(event: MouseEvent) {
+  getPosition(event)
+  adjustBoardModal(true)
+}
+
+function changeImage() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = 'image/*'
+  input.onchange = updateImage
+
+  input.click()
+}
+
+async function updateImage(event: Event) {
+  const files = (event.target as HTMLInputElement)?.files
+
+  if (!files || files.length === 0) {
+    throw new Error('You must select an image to upload.')
+  }
+
+  const file = files[0]
+  pinDetails.value.file = file
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    pinDetails.value.imageUrl = e.target?.result as string
+  }
+
+  reader.readAsDataURL(file)
+}
+
+// upload image to storage
+async function uploadImage() {
+  if (!auth.user?.id) {
+    throw new Error('You must be logged in to create a pin.')
+  }
+  const { error } = await supabase.storage
+    .from(`created-pins/${auth.user.id}`)
+    .upload(pinDetails.value.file.name, pinDetails.value.file)
+
+  if (error) {
+    console.error('Error uploading image:', error)
+    throw error
+  }
+  console.log('Image uploaded successfully')
+}
+
+// create pin in db and upload image
 async function uploadAll() {
   loading.value = true
   try {
-    await createPin()
+    const data = await createPin()
+    createdPinStore.addPin({
+      id: data?.[0].id,
+      title: data?.[0].name,
+      description: data?.[0].description,
+      link: data?.[0].link,
+      board_id: data?.[0].board_id,
+      image_url: data?.[0].image,
+      tags: data?.[0].tags,
+      created_at: data?.[0].created_at
+    })
   } catch (error) {
     console.error(error)
   } finally {
     loading.value = false
+    pinDetails.value = { ...initialPin }
   }
 }
 
@@ -50,95 +128,16 @@ async function createPin() {
         tags: JSON.stringify(pinDetails.value.tags)
       }
     ])
-    .select()
+    .select('*')
 
   if (error) throw error
 
+  // upload image to storage if pin was created successfully
   if (data) {
     await uploadImage()
   }
-}
 
-async function uploadImage() {
-  if (!auth.user?.id) {
-    throw new Error('You must be logged in to create a pin.')
-  }
-  const { error } = await supabase.storage
-    .from(`created-pins/${auth.user.id}`)
-    .upload(pinDetails.value.file.name, pinDetails.value.file)
-
-  if (error) {
-    console.error('Error uploading image:', error)
-    throw error
-  }
-  console.log('Image uploaded successfully')
-}
-
-const isSelectBoardModalOpen = ref(false)
-const positions = ref({ x: 0, y: 0 })
-
-const openSelectBoardModal = () => {
-  isSelectBoardModalOpen.value = true
-}
-
-const closeSelectBoardModal = () => {
-  isSelectBoardModalOpen.value = false
-}
-
-function getPosition(event: MouseEvent) {
-  //postion right above the input
-  positions.value = {
-    x: event.clientX < 350 ? 400 : event.clientX,
-    y: 200
-  }
-}
-
-function handleBoardModal(event: MouseEvent) {
-  getPosition(event)
-  openSelectBoardModal()
-}
-
-const updateImageURL = async (event: Event) => {
-  const files = (event.target as HTMLInputElement)?.files
-
-  if (!files || files.length === 0) {
-    throw new Error('You must select an image to upload.')
-  }
-
-  const file = files[0]
-
-  pinDetails.value.file = file
-
-  const reader = new FileReader()
-
-  reader.onload = (e) => {
-    pinDetails.value.imageUrl = e.target?.result as string
-  }
-
-  reader.readAsDataURL(file)
-
-  // if (file) {
-  //   // initialize FileReader object to read the file
-  //   const reader = new FileReader()
-
-  //   // when the file is read, store the image data in the imageUrl ref
-  //   reader.onload = (e) => {
-  //     // convert the image data to a string
-  //     pinDetails.value.imageUrl = e.target?.result as string
-  //   }
-
-  //   // read the file as a data URL
-  //   reader.readAsDataURL(file)
-  // }
-}
-
-const changeImage = () => {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = 'image/*'
-  input.onchange = updateImageURL
-
-  input.click()
+  return data
 }
 </script>
 
@@ -146,7 +145,12 @@ const changeImage = () => {
   <header class="h-20 border-y-[1px] border-gray-300 flex items-center">
     <div class="wrapper flex items-center justify-between">
       <h2 class="text-xl font-semibold">Create Pin</h2>
-      <BaseButton type="submit" class="bg-primary text-neutral" @click="uploadAll">
+      <BaseButton
+        v-if="pinDetails.imageUrl"
+        type="submit"
+        class="bg-primary text-neutral"
+        @click="uploadAll"
+      >
         {{ loading ? 'Publishing...' : 'Publish' }}
       </BaseButton>
     </div>
@@ -179,11 +183,14 @@ const changeImage = () => {
           <p>Choose a file to upload</p>
         </span>
 
-        <input type="file" id="file" name="file" accept="image/*" @change="updateImageURL" />
+        <input type="file" id="file" name="file" accept="image/*" @change="updateImage" />
       </label>
     </div>
 
-    <div class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full">
+    <fieldset
+      class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
+      :disabled="loading || !pinDetails.imageUrl"
+    >
       <InputField v-model="pinDetails.title" name="'title" type="text" label="Title" />
       <InputField
         v-model="pinDetails.description"
@@ -209,13 +216,13 @@ const changeImage = () => {
         <BoardList
           :isMenuOpen="isSelectBoardModalOpen"
           :positions="positions"
-          @close-menu="closeSelectBoardModal"
+          @close-menu="adjustBoardModal(false)"
           v-model="pinDetails.board"
         />
       </div>
 
       <InputField v-model="pinDetails.tags" name="tags" type="text" label="Tags" />
-    </div>
+    </fieldset>
   </form>
 </template>
 

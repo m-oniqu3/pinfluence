@@ -7,15 +7,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import PreviewGrid from '@/components/PreviewGrid.vue'
 import { useBoardStore } from '@/stores/board'
 
 const userBoards = useBoardStore()
 </script>
 
 <template>
-  <ul>
-    <h2>Boards</h2>
+  <ul class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
     <li v-for="board in userBoards.boards" :key="board.id">
+      <PreviewGrid :boardId="board.id.toString()" />
       {{ board.name }}
     </li>
   </ul>

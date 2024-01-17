@@ -30,7 +30,7 @@ onMounted(async () => {
       if (!boardsStore.boards) {
         boardsStore.getBoards()
       }
-      if (!createdPinsStore.createdPins) {
+      if (!createdPinsStore.sortedPins) {
         createdPinsStore.getCreatedPins()
       }
     }

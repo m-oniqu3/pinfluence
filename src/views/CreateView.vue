@@ -2,6 +2,7 @@
 import BaseButton from '@/components/BaseButton.vue'
 import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
+import TagsList from '@/components/TagsList.vue'
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import { useCreatedPinsStore } from '@/stores/createdPins'
@@ -13,6 +14,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import { createPin, createTag, type Pin } from '@/services/createPinServices'
+import { computed, watch } from 'vue'
 const auth = useAuthStore()
 const createdPinStore = useCreatedPinsStore()
 const loading = ref(false)
@@ -26,11 +29,43 @@ const initialPin = {
   title: '',
   description: '',
   link: '',
-  board: { id: null, name: '' },
-  tags: []
+  board: { id: null, name: '' }
 }
 
 const pinDetails = ref({ ...initialPin })
+
+async function createNewPin() {
+  loading.value = true
+  try {
+    if (!auth.user) return
+
+    const newPin: Pin = {
+      title: pinDetails.value.title,
+      description: pinDetails.value.description,
+      link: pinDetails.value.link,
+      boardId: pinDetails.value.board.id,
+      userId: auth.user.id,
+      file: pinDetails.value.file as File
+    }
+    const data = await createPin(newPin)
+
+    createdPinStore.addPin({
+      id: data?.[0].id,
+      title: data?.[0].name,
+      description: data?.[0].description,
+      link: data?.[0].link,
+      board_id: data?.[0].board_id,
+      image_url: data?.[0].image,
+      tags: data?.[0].tags,
+      created_at: data?.[0].created_at
+    })
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+    pinDetails.value = { ...initialPin }
+  }
+}
 
 const adjustBoardModal = (val: boolean) => {
   isSelectBoardModalOpen.value = val
@@ -75,69 +110,91 @@ async function updateImage(event: Event) {
   reader.readAsDataURL(file)
 }
 
-// upload image to storage
-async function uploadImage() {
-  if (!auth.user?.id) {
-    throw new Error('You must be logged in to create a pin.')
+const newTag = ref('')
+const shouldShowAddBtn = ref(false)
+const tagsList = ref<{ id: string; name: string }[]>([])
+const isTagsListOpen = ref(false)
+const selectedTagss = ref<{ id: string; name: string }[]>([])
+
+// open tags list when user types
+watch(
+  () => newTag.value,
+  () => {
+    if (newTag.value.length >= 1 && shouldShowAddBtn.value === false) {
+      isTagsListOpen.value = true
+    } else {
+      isTagsListOpen.value = false
+    }
   }
-  const { error } = await supabase.storage
-    .from(`created-pins/${auth.user.id}`)
-    .upload(pinDetails.value.file.name, pinDetails.value.file)
+)
+
+// let shouldShowTags = computed(() => {
+//   return newTag.value.length >= 1 && shouldShowAddBtn.value === false
+// })
+
+function showAddButton(val: boolean) {
+  shouldShowAddBtn.value = val
+}
+
+async function getMatchTags(val: string) {
+  let { data: tags, error } = await supabase
+    .from('tags')
+    .select('id, name')
+    .ilike('name', `%${val}%`)
 
   if (error) {
-    console.error('Error uploading image:', error)
-    throw error
+    return
   }
-  console.log('Image uploaded successfully')
+
+  tagsList.value = tags || []
 }
 
-// create pin in db and upload image
-async function uploadAll() {
-  loading.value = true
-  try {
-    const data = await createPin()
-    createdPinStore.addPin({
-      id: data?.[0].id,
-      title: data?.[0].name,
-      description: data?.[0].description,
-      link: data?.[0].link,
-      board_id: data?.[0].board_id,
-      image_url: data?.[0].image,
-      tags: data?.[0].tags,
-      created_at: data?.[0].created_at
-    })
-  } catch (error) {
-    console.error(error)
-  } finally {
-    loading.value = false
-    pinDetails.value = { ...initialPin }
-  }
-}
+const uniquedSelectedTags = computed(() => {
+  return new Set(selectedTagss.value.map((tag) => tag.id))
+})
 
-async function createPin() {
-  const { data, error } = await supabase
-    .from('created-pins')
-    .insert([
-      {
-        name: pinDetails.value.title,
-        description: pinDetails.value.description,
-        link: pinDetails.value.link,
-        board_id: pinDetails.value.board.id,
-        user_id: auth.user?.id,
-        image: pinDetails.value.file.name,
-        tags: JSON.stringify(pinDetails.value.tags)
+const filteredTagList = computed(() => {
+  return tagsList.value.filter((tag) => {
+    return !uniquedSelectedTags.value.has(tag.id)
+  })
+})
+
+watch(
+  () => filteredTagList.value,
+  () => {
+    if (filteredTagList.value.length === 0) {
+      if (newTag.value.length === 0) return
+      else if (newTag.value.length >= 1) {
+        showAddButton(true)
+        isTagsListOpen.value = false
       }
-    ])
-    .select('*')
+    } else {
+      showAddButton(false)
+    }
+  }
+)
 
-  if (error) throw error
-
-  // upload image to storage if pin was created successfully
-  if (data) {
-    await uploadImage()
+function handleTagsList(event: MouseEvent) {
+  if (filteredTagList.value.length > 0) {
+    isTagsListOpen.value = true
+    shouldShowAddBtn.value = false
+  } else {
+    isTagsListOpen.value = false
   }
 
-  return data
+  positions.value = {
+    x: window.innerWidth < 768 ? (window.innerWidth + 400) / 2 : (window.innerWidth + 650) / 2,
+    y: event.clientY - 300
+  }
+}
+
+async function uploadTag() {
+  const data = await createTag(newTag.value)
+
+  if (data) {
+    selectedTagss.value.push(data[0])
+    newTag.value = ''
+  }
 }
 </script>
 
@@ -149,14 +206,14 @@ async function createPin() {
         v-if="pinDetails.imageUrl"
         type="submit"
         class="bg-primary text-neutral"
-        @click="uploadAll"
+        @click="createNewPin"
       >
         {{ loading ? 'Publishing...' : 'Publish' }}
       </BaseButton>
     </div>
   </header>
 
-  <form class="wrapper py-6 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
+  <form name="form" class="wrapper py-6 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
     <div class="">
       <figure v-if="pinDetails.imageUrl" class="relative mx-auto rounded-3xl w-[20rem]">
         <button
@@ -188,8 +245,8 @@ async function createPin() {
     </div>
 
     <fieldset
+      id="fieldset"
       class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
-      :disabled="loading || !pinDetails.imageUrl"
     >
       <InputField v-model="pinDetails.title" name="'title" type="text" label="Title" />
       <InputField
@@ -221,7 +278,38 @@ async function createPin() {
         />
       </div>
 
-      <InputField v-model="pinDetails.tags" name="tags" type="text" label="Tags" />
+      <div class="relative">
+        <InputField
+          v-model="newTag"
+          name="tags"
+          type="text"
+          label="Tags"
+          placeholder="Search for tags"
+          @click="handleTagsList"
+          @input.prevent="getMatchTags(newTag)"
+        />
+
+        <span
+          v-if="shouldShowAddBtn"
+          class="absolute top-9 right-2 h-6 w-6 grid place-items-center bg-primary rounded-full cursor-pointer"
+          @click="uploadTag"
+        >
+          <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
+        </span>
+
+        <ul v-if="selectedTagss.length">
+          <li v-for="tag in selectedTagss" :key="tag.id">
+            {{ tag.name }}
+          </li>
+        </ul>
+      </div>
+
+      <TagsList
+        :isMenuOpen="isTagsListOpen"
+        :positions="positions"
+        @close-menu="isTagsListOpen = false"
+        :tagsList="filteredTagList"
+      />
     </fieldset>
   </form>
 </template>

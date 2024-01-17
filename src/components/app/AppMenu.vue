@@ -55,7 +55,7 @@ onUnmounted(() => {
   <Teleport to="body">
     <div id="app-menu" @click="emit('closeMenu')" class="fixed top-0 left-0 h-full w-full">
       <div
-        class="absolute shadow-lg rounded-2xl pt-4 pb-1 border-[1px] border-neutral-200 bg-white"
+        class="absolute shadow-lg rounded-2xl border-[1px] border-neutral-200 bg-white"
         :style="`top: ${pos.y}px; left: ${pos.x}px`"
         id="menu"
       >

@@ -1,6 +1,15 @@
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 
+export type Pin = {
+  title: string
+  description: string
+  link: string
+  boardId: string | null
+  file: File
+  userId: string
+}
+
 const auth = useAuthStore()
 
 // upload image to storage
@@ -17,34 +26,6 @@ async function uploadImage(file: File) {
     throw error
   }
   console.log('Image uploaded successfully')
-}
-
-// create pin in db and upload image
-// async function uploadAll() {
-//   try {
-//     const data = await createPin()
-//     createdPinStore.addPin({
-//       id: data?.[0].id,
-//       title: data?.[0].name,
-//       description: data?.[0].description,
-//       link: data?.[0].link,
-//       board_id: data?.[0].board_id,
-//       image_url: data?.[0].image,
-//       tags: data?.[0].tags,
-//       created_at: data?.[0].created_at
-//     })
-//   } catch (error) {
-//     console.error(error)
-//   }
-// }
-
-export type Pin = {
-  title: string
-  description: string
-  link: string
-  boardId: string | null
-  file: File
-  userId: string
 }
 
 export async function createPin(pinDetails: Pin) {

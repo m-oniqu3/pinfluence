@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import { defineStore } from 'pinia'
-import { computed, ref, type Ref } from 'vue'
+import { ref, type Ref } from 'vue'
 
 type CreatedPin = {
   id: string
@@ -19,14 +19,6 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
   const auth = useAuthStore()
   const isLoading = ref(false)
-
-  const sortedPins = computed(() => {
-    if (!createdPins.value) return []
-
-    return createdPins.value.sort((a, b) => {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    })
-  })
 
   function addPin(pin: CreatedPin) {
     if (!createdPins.value) {
@@ -51,7 +43,10 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
       if (!auth.user) return
 
-      const { data, error } = await supabase.from('created-pins').select(`*`)
+      const { data, error } = await supabase
+        .from('created-pins')
+        .select(`*`)
+        .order('created_at', { ascending: false })
 
       if (error) throw error
 
@@ -72,7 +67,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
   }
 
   return {
-    sortedPins,
+    createdPins,
     addPin,
     getCreatedPins,
     isLoading

@@ -1,11 +1,4 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import BoardList from '@/components/BoardList.vue'
-import InputField from '@/components/InputField.vue'
-import TagsList from '@/components/TagsList.vue'
-import { supabase } from '@/lib/supabaseClient'
-import { useAuthStore } from '@/stores/auth'
-import { useCreatedPinsStore } from '@/stores/createdPins'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -14,8 +7,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
+import BoardList from '@/components/BoardList.vue'
+import InputField from '@/components/InputField.vue'
+import TagsList from '@/components/TagsList.vue'
+import { supabase } from '@/lib/supabaseClient'
 import { createPin, createTag, type Pin } from '@/services/createPinServices'
+import { useAuthStore } from '@/stores/auth'
+import { useCreatedPinsStore } from '@/stores/createdPins'
 import { computed, watch } from 'vue'
+
 const auth = useAuthStore()
 const createdPinStore = useCreatedPinsStore()
 const loading = ref(false)
@@ -110,17 +111,44 @@ async function updateImage(event: Event) {
   reader.readAsDataURL(file)
 }
 
-const newTag = ref('')
-const shouldShowAddBtn = ref(false)
-const tagsList = ref<{ id: string; name: string }[]>([])
-const isTagsListOpen = ref(false)
-const selectedTagss = ref<{ id: string; name: string }[]>([])
+// TAGS
 
-// open tags list when user types
+const newTag = ref('')
+const tagsList = ref<{ id: string; name: string }[]>([])
+const selectedTags = ref<{ id: string; name: string }[]>([])
+const isTagsListOpen = ref(false)
+const isLoadingTags = ref(false)
+const tagLabel = computed(() => `Tagged topics (${selectedTags.value.length})`)
+
+// Get tags from the database based on the input value
+async function getMatchTags(val: string) {
+  isLoadingTags.value = true
+  const { data: tags, error } = await supabase
+    .from('tags')
+    .select('id, name')
+    .ilike('name', `%${val}%`)
+
+  if (!error) {
+    tagsList.value = tags || []
+  }
+
+  isLoadingTags.value = false
+}
+
+// Filter tags list to show only tags that are not selected
+const filteredTagList = computed(() => {
+  const selectedTagIds = new Set(selectedTags.value.map((tag) => tag.id))
+  return tagsList.value.filter((tag) => !selectedTagIds.has(tag.id))
+})
+
+// Open tags list when user types and there are tags to show
 watch(
   () => newTag.value,
   () => {
-    if (newTag.value.length >= 1 && shouldShowAddBtn.value === false) {
+    const hasFilteredTags = filteredTagList.value.length > 0
+    const hasInput = newTag.value.trim().length > 0
+
+    if (hasFilteredTags && hasInput) {
       isTagsListOpen.value = true
     } else {
       isTagsListOpen.value = false
@@ -128,72 +156,55 @@ watch(
   }
 )
 
-// let shouldShowTags = computed(() => {
-//   return newTag.value.length >= 1 && shouldShowAddBtn.value === false
-// })
+// Show add button when user types a tag that doesn't exist in the list
+const shouldShowAddBtn = computed(() => {
+  if (filteredTagList.value.length > 0) return false
 
-function showAddButton(val: boolean) {
-  shouldShowAddBtn.value = val
-}
-
-async function getMatchTags(val: string) {
-  let { data: tags, error } = await supabase
-    .from('tags')
-    .select('id, name')
-    .ilike('name', `%${val}%`)
-
-  if (error) {
-    return
-  }
-
-  tagsList.value = tags || []
-}
-
-const uniquedSelectedTags = computed(() => {
-  return new Set(selectedTagss.value.map((tag) => tag.id))
+  const trimmedNewTag = newTag.value.trim().toLowerCase()
+  return (
+    newTag.value.length >= 1 &&
+    !selectedTags.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag) &&
+    !filteredTagList.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag)
+  )
 })
 
-const filteredTagList = computed(() => {
-  return tagsList.value.filter((tag) => {
-    return !uniquedSelectedTags.value.has(tag.id)
-  })
-})
-
-watch(
-  () => filteredTagList.value,
-  () => {
-    if (filteredTagList.value.length === 0) {
-      if (newTag.value.length === 0) return
-      else if (newTag.value.length >= 1) {
-        showAddButton(true)
-        isTagsListOpen.value = false
-      }
-    } else {
-      showAddButton(false)
-    }
-  }
-)
-
-function handleTagsList(event: MouseEvent) {
-  if (filteredTagList.value.length > 0) {
-    isTagsListOpen.value = true
-    shouldShowAddBtn.value = false
-  } else {
-    isTagsListOpen.value = false
-  }
-
-  positions.value = {
-    x: window.innerWidth < 768 ? (window.innerWidth + 400) / 2 : (window.innerWidth + 650) / 2,
-    y: event.clientY - 300
-  }
-}
-
+// Handle adding a new tag
 async function uploadTag() {
-  const data = await createTag(newTag.value)
+  const trimmedNewTag = newTag.value.trim()
+  const data = await createTag(trimmedNewTag)
 
   if (data) {
-    selectedTagss.value.push(data[0])
+    selectedTags.value.push(data[0])
     newTag.value = ''
+  }
+}
+
+// Event handler for selecting a tag
+function selectTag(tag: { id: string; name: string }) {
+  selectedTags.value.push(tag)
+  newTag.value = ''
+}
+
+// Event handler for removing a tag
+function removeTag(id: string) {
+  selectedTags.value = selectedTags.value.filter((tag) => tag.id !== id)
+}
+
+// Function to calculate the position of the tags list
+function calculateTagsListPosition(event: MouseEvent) {
+  const x = window.innerWidth < 768 ? (window.innerWidth + 400) / 2 : (window.innerWidth + 650) / 2
+  const y = event.clientY - 300
+  positions.value = { x, y }
+}
+
+// Event handler for handling the tags list
+function handleTagsList(event: MouseEvent) {
+  calculateTagsListPosition(event)
+
+  if (filteredTagList.value.length > 0 && newTag.value.trim().length > 0) {
+    isTagsListOpen.value = true
+  } else {
+    isTagsListOpen.value = false
   }
 }
 </script>
@@ -213,8 +224,8 @@ async function uploadTag() {
     </div>
   </header>
 
-  <form name="form" class="wrapper py-6 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
-    <div class="">
+  <form name="form" class="wrapper py-8 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
+    <div>
       <figure v-if="pinDetails.imageUrl" class="relative mx-auto rounded-3xl w-[20rem]">
         <button
           type="button"
@@ -245,6 +256,7 @@ async function uploadTag() {
     </div>
 
     <fieldset
+      :disabled="loading || !pinDetails.imageUrl"
       id="fieldset"
       class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
     >
@@ -283,11 +295,12 @@ async function uploadTag() {
           v-model="newTag"
           name="tags"
           type="text"
-          label="Tags"
+          :label="tagLabel"
           placeholder="Search for tags"
           @click="handleTagsList"
-          @input.prevent="getMatchTags(newTag)"
+          @input.prevent="getMatchTags(newTag.trim())"
         />
+        <span class="text-xs pt-1 text-gray-700"> Don't worry, people won't see your tags </span>
 
         <span
           v-if="shouldShowAddBtn"
@@ -297,9 +310,16 @@ async function uploadTag() {
           <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
         </span>
 
-        <ul v-if="selectedTagss.length">
-          <li v-for="tag in selectedTagss" :key="tag.id">
-            {{ tag.name }}
+        <ul v-if="selectedTags.length" class="py-2 flex gap-2 flex-wrap">
+          <li
+            v-for="tag in selectedTags"
+            :key="tag.id"
+            class="bg-black text-white px-4 py-3 flex items-center gap-2 rounded-full"
+          >
+            <span class="font-bold text-base"> {{ tag.name }}</span>
+            <span class="ml-2 cursor-pointer" @click="removeTag(tag.id)">
+              <font-awesome-icon icon="fa-solid fa-times" class="fa-lg" />
+            </span>
           </li>
         </ul>
       </div>
@@ -308,7 +328,9 @@ async function uploadTag() {
         :isMenuOpen="isTagsListOpen"
         :positions="positions"
         @close-menu="isTagsListOpen = false"
+        @add-tag="selectTag"
         :tagsList="filteredTagList"
+        :isLoadingTags="isLoadingTags"
       />
     </fieldset>
   </form>

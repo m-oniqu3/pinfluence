@@ -90,3 +90,20 @@ export async function createTag(tag: string) {
     console.log(error)
   }
 }
+
+export async function createPinTag(tags: { id: string; name: string }[], pinId: string) {
+  const { data, error } = await supabase
+    .from('created-pins-tags')
+    .insert(
+      tags.map((tag) => {
+        return { pin_id: pinId, tag_id: tag.id }
+      })
+    )
+    .select('id')
+
+  if (error) {
+    throw error
+  }
+  console.log('tags created successfully')
+  console.log(data)
+}

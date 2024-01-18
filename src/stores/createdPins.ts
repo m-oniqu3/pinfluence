@@ -59,7 +59,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
         const src = url + '/' + auth.user.id
 
         const updatedData = data.map((pin) => {
-          return { ...pin, image_url: src + '/' + pin.image, tags: JSON.parse(pin.tags) }
+          return { ...pin, image_url: src + '/' + pin.image }
         })
 
         createdPins.value = updatedData

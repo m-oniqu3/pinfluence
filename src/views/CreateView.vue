@@ -12,7 +12,7 @@ import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
 import { supabase } from '@/lib/supabaseClient'
-import { createPin, createTag, type Pin } from '@/services/createPinServices'
+import { createPin, createPinTag, createTag, type Pin } from '@/services/createPinServices'
 import { useAuthStore } from '@/stores/auth'
 import { useCreatedPinsStore } from '@/stores/createdPins'
 import { computed, watch } from 'vue'
@@ -34,31 +34,6 @@ const initialPin = {
 }
 
 const pinDetails = ref({ ...initialPin })
-
-async function createNewPin() {
-  loading.value = true
-  try {
-    if (!auth.user) return
-
-    const newPin: Pin = {
-      ...pinDetails.value,
-      boardId: pinDetails.value.board.id,
-      userId: auth.user.id,
-      file: pinDetails.value.file as File
-    }
-    const data = await createPin(newPin)
-    const result = data[0]
-
-    if (!result) return
-
-    createdPinStore.addPin({ ...result, title: result.name, image_url: result.image })
-  } catch (error) {
-    console.log(error)
-  } finally {
-    loading.value = false
-    pinDetails.value = { ...initialPin }
-  }
-}
 
 const adjustBoardModal = (val: boolean) => {
   isSelectBoardModalOpen.value = val
@@ -161,7 +136,7 @@ const shouldShowAddBtn = computed(() => {
 })
 
 // Handle adding a new tag
-async function uploadTag() {
+async function uploadNewTag() {
   const trimmedNewTag = newTag.value.trim()
   const data = await createTag(trimmedNewTag)
 
@@ -199,6 +174,38 @@ function handleTagsList(event: MouseEvent) {
     isTagsListOpen.value = false
   }
 }
+
+async function createNewPin() {
+  loading.value = true
+  try {
+    if (!auth.user) return
+
+    const newPin: Pin = {
+      ...pinDetails.value,
+      boardId: pinDetails.value.board.id,
+      userId: auth.user.id,
+      file: pinDetails.value.file as File
+    }
+    const data = await createPin(newPin)
+    const result = data[0]
+
+    if (!result) return
+
+    if (selectedTags.value.length > 0) {
+      console.log(selectedTags.value, result.id)
+      await createPinTag(selectedTags.value, result.id)
+    }
+    createdPinStore.addPin({ ...result, title: result.name, image_url: result.image })
+  } catch (error) {
+    console.log(error)
+  } finally {
+    loading.value = false
+    pinDetails.value = { ...initialPin }
+    selectedTags.value = []
+  }
+}
+
+console.log(selectedTags.value)
 </script>
 
 <template>
@@ -296,7 +303,7 @@ function handleTagsList(event: MouseEvent) {
         <span
           v-if="shouldShowAddBtn"
           class="absolute top-9 right-2 h-6 w-6 grid place-items-center bg-primary rounded-full cursor-pointer"
-          @click="uploadTag"
+          @click="uploadNewTag"
         >
           <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
         </span>

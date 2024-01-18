@@ -6,7 +6,11 @@ export function usePexels() {
   const photos: Ref<PexelsPhoto[]> = ref([])
   const isLoading = ref(false)
 
+  console.log(isLoading.value)
+
   async function fetchfirstBatchOfPhotos() {
+    isLoading.value = true
+    console.log('fetching first batch of photos')
     try {
       const response = (await pexelsClient.photos.curated({
         per_page: 25,
@@ -14,7 +18,7 @@ export function usePexels() {
       })) as unknown as PexelsResponse
 
       if (response && 'photos' in response) {
-        photos.value
+        photos.value = response.photos
       }
     } catch (error) {
       console.log(error)

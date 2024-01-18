@@ -10,7 +10,6 @@ type CreatedPin = {
   image_url: string
   created_at: string
   board_id: string | null
-  tags: string[]
   link: string
 }
 
@@ -42,7 +41,6 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
     createdPins.value.push({
       ...pin,
-      tags: JSON.parse(pin.tags as any),
       image_url: src + '/' + pin.image_url
     })
   }
@@ -61,7 +59,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
         const src = url + '/' + auth.user.id
 
         const updatedData = data.map((pin) => {
-          return { ...pin, image_url: src + '/' + pin.image, tags: JSON.parse(pin.tags) }
+          return { ...pin, image_url: src + '/' + pin.image }
         })
 
         createdPins.value = updatedData

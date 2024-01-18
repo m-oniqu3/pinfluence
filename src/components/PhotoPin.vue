@@ -24,7 +24,7 @@ function loadImage(event: Event) {
     <img
       :src="props.photo.src.original"
       :alt="props.photo.alt"
-      class="rounded-2xl h-full w-full mb-8 object-cover"
+      class="rounded-2xl h-full w-full mb-8 object-cover lazyload"
       :style="{ backgroundColor: photo.avg_color, minHeight: '300px' }"
       @load="loadImage"
     />

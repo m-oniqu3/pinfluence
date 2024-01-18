@@ -1,10 +1,4 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import BoardList from '@/components/BoardList.vue'
-import InputField from '@/components/InputField.vue'
-import { supabase } from '@/lib/supabaseClient'
-import { useAuthStore } from '@/stores/auth'
-import { useCreatedPinsStore } from '@/stores/createdPins'
 import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
@@ -13,6 +7,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
+import BoardList from '@/components/BoardList.vue'
+import InputField from '@/components/InputField.vue'
+import TagsList from '@/components/TagsList.vue'
+import { supabase } from '@/lib/supabaseClient'
+import { createPin, createPinTag, createTag, type Pin } from '@/services/createPinServices'
+import { useAuthStore } from '@/stores/auth'
+import { useCreatedPinsStore } from '@/stores/createdPins'
+import { computed, watch } from 'vue'
+
 const auth = useAuthStore()
 const createdPinStore = useCreatedPinsStore()
 const loading = ref(false)
@@ -26,8 +30,7 @@ const initialPin = {
   title: '',
   description: '',
   link: '',
-  board: { id: null, name: '' },
-  tags: []
+  board: { id: null, name: '' }
 }
 
 const pinDetails = ref({ ...initialPin })
@@ -75,70 +78,134 @@ async function updateImage(event: Event) {
   reader.readAsDataURL(file)
 }
 
-// upload image to storage
-async function uploadImage() {
-  if (!auth.user?.id) {
-    throw new Error('You must be logged in to create a pin.')
-  }
-  const { error } = await supabase.storage
-    .from(`created-pins/${auth.user.id}`)
-    .upload(pinDetails.value.file.name, pinDetails.value.file)
+// TAGS
 
-  if (error) {
-    console.error('Error uploading image:', error)
-    throw error
+const newTag = ref('')
+const tagsList = ref<{ id: string; name: string }[]>([])
+const selectedTags = ref<{ id: string; name: string }[]>([])
+const isTagsListOpen = ref(false)
+const isLoadingTags = ref(false)
+const tagLabel = computed(() => `Tagged topics (${selectedTags.value.length})`)
+
+// Get tags from the database based on the input value
+async function getMatchTags(val: string) {
+  isLoadingTags.value = true
+  const { data: tags, error } = await supabase
+    .from('tags')
+    .select('id, name')
+    .ilike('name', `%${val}%`)
+
+  if (!error) {
+    tagsList.value = tags || []
   }
-  console.log('Image uploaded successfully')
+
+  isLoadingTags.value = false
 }
 
-// create pin in db and upload image
-async function uploadAll() {
+// Filter tags list to show only tags that are not selected
+const filteredTagList = computed(() => {
+  const selectedTagIds = new Set(selectedTags.value.map((tag) => tag.id))
+  return tagsList.value.filter((tag) => !selectedTagIds.has(tag.id))
+})
+
+// Open tags list when user types and there are tags to show
+watch(
+  () => newTag.value,
+  () => {
+    const hasFilteredTags = filteredTagList.value.length > 0
+    const hasInput = newTag.value.trim().length > 0
+
+    if (hasFilteredTags && hasInput) {
+      isTagsListOpen.value = true
+    } else {
+      isTagsListOpen.value = false
+    }
+  }
+)
+
+// Show add button when user types a tag that doesn't exist in the list
+const shouldShowAddBtn = computed(() => {
+  if (filteredTagList.value.length > 0) return false
+
+  const trimmedNewTag = newTag.value.trim().toLowerCase()
+  return (
+    newTag.value.length >= 1 &&
+    !selectedTags.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag) &&
+    !filteredTagList.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag)
+  )
+})
+
+// Handle adding a new tag
+async function uploadNewTag() {
+  const trimmedNewTag = newTag.value.trim()
+  const data = await createTag(trimmedNewTag)
+
+  if (data) {
+    selectedTags.value.push(data[0])
+    newTag.value = ''
+  }
+}
+
+// Event handler for selecting a tag
+function selectTag(tag: { id: string; name: string }) {
+  selectedTags.value.push(tag)
+  newTag.value = ''
+}
+
+// Event handler for removing a tag
+function removeTag(id: string) {
+  selectedTags.value = selectedTags.value.filter((tag) => tag.id !== id)
+}
+
+// Function to calculate the position of the tags list
+function calculateTagsListPosition(event: MouseEvent) {
+  const x = window.innerWidth < 768 ? (window.innerWidth + 400) / 2 : (window.innerWidth + 650) / 2
+  const y = event.clientY - 300
+  positions.value = { x, y }
+}
+
+// Event handler for handling the tags list
+function handleTagsList(event: MouseEvent) {
+  calculateTagsListPosition(event)
+
+  if (filteredTagList.value.length > 0 && newTag.value.trim().length > 0) {
+    isTagsListOpen.value = true
+  } else {
+    isTagsListOpen.value = false
+  }
+}
+
+async function createNewPin() {
   loading.value = true
   try {
-    const data = await createPin()
-    createdPinStore.addPin({
-      id: data?.[0].id,
-      title: data?.[0].name,
-      description: data?.[0].description,
-      link: data?.[0].link,
-      board_id: data?.[0].board_id,
-      image_url: data?.[0].image,
-      tags: data?.[0].tags,
-      created_at: data?.[0].created_at
-    })
+    if (!auth.user) return
+
+    const newPin: Pin = {
+      ...pinDetails.value,
+      boardId: pinDetails.value.board.id,
+      userId: auth.user.id,
+      file: pinDetails.value.file as File
+    }
+    const data = await createPin(newPin)
+    const result = data[0]
+
+    if (!result) return
+
+    if (selectedTags.value.length > 0) {
+      console.log(selectedTags.value, result.id)
+      await createPinTag(selectedTags.value, result.id)
+    }
+    createdPinStore.addPin({ ...result, title: result.name, image_url: result.image })
   } catch (error) {
-    console.error(error)
+    console.log(error)
   } finally {
     loading.value = false
     pinDetails.value = { ...initialPin }
+    selectedTags.value = []
   }
 }
 
-async function createPin() {
-  const { data, error } = await supabase
-    .from('created-pins')
-    .insert([
-      {
-        name: pinDetails.value.title,
-        description: pinDetails.value.description,
-        link: pinDetails.value.link,
-        board_id: pinDetails.value.board.id,
-        user_id: auth.user?.id,
-        image: pinDetails.value.file.name,
-        tags: JSON.stringify(pinDetails.value.tags)
-      }
-    ])
-    .select('*')
-
-  if (error) throw error
-
-  // upload image to storage if pin was created successfully
-  if (data) {
-    await uploadImage()
-  }
-
-  return data
-}
+console.log(selectedTags.value)
 </script>
 
 <template>
@@ -149,15 +216,15 @@ async function createPin() {
         v-if="pinDetails.imageUrl"
         type="submit"
         class="bg-primary text-neutral"
-        @click="uploadAll"
+        @click="createNewPin"
       >
         {{ loading ? 'Publishing...' : 'Publish' }}
       </BaseButton>
     </div>
   </header>
 
-  <form class="wrapper py-6 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
-    <div class="">
+  <form name="form" class="wrapper py-8 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
+    <div>
       <figure v-if="pinDetails.imageUrl" class="relative mx-auto rounded-3xl w-[20rem]">
         <button
           type="button"
@@ -188,8 +255,8 @@ async function createPin() {
     </div>
 
     <fieldset
+      id="fieldset"
       class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
-      :disabled="loading || !pinDetails.imageUrl"
     >
       <InputField v-model="pinDetails.title" name="'title" type="text" label="Title" />
       <InputField
@@ -221,7 +288,48 @@ async function createPin() {
         />
       </div>
 
-      <InputField v-model="pinDetails.tags" name="tags" type="text" label="Tags" />
+      <div class="relative">
+        <InputField
+          v-model="newTag"
+          name="tags"
+          type="text"
+          :label="tagLabel"
+          placeholder="Search for tags"
+          @click="handleTagsList"
+          @input.prevent="getMatchTags(newTag.trim())"
+        />
+        <span class="text-xs pt-1 text-gray-700"> Don't worry, people won't see your tags </span>
+
+        <span
+          v-if="shouldShowAddBtn"
+          class="absolute top-9 right-2 h-6 w-6 grid place-items-center bg-primary rounded-full cursor-pointer"
+          @click="uploadNewTag"
+        >
+          <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
+        </span>
+
+        <ul v-if="selectedTags.length" class="py-2 flex gap-2 flex-wrap">
+          <li
+            v-for="tag in selectedTags"
+            :key="tag.id"
+            class="bg-black text-white px-4 py-3 flex items-center gap-2 rounded-full"
+          >
+            <span class="font-bold text-base"> {{ tag.name }}</span>
+            <span class="ml-2 cursor-pointer" @click="removeTag(tag.id)">
+              <font-awesome-icon icon="fa-solid fa-times" class="fa-lg" />
+            </span>
+          </li>
+        </ul>
+      </div>
+
+      <TagsList
+        :isMenuOpen="isTagsListOpen"
+        :positions="positions"
+        @close-menu="isTagsListOpen = false"
+        @add-tag="selectTag"
+        :tagsList="filteredTagList"
+        :isLoadingTags="isLoadingTags"
+      />
     </fieldset>
   </form>
 </template>

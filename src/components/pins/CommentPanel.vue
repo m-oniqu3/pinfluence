@@ -71,10 +71,53 @@ const comments = ref([
     date: '2024-03-06'
   }
 ])
-
-console.log(comments)
 </script>
 
 <template>
-  <div class="class-name"></div>
+  <article class="overflow-y-scroll h-80 pb-6">
+    <header class="flex justify-between items-center p-6">
+      <h2 class="text-base font-bold">Comments</h2>
+    </header>
+    <ul class="px-6">
+      <li v-for="comment in comments" :key="comment.id" id="comment-wrapper">
+        <img
+          id="comment-avatar"
+          :src="`https://i.pravatar.cc/80?u=${comment.id}`"
+          :alt="`${comment.userName.firstName} ${comment.userName.lastName}`"
+          class="w-8 h-8 object-cover rounded-full"
+        />
+
+        <p id="comment-details">
+          <span class="font-semibold pr-2">
+            {{ comment.userName.firstName }} {{ comment.userName.lastName }}</span
+          >
+          <span>{{ comment.comment }}</span>
+        </p>
+
+        <p id="comment-actions" class="text-gray-500 w-36">
+          {{ new Date(comment.date).toDateString() }}
+        </p>
+      </li>
+    </ul>
+  </article>
 </template>
+
+<style scoped>
+#comment-wrapper {
+  margin-bottom: 1rem;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 0.5rem;
+  row-gap: 0.2rem;
+}
+
+#comment-avatar {
+  grid-row: 1 / 3;
+}
+
+#comment-actions {
+  display: flex;
+  gap: 1rem;
+}
+</style>

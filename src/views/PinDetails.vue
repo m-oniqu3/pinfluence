@@ -8,6 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import CommentPanel from '@/components/pins/CommentPanel.vue'
 import { fetchExtraPinDetails, getPinDetails } from '@/services/createPinServices'
 import type { Owner } from '@/types/owner'
 import { type PinDetails } from '@/types/pin'
@@ -64,7 +65,7 @@ onMounted(async () => {
       <img :src="pin.image" :alt="pin.name" class="rounded-t-[2rem]" />
     </figure>
 
-    <article>
+    <article class="space-y-2">
       <header class="px-6 py-8 space-y-2">
         <div class="flex justify-between items-center h-20">
           <p>Share</p>
@@ -100,6 +101,9 @@ onMounted(async () => {
           <BaseButton class="bg-neutral-100">Follow</BaseButton>
         </div>
       </header>
+
+      <CommentPanel />
+
       <form name="comment-form" class="px-6 pb-4 border-t-[1px]">
         <header class="py-6">
           <h2 class="text-xl font-semibold">1 Comment</h2>

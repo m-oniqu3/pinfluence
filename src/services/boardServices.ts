@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import { useBoardStore } from '@/stores/board'
-import type { Board } from '@/types/board'
+import type { Board, BoardInfo } from '@/types/board'
 
 type BoardData = {
   name: string
@@ -31,4 +31,15 @@ async function getBoards() {
   } catch (error) {
     console.log(error)
   }
+}
+
+export async function getBoardById(id: string | null) {
+  // if no id, early return
+  if (!id) return null
+
+  const { data, error } = await supabase.from('boards').select('id, name').eq('id', id).single()
+
+  if (error) throw error
+
+  return data as BoardInfo
 }

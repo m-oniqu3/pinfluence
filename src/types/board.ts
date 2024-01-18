@@ -11,3 +11,8 @@ export interface NewBoard {
   description?: string
   secret: boolean
 }
+
+export interface BoardInfo {
+  id: string
+  name: string
+}

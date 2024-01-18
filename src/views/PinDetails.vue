@@ -8,7 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
-import { getOwnerDetails, getPinDetails } from '@/services/createPinServices'
+import { fetchExtraPinDetails, getPinDetails } from '@/services/createPinServices'
 import type { Owner } from '@/types/owner'
 import { type PinDetails } from '@/types/pin'
 import { capitalizeSentence } from '@/utils/capitalize'
@@ -19,17 +19,22 @@ const route = useRoute()
 const pinId = route.params.id as string | undefined
 
 const pin: Ref<PinDetails | null> = ref(null)
-const owner: Ref<Owner | null> = ref(null)
+const owner = ref<Owner | null>(null)
+const board = ref('')
 const isLoading = ref(false)
 
 onMounted(async () => {
   if (pinId) {
+    isLoading.value = true
     const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
     const pinDetails = await getPinDetails(+pinId as number)
 
     if (!pinDetails) return
 
-    const ownerDetails = await getOwnerDetails(pinDetails.user_id)
+    const { ownerDetails, boardDetails } = await fetchExtraPinDetails(
+      pinDetails.user_id,
+      pinDetails.board_id
+    )
 
     if (!ownerDetails) return
 
@@ -42,13 +47,17 @@ onMounted(async () => {
       ...ownerDetails,
       avatar_url: `${url}/avatars/${ownerDetails.avatar_url}`
     }
+
+    if (boardDetails) board.value = boardDetails.name
+
+    isLoading.value = false
   }
 })
 </script>
 
 <template>
   <p v-if="isLoading">Loading...</p>
-  <p v-else-if="pin === null || owner === null">No pin details found</p>
+  <p v-else-if="!pin || !owner">No pin details found</p>
 
   <section v-else class="wrapper rounded-3xl border-[1px] border-gray-50 shadow-md sm:w-2/3 mb-8">
     <figure>
@@ -61,7 +70,7 @@ onMounted(async () => {
           <p>Share</p>
 
           <div class="flex gap-4 items-center">
-            <p>Board Name</p>
+            <p>{{ board }}</p>
             <BaseButton class="bg-primary text-neutral">Save</BaseButton>
           </div>
         </div>

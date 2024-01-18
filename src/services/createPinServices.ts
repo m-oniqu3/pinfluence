@@ -1,5 +1,7 @@
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
+import type { Owner } from '@/types/owner'
+import type { PinDetails } from '@/types/pin'
 
 export type Pin = {
   title: string
@@ -87,4 +89,32 @@ export async function createPinTag(tags: { id: string; name: string }[], pinId: 
   }
   console.log('tags created successfully')
   console.log(data)
+}
+
+export async function getPinDetails(id: number) {
+  try {
+    const { data, error } = await supabase.from('created-pins').select('*').eq('id', id).single()
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data as PinDetails
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+export async function getOwnerDetails(id: string) {
+  try {
+    const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single()
+
+    if (error) {
+      throw new Error(error.message)
+    }
+
+    return data as Owner
+  } catch (error) {
+    console.error(error)
+  }
 }

@@ -1,6 +1,4 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import { supabase } from '@/lib/supabaseClient'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -9,73 +7,41 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { type Pin } from '@/types/pin'
+import BaseButton from '@/components/BaseButton.vue'
+import { getOwnerDetails, getPinDetails } from '@/services/createPinServices'
+import type { Owner } from '@/types/owner'
+import { type PinDetails } from '@/types/pin'
 import { capitalizeSentence } from '@/utils/capitalize'
 import { onMounted, ref, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
-type Owner = {
-  id: string
-  avatar_url: string
-  full_name: string
-}
-
 const route = useRoute()
 const pinId = route.params.id as string | undefined
 
-const pin: Ref<Pin | null> = ref(null)
+const pin: Ref<PinDetails | null> = ref(null)
 const owner: Ref<Owner | null> = ref(null)
 const isLoading = ref(false)
 
-async function getPinDetails(id: number) {
-  try {
-    isLoading.value = true
-    const { data, error } = await supabase.from('created-pins').select('*').eq('id', id).single()
-
-    if (error) {
-      throw new Error(error.message)
-    }
-
-    const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
-
-    const details = data as Pin
-
-    pin.value = {
-      ...details,
-      image: `${url}/created-pins/${details.user_id}/${details.image}`
-    }
-
-    await getOwnerDetails(details.user_id)
-  } catch (error) {
-    console.error(error)
-  } finally {
-    isLoading.value = false
-  }
-}
-
-async function getOwnerDetails(id: string) {
-  try {
-    const { data, error } = await supabase.from('profiles').select('*').eq('id', id).single()
-
-    if (error) {
-      throw new Error(error.message)
-    }
-    const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
-
-    const details = data as Owner
-
-    owner.value = {
-      ...details,
-      avatar_url: `${url}/avatars/${details.avatar_url}`
-    }
-  } catch (error) {
-    console.error(error)
-  }
-}
-
 onMounted(async () => {
   if (pinId) {
-    await getPinDetails(+pinId as number)
+    const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
+    const pinDetails = await getPinDetails(+pinId as number)
+
+    if (!pinDetails) return
+
+    const ownerDetails = await getOwnerDetails(pinDetails.user_id)
+
+    if (!ownerDetails) return
+
+    pin.value = {
+      ...pinDetails,
+      image: `${url}/created-pins/${pinDetails.user_id}/${pinDetails.image}`
+    }
+
+    owner.value = {
+      ...ownerDetails,
+      avatar_url: `${url}/avatars/${ownerDetails.avatar_url}`
+    }
   }
 })
 </script>

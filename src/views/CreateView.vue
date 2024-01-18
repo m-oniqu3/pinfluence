@@ -41,25 +41,17 @@ async function createNewPin() {
     if (!auth.user) return
 
     const newPin: Pin = {
-      title: pinDetails.value.title,
-      description: pinDetails.value.description,
-      link: pinDetails.value.link,
+      ...pinDetails.value,
       boardId: pinDetails.value.board.id,
       userId: auth.user.id,
       file: pinDetails.value.file as File
     }
     const data = await createPin(newPin)
+    const result = data[0]
 
-    createdPinStore.addPin({
-      id: data?.[0].id,
-      title: data?.[0].name,
-      description: data?.[0].description,
-      link: data?.[0].link,
-      board_id: data?.[0].board_id,
-      image_url: data?.[0].image,
-      tags: data?.[0].tags,
-      created_at: data?.[0].created_at
-    })
+    if (!result) return
+
+    createdPinStore.addPin({ ...result, title: result.name, image_url: result.image })
   } catch (error) {
     console.log(error)
   } finally {
@@ -256,7 +248,6 @@ function handleTagsList(event: MouseEvent) {
     </div>
 
     <fieldset
-      :disabled="loading || !pinDetails.imageUrl"
       id="fieldset"
       class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
     >

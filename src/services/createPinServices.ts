@@ -57,8 +57,7 @@ export async function createPin(pinDetails: Pin) {
         link: pinDetails.link,
         board_id: pinDetails.boardId,
         user_id: pinDetails.userId,
-        image: pinDetails.file.name,
-        tags: JSON.stringify({})
+        image: pinDetails.file.name
       }
     ])
     .select('*')

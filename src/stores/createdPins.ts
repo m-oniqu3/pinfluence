@@ -29,7 +29,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
       return
     }
 
-    const src = url + '/' + auth.user.id
+    const src = url + '/created-pins/' + auth.user.id
 
     createdPins.value.push({
       ...pin,
@@ -51,7 +51,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
       if (error) throw error
 
       if (data) {
-        const src = url + '/' + auth.user.id
+        const src = url + '/created-pins/' + auth.user.id
 
         const updatedData = data.map((pin) => {
           return { ...pin, image_url: src + '/' + pin.image }

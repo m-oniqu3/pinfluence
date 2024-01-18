@@ -28,7 +28,7 @@ onMounted(async () => {
       <li v-for="pin in createdPinsStore.createdPins" :key="pin.id" class="break-inside-avoid">
         <PinPreview
           :details="{
-            id: pin.id,
+            id: +pin.id,
             url: pin.image_url,
             title: pin.title,
             board_id: pin.board_id

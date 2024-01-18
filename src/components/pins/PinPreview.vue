@@ -28,7 +28,7 @@ onMounted(() => {
 <template>
   <router-link :to="{ name: 'pin-details', params: { id: props.details.id } }">
     <figure class="relative">
-      <figcaption class="absolute flex justify-between items-center w-full p-4">
+      <figcaption class="absolute flex justify-between items-center w-full p-4" v-if="boardName">
         <h1 class="text-white font-medium truncate">{{ boardName }}</h1>
         <BaseButton class="bg-primary text-white">Save</BaseButton>
       </figcaption>

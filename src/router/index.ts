@@ -68,7 +68,7 @@ const router = createRouter({
     {
       path: '/pin/:id',
       name: 'pin-details',
-      component: () => import('../views/PinDetailsView.vue')
+      component: () => import('../views/PinDetails.vue')
     }
   ]
 })

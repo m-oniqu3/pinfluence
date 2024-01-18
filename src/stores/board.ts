@@ -7,10 +7,25 @@ import { ref, type Ref } from 'vue'
 export const useBoardStore = defineStore('board', () => {
   const auth = useAuthStore()
   const boards: Ref<Board[] | null> = ref(null)
+  const boardKeys: Ref<{ [key: string]: string } | null> = ref(null)
+
   const isLoading = ref(false)
 
   function setBoards(data: Board[]) {
     boards.value = data
+  }
+
+  function addBoardKey(id: string, name: string) {
+    if (!boardKeys.value) {
+      boardKeys.value = {}
+    }
+
+    boardKeys.value[id] = name
+  }
+
+  function addBoard(board: Board) {
+    boards.value?.push(board)
+    addBoardKey(board.id, board.name)
   }
 
   async function createBoard(boardData: NewBoard) {
@@ -25,7 +40,11 @@ export const useBoardStore = defineStore('board', () => {
       if (error) throw error
 
       if (data[0].id) {
-        await getBoards()
+        const { data: board, error: boardError } = await supabase.from('boards').select('*')
+
+        if (boardError) throw boardError
+
+        addBoard(board[0] as Board)
       }
     } catch (error) {
       console.log(error)
@@ -45,6 +64,10 @@ export const useBoardStore = defineStore('board', () => {
       if (error) throw error
 
       boards.value = data as Board[]
+
+      boards.value.forEach((board) => {
+        addBoardKey(board.id, board.name)
+      })
     } catch (error) {
       console.log(error)
     } finally {
@@ -57,6 +80,7 @@ export const useBoardStore = defineStore('board', () => {
     isLoading,
     setBoards,
     createBoard,
-    getBoards
+    getBoards,
+    boardKeys
   }
 })

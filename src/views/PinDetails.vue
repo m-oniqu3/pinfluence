@@ -40,10 +40,11 @@ onMounted(async () => {
 
     if (!ownerDetails) return
 
-    pin.value = {
-      ...pinDetails,
-      image: `${url}/created-pins/${pinDetails.user_id}/${pinDetails.image}`
-    }
+    const pinUrl = pinDetails.image.startsWith('http')
+      ? pinDetails.image
+      : `${url}/created-pins/${pinDetails.user_id}/${pinDetails.image}`
+
+    pin.value = { ...pinDetails, image: pinUrl }
 
     owner.value = {
       ...ownerDetails,

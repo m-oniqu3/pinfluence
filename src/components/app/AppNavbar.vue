@@ -75,6 +75,10 @@ const isModalOpen = computed(() => selectedComponent.value !== null)
           <li>
             <router-link to="/create" class="btn text-black">Create</router-link>
           </li>
+
+          <li>
+            <router-link to="/about" class="btn text-black">About</router-link>
+          </li>
         </ul>
 
         <SearchBar class="w-[60%] md:w-10/12" />

@@ -41,20 +41,36 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
     try {
       isLoading.value = true
 
-      if (!auth.user) return
+      // Ensure that auth.user is not null before proceeding
+      if (!auth.user) {
+        return
+      }
 
       const { data, error } = await supabase
         .from('created-pins')
         .select(`*`)
         .order('created_at', { ascending: false })
+        .eq('user_id', auth.user.id)
 
-      if (error) throw error
+      if (error) {
+        throw error
+      }
 
       if (data) {
-        const src = url + '/created-pins/' + auth.user.id
-
         const updatedData = data.map((pin) => {
-          return { ...pin, image_url: src + '/' + pin.image }
+          let imageUrl
+
+          // Check if the image is from Pexels
+          if (pin.image.startsWith('https://images.pexels.com')) {
+            // If it's from Pexels, use the existing Pexels image URL
+            imageUrl = pin.image
+          } else {
+            // If it's user-uploaded, construct the URL using user ID and image name
+            const src = url + '/created-pins/' + auth.user?.id
+            imageUrl = src + '/' + pin.image
+          }
+
+          return { ...pin, image_url: imageUrl }
         })
 
         createdPins.value = updatedData

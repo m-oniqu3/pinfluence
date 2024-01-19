@@ -22,6 +22,7 @@ onMounted(async () => {
 
 <template>
   <p v-if="createdPinsStore.isLoading">Loading...</p>
+
   <p v-else-if="!createdPinsStore.createdPins">No pins found</p>
   <section class="wrapper pt-8 pb-12" v-else>
     <ul class="columns-2 sm:columns-3 md:columns-3 lg:columns-4 xl:columns-5 gap-8">

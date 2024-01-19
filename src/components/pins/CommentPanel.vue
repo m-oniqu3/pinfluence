@@ -74,7 +74,7 @@ const comments = ref([
 </script>
 
 <template>
-  <article class="overflow-y-scroll h-80 pb-6">
+  <article class="pb-6">
     <header class="flex justify-between items-center p-6">
       <h2 class="text-base font-bold">Comments</h2>
     </header>

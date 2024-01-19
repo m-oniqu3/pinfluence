@@ -1,4 +1,5 @@
 <script lang="ts">
+import CreatedPins from '@/components/pins/CreatedPins.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -60,22 +61,31 @@ onMounted(async () => {
   <p v-if="isLoading">Loading...</p>
   <p v-else-if="!pin || !owner">No pin details found</p>
 
-  <section v-else class="wrapper rounded-3xl border-[1px] border-gray-50 shadow-md sm:w-2/3 mb-8">
-    <figure>
-      <img :src="pin.image" :alt="pin.name" class="rounded-t-[2rem]" />
+  <section
+    v-else
+    class="wrapper rounded-[2rem] border-[1px] border-gray-50 shadow-md sm:w-2/3 mb-8 lg:grid lg:grid-cols-2 lg:w-10/12 xl:max-w-5xl relative"
+  >
+    <figure class="w-full">
+      <img
+        :src="pin.image"
+        :alt="pin.name"
+        class="rounded-t-[2rem] w-full lg:rounded-t-none lg:rounded-s-[2rem] lg:h-full lg:object-cover"
+      />
     </figure>
 
-    <article class="space-y-2">
-      <header class="px-6 py-8 space-y-2">
-        <div class="flex justify-between items-center h-20">
-          <p>Share</p>
+    <section class="space-y-2 w-full">
+      <header
+        class="bg-white flex justify-between items-center h-20 px-6 lg:sticky lg:top-20 lg:z-[1]"
+      >
+        <p>Share</p>
 
-          <div class="flex gap-4 items-center">
-            <p>{{ board }}</p>
-            <BaseButton class="bg-primary text-neutral">Save</BaseButton>
-          </div>
+        <div class="flex gap-4 items-center">
+          <p>{{ board }}</p>
+          <BaseButton class="bg-primary text-neutral">Save</BaseButton>
         </div>
+      </header>
 
+      <article class="px-6 py-8 space-y-2 overflow-scroll h-[700px]">
         <router-link v-if="pin.link" :to="pin.link" class="underline">
           {{ pin.link.split('/')[2] }}
         </router-link>
@@ -100,11 +110,13 @@ onMounted(async () => {
 
           <BaseButton class="bg-neutral-100">Follow</BaseButton>
         </div>
-      </header>
+        <CommentPanel />
+      </article>
 
-      <CommentPanel />
-
-      <form name="comment-form" class="px-6 pb-4 border-t-[1px]">
+      <form
+        name="comment-form"
+        class="bg-white px-6 border-t-[1px] lg:w-full lg:rounded-b-[2rem] lg:sticky h-44 lg:bottom-0 lg:z-[1]"
+      >
         <header class="py-6">
           <h2 class="text-xl font-semibold">1 Comment</h2>
         </header>
@@ -125,6 +137,8 @@ onMounted(async () => {
           />
         </fieldset>
       </form>
-    </article>
+    </section>
   </section>
+
+  <CreatedPins class="" />
 </template>

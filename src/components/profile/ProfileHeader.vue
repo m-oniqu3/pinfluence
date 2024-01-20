@@ -46,7 +46,7 @@ onMounted(async () => {
 <template>
   <p v-if="loading">Loading... ></p>
 
-  <header v-else class="wrapper flex flex-col gap-2 items-center text-center mt-4 max-w-sm">
+  <header v-else class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
     <figure>
       <img
         v-if="profileDetails.avatar_url"

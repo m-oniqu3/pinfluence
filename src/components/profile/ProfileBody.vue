@@ -29,9 +29,9 @@ function getPosition(event: MouseEvent) {
 </script>
 
 <template>
-  <header class="wrapper my-4">
-    <nav class="h-32">
-      <ul class="flex justify-center items-center gap-8 h-1/2 text-base">
+  <header class="bg-white sticky top-20 z-[1]">
+    <nav class="h-24 wrapper">
+      <ul class="flex justify-center items-center gap-8 h-full text-base">
         <li>
           <router-link :to="{ name: 'profile.created' }">Created</router-link>
         </li>
@@ -39,30 +39,28 @@ function getPosition(event: MouseEvent) {
           <router-link :to="{ name: 'profile.saved' }">Saved</router-link>
         </li>
       </ul>
-
-      <ul class="h-1/2 flex justify-between items-center">
-        <li
-          class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
-        >
-          <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
-        </li>
-        <li
-          class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
-          :class="isMenuOpen ? 'bg-black rounded-full' : ''"
-          @click="openMenu"
-          @click.prevent="getPosition"
-        >
-          <font-awesome-icon
-            icon="fa-solid fa-plus"
-            class="fa-lg"
-            :class="isMenuOpen ? 'text-white' : ''"
-          />
-        </li>
-      </ul>
     </nav>
   </header>
 
-  <router-view class="wrapper" />
+  <ul class="wrapper h-16 flex justify-between items-center">
+    <li class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
+      <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
+    </li>
+    <li
+      class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
+      :class="isMenuOpen ? 'bg-black rounded-full' : ''"
+      @click="openMenu"
+      @click.prevent="getPosition"
+    >
+      <font-awesome-icon
+        icon="fa-solid fa-plus"
+        class="fa-lg"
+        :class="isMenuOpen ? 'text-white' : ''"
+      />
+    </li>
+  </ul>
+
+  <router-view class="wrapper"> </router-view>
 
   <ProfileMenu
     :positions="positions"

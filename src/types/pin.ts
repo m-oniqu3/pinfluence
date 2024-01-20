@@ -6,7 +6,7 @@ export type PinPreview = {
 }
 
 export type PinDetails = {
-  id: string
+  id: number
   name: string
   image: string
   description: string
@@ -14,4 +14,14 @@ export type PinDetails = {
   board_id: string | null
   user_id: string
   created_at: string
+}
+
+export type CreatedPin = {
+  id: number
+  title: string
+  description: string
+  image_url: string
+  created_at: string
+  board_id: string | null
+  link: string
 }

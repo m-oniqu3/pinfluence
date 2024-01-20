@@ -8,7 +8,7 @@ export async function populateCreatedPins() {
   try {
     const response = (await pexelsClient.photos.curated({
       per_page: 35,
-      page: 1
+      page: 3
     })) as unknown as PexelsResponse
 
     if (!response.photos) {

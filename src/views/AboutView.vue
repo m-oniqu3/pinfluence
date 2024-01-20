@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// import { populateCreatedPins } from '@/scripts/populateCreatedPins'
 import { onMounted } from 'vue'
 
 onMounted(async () => {

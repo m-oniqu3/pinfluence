@@ -2,7 +2,8 @@
 import { defineEmits, defineProps, onMounted, ref } from 'vue'
 
 const props = defineProps<{
-  isLoading: boolean
+  isLoadingIntial: boolean
+  isLoadingMore: boolean
 }>()
 
 const emit = defineEmits(['load-more'])
@@ -16,7 +17,7 @@ const observer = new IntersectionObserver(handleIntersection, {
 
 function handleIntersection(entries: IntersectionObserverEntry[]) {
   entries.forEach((entry) => {
-    if (entry.isIntersecting && !props.isLoading) {
+    if (entry.isIntersecting && (!props.isLoadingMore || !props.isLoadingIntial)) {
       emit('load-more')
     }
   })
@@ -32,6 +33,8 @@ onMounted(() => {
   <div>
     <slot></slot>
 
-    <div ref="observerElement" id="obs" class="h-1"></div>
+    <div ref="observerElement" id="obs" class="h-1">
+      <p v-if="props.isLoadingMore && !props.isLoadingIntial" class="text-center">Loading...</p>
+    </div>
   </div>
 </template>

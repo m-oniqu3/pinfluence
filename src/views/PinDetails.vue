@@ -1,5 +1,4 @@
 <script lang="ts">
-import CreatedPins from '@/components/pins/CreatedPins.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -29,7 +28,7 @@ onMounted(async () => {
   if (pinId) {
     isLoading.value = true
     const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
-    const pinDetails = await getPinDetails(+pinId as number)
+    const pinDetails = await getPinDetails(+pinId)
 
     if (!pinDetails) return
 
@@ -140,6 +139,4 @@ onMounted(async () => {
       </form>
     </section>
   </section>
-
-  <CreatedPins class="" />
 </template>

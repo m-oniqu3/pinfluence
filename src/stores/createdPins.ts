@@ -1,20 +1,22 @@
 import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
-import { type CreatedPin } from '@/types/pin'
+import { type PinPreview } from '@/types/pin'
+import { updateImageUrl } from '@/utils/updateImageUrl'
 import { defineStore } from 'pinia'
 import { ref, type Ref } from 'vue'
 
 export const useCreatedPinsStore = defineStore('createdPins', () => {
-  const createdPins: Ref<CreatedPin[] | null> = ref(null)
+  const createdPins: Ref<PinPreview[] | null> = ref(null)
   const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
 
   const auth = useAuthStore()
   const isLoading = ref(false)
 
-  function addPin(pin: CreatedPin) {
+  function addPin(pin: PinPreview) {
     if (!createdPins.value) {
       createdPins.value = []
     }
+
     if (!auth.user) {
       console.log('no user')
       return
@@ -22,11 +24,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
     const src = url + '/created-pins/' + auth.user.id
 
-    createdPins.value.push({
-      ...pin,
-
-      image_url: src + '/' + pin.image_url
-    })
+    createdPins.value.push({ ...pin, image: src + '/' + pin.image })
   }
 
   async function getCreatedPins() {
@@ -40,7 +38,7 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
       const { data, error } = await supabase
         .from('created-pins')
-        .select(`*`)
+        .select(`id, name, image, board_id, user_id`)
         .order('created_at', { ascending: false })
         .eq('user_id', auth.user.id)
 
@@ -50,20 +48,9 @@ export const useCreatedPinsStore = defineStore('createdPins', () => {
 
       if (data && auth.user.id) {
         const updatedData = data.map((pin) => {
-          let imageUrl
+          const imageUrl = updateImageUrl(pin.image, auth.user!.id)
 
-          // Check if the image is from Pexels
-          if (pin.image.startsWith('https://images.pexels.com')) {
-            // If it's from Pexels, use the existing Pexels image URL
-            imageUrl = pin.image
-          } else {
-            // If it's user-uploaded, construct the URL using user ID and image name
-
-            const src = url + '/created-pins/' + auth.user!.id
-            imageUrl = src + '/' + pin.image
-          }
-
-          return { ...pin, image_url: imageUrl }
+          return { ...pin, image: imageUrl } as PinPreview
         })
 
         createdPins.value = updatedData

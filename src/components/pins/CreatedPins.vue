@@ -32,8 +32,8 @@ onMounted(async () => {
       :key="pin.id"
       :details="{
         id: +pin.id,
-        url: pin.image_url,
-        title: pin.title,
+        image: pin.image,
+        name: pin.name,
         board_id: pin.board_id
       }"
     />

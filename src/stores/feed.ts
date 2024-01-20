@@ -1,18 +1,11 @@
 import { supabase } from '@/lib/supabaseClient'
+import type { PinPreview } from '@/types/pin'
 import { updateImageUrl } from '@/utils/updateImageUrl'
 import { defineStore } from 'pinia'
 import { ref, type Ref } from 'vue'
 
-interface Data {
-  id: number
-  name: string
-  board_id: string | null
-  image: string
-  user_id: string
-}
-
 export const useFeedStore = defineStore('feed', () => {
-  const pins: Ref<Data[]> = ref([])
+  const pins: Ref<PinPreview[]> = ref([])
   const isLoadingInitial = ref(false)
   const isLoadingMore = ref(false)
   const maxRange = ref(20)
@@ -30,10 +23,10 @@ export const useFeedStore = defineStore('feed', () => {
       if (error) throw error
 
       if (data) {
-        const result = data as unknown as Data[]
+        const result = data as unknown as PinPreview[]
 
         const updatedData = result.map((pin) => {
-          const updatedUrl = updateImageUrl(pin.image, pin.user_id)
+          const updatedUrl = updateImageUrl(pin.image, pin.user_id as string)
 
           return { ...pin, image: updatedUrl }
         })
@@ -64,9 +57,9 @@ export const useFeedStore = defineStore('feed', () => {
       if (!data || data.length === 0) return
 
       if (data.length > 0) {
-        const result = data as unknown as Data[]
+        const result = data as unknown as PinPreview[]
         const updatedData = result.map((pin) => {
-          const updatedUrl = updateImageUrl(pin.image, pin.user_id)
+          const updatedUrl = updateImageUrl(pin.image, pin.user_id as string)
 
           return { ...pin, image: updatedUrl }
         })

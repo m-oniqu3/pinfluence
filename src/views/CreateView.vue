@@ -12,9 +12,10 @@ import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
 import { supabase } from '@/lib/supabaseClient'
-import { createPin, createPinTag, createTag, type Pin } from '@/services/createPinServices'
+import { createPin, createPinTag, createTag } from '@/services/createPinServices'
 import { useAuthStore } from '@/stores/auth'
 import { useCreatedPinsStore } from '@/stores/createdPins'
+import type { PinPreview, UploadPin } from '@/types/pin'
 import { computed, watch } from 'vue'
 
 const auth = useAuthStore()
@@ -25,9 +26,9 @@ const isSelectBoardModalOpen = ref(false)
 const positions = ref({ x: 0, y: 0 })
 
 const initialPin = {
-  imageUrl: '',
+  image: '',
   file: new File([], ''),
-  title: '',
+  name: '',
   description: '',
   link: '',
   board: { id: null, name: '' }
@@ -72,7 +73,7 @@ async function updateImage(event: Event) {
 
   const reader = new FileReader()
   reader.onload = (e) => {
-    pinDetails.value.imageUrl = e.target?.result as string
+    pinDetails.value.image = e.target?.result as string
   }
 
   reader.readAsDataURL(file)
@@ -180,22 +181,23 @@ async function createNewPin() {
   try {
     if (!auth.user) return
 
-    const newPin: Pin = {
+    const newPin: UploadPin = {
       ...pinDetails.value,
       boardId: pinDetails.value.board.id,
       userId: auth.user.id,
       file: pinDetails.value.file as File
     }
     const data = await createPin(newPin)
-    const result = data[0]
+    const result = data[0] as PinPreview
 
     if (!result) return
 
     if (selectedTags.value.length > 0) {
       console.log(selectedTags.value, result.id)
-      await createPinTag(selectedTags.value, result.id)
+      await createPinTag(selectedTags.value, result.id.toString())
     }
-    createdPinStore.addPin({ ...result, title: result.name, image_url: result.image })
+
+    createdPinStore.addPin(result)
   } catch (error) {
     console.log(error)
   } finally {
@@ -213,7 +215,7 @@ console.log(selectedTags.value)
     <div class="wrapper flex items-center justify-between">
       <h2 class="text-xl font-semibold">Create Pin</h2>
       <BaseButton
-        v-if="pinDetails.imageUrl"
+        v-if="pinDetails.image"
         type="submit"
         class="bg-primary text-neutral"
         @click="createNewPin"
@@ -225,7 +227,7 @@ console.log(selectedTags.value)
 
   <form name="form" class="wrapper py-8 max-w-5xl mx-auto md:grid md:grid-cols-[40%_1fr] md:gap-8">
     <div>
-      <figure v-if="pinDetails.imageUrl" class="relative mx-auto rounded-3xl w-[20rem]">
+      <figure v-if="pinDetails.image" class="relative mx-auto rounded-3xl w-[20rem]">
         <button
           type="button"
           class="btn btn-primary mx-auto absolute top-3 right-3 rounded-full bg-white/60 h-10 w-10 grid place-items-center hover:bg-white/80"
@@ -234,7 +236,7 @@ console.log(selectedTags.value)
           <font-awesome-icon icon="fa-solid fa-pen" />
         </button>
         <img
-          :src="pinDetails.imageUrl"
+          :src="pinDetails.image"
           alt="Uploaded image"
           class="mx-auto rounded-3xl object-cover"
         />
@@ -258,7 +260,7 @@ console.log(selectedTags.value)
       id="fieldset"
       class="flex flex-col gap-4 mt-6 max-w-lg mx-auto md:max-w-none md:m-0 md:w-full disabled:opacity-50"
     >
-      <InputField v-model="pinDetails.title" name="'title" type="text" label="Title" />
+      <InputField v-model="pinDetails.name" name="'title" type="text" label="Title" />
       <InputField
         v-model="pinDetails.description"
         name="description"

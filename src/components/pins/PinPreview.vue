@@ -39,8 +39,8 @@ function loadImage(event: Event) {
 
     <router-link :to="{ name: 'pin-details', params: { id: props.details.id } }">
       <img
-        :src="props.details.url"
-        :alt="props.details.title"
+        :src="props.details.image"
+        :alt="props.details.name"
         class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
         @load="loadImage"
       />

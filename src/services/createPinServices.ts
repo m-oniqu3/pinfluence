@@ -3,16 +3,7 @@ import { getBoardById } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
 import type { BoardInfo } from '@/types/board'
 import type { Owner } from '@/types/owner'
-import type { PinDetails } from '@/types/pin'
-
-export type Pin = {
-  title: string
-  description: string
-  link: string
-  boardId: string | null
-  file: File
-  userId: string
-}
+import type { PinDetails, UploadPin } from '@/types/pin'
 
 const auth = useAuthStore()
 
@@ -32,12 +23,12 @@ async function uploadImage(file: File) {
   console.log('Image uploaded successfully')
 }
 
-export async function createPin(pinDetails: Pin) {
+export async function createPin(pinDetails: UploadPin) {
   const { data, error } = await supabase
     .from('created-pins')
     .insert([
       {
-        name: pinDetails.title,
+        name: pinDetails.name,
         description: pinDetails.description,
         link: pinDetails.link,
         board_id: pinDetails.boardId,
@@ -45,7 +36,7 @@ export async function createPin(pinDetails: Pin) {
         image: pinDetails.file.name
       }
     ])
-    .select('*')
+    .select('id, name, board_id, image')
 
   if (error) throw error
 

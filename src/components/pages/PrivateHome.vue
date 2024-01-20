@@ -38,8 +38,8 @@ onMounted(() => {
           :key="pin.id"
           :details="{
             id: pin.id,
-            title: pin.name,
-            url: pin.image,
+            name: pin.name,
+            image: pin.image,
             board_id: pin.board_id
           }"
         />

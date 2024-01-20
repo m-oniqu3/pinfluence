@@ -21,7 +21,8 @@ const profileDetails = ref({
   avatar_url: userProfile.details?.avatar_url ?? '',
   username: userProfile.details?.username ?? '',
   about: userProfile.details?.about ?? '',
-  full_name: `${userProfile.details?.firstName ?? ''} ${userProfile.details?.lastName ?? ''}`
+  full_name: `${userProfile.details?.firstName ?? ''} ${userProfile.details?.lastName ?? ''}`,
+  website: userProfile.details?.website ?? ''
 })
 
 const loading = ref(false)
@@ -44,6 +45,7 @@ onMounted(async () => {
 
 <template>
   <p v-if="loading">Loading... ></p>
+
   <header v-else class="wrapper flex flex-col gap-2 items-center text-center mt-4 max-w-sm">
     <figure>
       <img
@@ -54,13 +56,21 @@ onMounted(async () => {
       />
       <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-7x text-gray-600" />
     </figure>
+
     <h1 class="font-semibold text-4xl">{{ profileDetails.full_name }}</h1>
+
     <div class="flex gap-1 items-center text-gray-600">
       <AppLogo class="fa-1x" id="logo" />
       <p class="text-sm lowercase">{{ profileDetails.username }}</p>
     </div>
-    <p>
-      {{ profileDetails.about }}
+
+    <p class="space-x-2">
+      <span v-if="profileDetails.website" class="font-bold">
+        {{ profileDetails.website.split('//')[1] }}
+      </span>
+      <span v-if="profileDetails.about">
+        {{ profileDetails.about }}
+      </span>
     </p>
 
     <router-link to="/settings/profile">

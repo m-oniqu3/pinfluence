@@ -59,7 +59,7 @@ function savePin(event: Event) {
 <template>
   <figure
     class="relative break-inside-avoid"
-    :style="{ minHeight: '300px' }"
+    :style="{ minHeight: '500px' }"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
   >

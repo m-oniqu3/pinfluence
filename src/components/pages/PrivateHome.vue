@@ -20,7 +20,7 @@ const feed = useFeedStore()
 const auth = useAuthStore()
 
 onMounted(() => {
-  if (auth.user && !feed.pins.length) {
+  if (auth.user?.id && !feed.pins.length) {
     console.log('fetching pins')
 
     feed.getInitialPins()

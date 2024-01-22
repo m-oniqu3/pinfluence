@@ -41,7 +41,7 @@ async function submit() {
 
 <template>
   <form
-    class="bg-neutral relative rounded-lg p-8 w-3/6 space-y-8"
+    class="wrapper bg-neutral relative rounded-lg p-8 space-y-8 max-w-lg"
     @click.stop
     @submit.prevent="submit"
   >

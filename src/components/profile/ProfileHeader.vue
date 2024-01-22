@@ -22,7 +22,7 @@ const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
         v-if="profile.details?.avatar_url"
         :src="url + '/avatars/' + profile.details.avatar_url"
         alt="portrait"
-        class="h-[7.5rem] w-[7.5rem] object-cover rounded-full"
+        class="h-[7.5rem] w-[7.5rem] object-cover rounded-full bg-gray-300"
       />
       <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-7x text-gray-600" />
     </figure>

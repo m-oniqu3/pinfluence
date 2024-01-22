@@ -14,7 +14,7 @@ onMounted(async () => {
 const auth = useAuthStore()
 
 async function logout() {
-  auth.logout()
+  await auth.logout()
 
   router.push('/')
 

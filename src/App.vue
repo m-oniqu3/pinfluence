@@ -16,15 +16,13 @@ const isLoading = computed(() => {
 })
 
 onMounted(async () => {
-  if (authStore.isAuth) {
-    if (!boardsStore.boards.size) {
-      await boardsStore.getBoards()
-    }
+  await authStore.getUser()
 
-    if (!profileStore.details) {
-      await profileStore.getProfileDetails()
-    }
-  }
+  if (!authStore.user?.id) return
+
+  //promise.all to run multiple promises at the same time
+
+  await Promise.all([boardsStore.getBoards(), profileStore.getProfileDetails()])
 })
 </script>
 

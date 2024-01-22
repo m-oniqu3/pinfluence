@@ -7,13 +7,29 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { defineEmits, defineProps } from 'vue'
+import { defineEmits, onUnmounted, watch } from 'vue'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
 }>()
 
 const props = defineProps<{ open: boolean }>()
+
+// if modal is open prevent scrolling
+watch(
+  () => props.open,
+  (isOpen) => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'auto'
+    }
+  }
+)
+
+onUnmounted(() => {
+  document.body.style.overflow = 'auto'
+})
 </script>
 
 <template>
@@ -25,7 +41,7 @@ const props = defineProps<{ open: boolean }>()
     />
     <transition name="modal" mode="out-in">
       <div
-        class="wrapper absolute top-0 left-0 w-full h-full flex justify-center items-center z-30"
+        class="absolute top-0 left-0 h-full w-full flex justify-center items-center z-30"
         v-if="props.open"
         @click="emit('closeModal')"
       >
@@ -49,7 +65,7 @@ const props = defineProps<{ open: boolean }>()
 @keyframes modal-enter {
   from {
     opacity: 0;
-    transform: translateY(100%) scale(0.5);
+    transform: translateY(100%) scale(0);
   }
 
   to {
@@ -66,7 +82,7 @@ const props = defineProps<{ open: boolean }>()
 
   to {
     opacity: 0;
-    transform: translateY(100%) scale(0.5);
+    transform: translateY(100%) scale(0);
   }
 }
 </style>

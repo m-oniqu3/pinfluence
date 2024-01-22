@@ -13,7 +13,12 @@ import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 
 <template>
   <ProfileHeader />
-  <ProfileBody />
+  <Suspense>
+    <ProfileBody />
+
+    <!-- loading state via #fallback slot -->
+    <template #fallback> Loading... </template>
+  </Suspense>
 </template>
 
 <style scoped></style>

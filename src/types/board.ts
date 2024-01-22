@@ -1,18 +1,14 @@
-export interface Board {
+export type BoardOverview = {
   id: string
   name: string
-  description?: string
+  secret: boolean
   created_at: string
-  secret: boolean
-}
-
-export interface NewBoard {
-  name: string
+  image?: string
   description?: string
-  secret: boolean
 }
 
-export interface BoardInfo {
-  id: string
-  name: string
-}
+export type Board = Pick<BoardOverview, 'id' | 'name' | 'secret' | 'created_at'>
+
+export type NewBoard = Pick<BoardOverview, 'name' | 'secret'>
+
+export type BoardInfo = Pick<BoardOverview, 'id' | 'name'>

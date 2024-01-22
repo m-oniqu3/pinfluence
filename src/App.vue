@@ -4,7 +4,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useBoardStore } from '@/stores/board'
 import { useProfileStore } from '@/stores/profile'
 
-import { computed, onMounted, watchEffect } from 'vue'
+import { computed, onMounted } from 'vue'
 import { RouterView } from 'vue-router'
 
 const authStore = useAuthStore()
@@ -16,25 +16,20 @@ const isLoading = computed(() => {
 })
 
 onMounted(async () => {
-  await authStore.updateAuth()
-
-  // Watch for changes in auth.isAuth and fetch profile details accordingly
-  watchEffect(async () => {
-    if (authStore.isAuth) {
-      if (!profileStore.details) {
-        await profileStore.getProfileDetails().then
-      }
-
-      if (!boardsStore.boards) {
-        boardsStore.getBoards()
-      }
+  if (authStore.isAuth) {
+    if (!boardsStore.boards.size) {
+      await boardsStore.getBoards()
     }
-  })
+
+    if (!profileStore.details) {
+      await profileStore.getProfileDetails()
+    }
+  }
 })
 </script>
 
 <template>
-  <p v-if="isLoading">Loading...</p>
+  <p v-if="isLoading" class="text-center">Loading...</p>
 
   <template v-else>
     <AppNavbar />

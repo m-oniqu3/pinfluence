@@ -16,6 +16,7 @@ export default defineComponent({
 const auth = useAuthStore()
 const userProfile = useProfileStore()
 
+const fetchingProfile = ref(userProfile.isLoading)
 const loading = ref(false)
 
 // use store info here and init it in onmount
@@ -34,7 +35,7 @@ const errors = ref({ isFirstNameValid: false, isUserNameValid: false })
 
 // use computed instead of watch
 const isProfileUpdated = computed(() => {
-  return JSON.stringify(profileDetails.value) !== JSON.stringify(originalProfileDetails.value)
+  return JSON.stringify(profileDetails?.value) !== JSON.stringify(originalProfileDetails.value)
 })
 
 const isValidForm = computed(() => {
@@ -64,8 +65,7 @@ async function updateProfile() {
       username: profileDetails.value.username,
       website: profileDetails.value.website,
       avatar_url: profileDetails.value.avatar_url,
-      about: profileDetails.value.about,
-      updated_at: new Date()
+      about: profileDetails.value.about
     }
 
     const { error } = await supabase.from('profiles').upsert(updates)
@@ -84,7 +84,8 @@ async function updateProfile() {
 </script>
 
 <template>
-  <p v-if="loading" class="text-center">Loading...</p>
+  <p v-if="fetchingProfile" class="text-center">Fetching profile...</p>
+  <p v-else-if="loading" class="text-center">Loading...</p>
   <form v-else class="space-y-8 max-w-xl" id="profile-form">
     <header class="mb-4">
       <div class="flex justify-between items-center">

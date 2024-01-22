@@ -84,7 +84,7 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const auth = useAuthStore()
 
-  if (to.meta.requiresAuth && !auth.isAuth) {
+  if (to.meta.requiresAuth && !auth.user?.id) {
     next({ name: 'home' })
   } else {
     next()

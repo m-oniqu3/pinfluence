@@ -6,26 +6,14 @@ import { ref, type Ref } from 'vue'
 
 export const useBoardStore = defineStore('board', () => {
   const auth = useAuthStore()
-  const boards: Ref<Board[] | null> = ref(null)
-  const boardKeys: Ref<{ [key: string]: string } | null> = ref(null)
+
+  const boards: Ref<Map<Board['id'], Board>> = ref(new Map())
 
   const isLoading = ref(false)
 
-  function setBoards(data: Board[]) {
-    boards.value = data
-  }
-
-  function addBoardKey(id: string, name: string) {
-    if (!boardKeys.value) {
-      boardKeys.value = {}
-    }
-
-    boardKeys.value[id] = name
-  }
-
-  function addBoard(board: Board) {
-    boards.value?.push(board)
-    addBoardKey(board.id, board.name)
+  function insertBoard(id: Board['id'], board: Board): void {
+    // Logic to insert a new board entry
+    boards.value.set(id, board)
   }
 
   async function createBoard(boardData: NewBoard) {
@@ -33,18 +21,20 @@ export const useBoardStore = defineStore('board', () => {
       isLoading.value = true
 
       if (!auth.isAuth || !auth.user) throw new Error('Cannot create board.')
+
+      const entry = Object.assign({}, boardData, { user_id: auth.user.id })
+
       const { data, error } = await supabase
         .from('boards')
-        .insert({ ...boardData, user_id: auth.user.id })
-        .select('id')
+        .insert(entry)
+        .select('id, name, secret, created_at')
+        .single()
       if (error) throw error
 
-      if (data[0].id) {
-        const { data: board, error: boardError } = await supabase.from('boards').select('*')
-
-        if (boardError) throw boardError
-
-        addBoard(board[0] as Board)
+      console.log(data)
+      if (data) {
+        console.log(data)
+        insertBoard(data.id, data)
       }
     } catch (error) {
       console.log(error)
@@ -55,6 +45,7 @@ export const useBoardStore = defineStore('board', () => {
 
   async function getBoards() {
     try {
+      console.log('Getting boards')
       isLoading.value = true
       const { data, error } = await supabase
         .from('boards')
@@ -63,11 +54,16 @@ export const useBoardStore = defineStore('board', () => {
 
       if (error) throw error
 
-      boards.value = data as Board[]
+      if (!data.length) {
+        console.log('No data yet, early return')
+        return
+      }
 
-      boards.value.forEach((board) => {
-        addBoardKey(board.id, board.name)
-      })
+      if (data.length > 0) {
+        data.forEach((board: Board) => {
+          insertBoard(board.id, board)
+        })
+      }
     } catch (error) {
       console.log(error)
     } finally {
@@ -78,9 +74,8 @@ export const useBoardStore = defineStore('board', () => {
   return {
     boards,
     isLoading,
-    setBoards,
+
     createBoard,
-    getBoards,
-    boardKeys
+    getBoards
   }
 })

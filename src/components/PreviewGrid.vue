@@ -7,31 +7,12 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { useBoardStore } from '@/stores/board'
 import type { Board } from '@/types/board'
-import { defineProps, onMounted, ref, type Ref } from 'vue'
+import { defineProps, ref } from 'vue'
 
 const props = defineProps<{
-  boardId: string
+  board: Board
 }>()
-
-const boardStore = useBoardStore()
-const currentBoard: Ref<Board | null> = ref(null)
-
-function getBoardDetails(id: string) {
-  const boards = boardStore.boards
-  if (!boards) return
-  const result = boards.find((board) => board.id === props.boardId)
-  if (!result) return
-
-  currentBoard.value = result
-
-  // fetch board details from API
-}
-
-onMounted(() => {
-  getBoardDetails(props.boardId)
-})
 
 // will be 3 images
 const images = ref<string[]>([
@@ -42,31 +23,34 @@ const images = ref<string[]>([
 </script>
 
 <template>
-  <figure class="rounded-2xl bg-white">
-    <div id="preview-grid-1" class="rounded-tl-2xl rounded-bl-2xl bg-neutral-200">
-      <span v-if="!images[0]" class="bg-red-300 h-6" />
-      <img
-        v-else
-        :src="images[0]"
-        alt=""
-        class="rounded-tl-2xl rounded-bl-2xl h-full w-full object-cover"
-      />
-    </div>
+  <div>
+    <h1>
+      {{ props.board.name }} {{ props.board.id }} {{ props.board.secret }}
+      {{ new Date(props.board.created_at).toDateString() }}
+    </h1>
 
-    <div id="preview-grid-2" class="rounded-tr-2xl bg-neutral-200">
-      <span v-if="!images[1]" class="h-full" />
-      <img v-else :src="images[1]" alt="" class="rounded-tr-2xl h-full w-full object-cover" />
-    </div>
+    <figure class="rounded-2xl bg-white">
+      <div id="preview-grid-1" class="rounded-tl-2xl rounded-bl-2xl bg-neutral-200">
+        <span v-if="!images[0]" class="bg-red-300 h-6" />
+        <img
+          v-else
+          :src="images[0]"
+          alt=""
+          class="rounded-tl-2xl rounded-bl-2xl h-full w-full object-cover"
+        />
+      </div>
 
-    <div id="preview-grid-3" class="rounded-br-2xl bg-neutral-200">
-      <span v-if="!images[2]" class="bg-red-300 h-6" />
-      <img v-else :src="images[2]" alt="" class="rounded-br-2xl h-full w-full object-cover" />
-    </div>
-  </figure>
+      <div id="preview-grid-2" class="rounded-tr-2xl bg-neutral-200">
+        <span v-if="!images[1]" class="h-full" />
+        <img v-else :src="images[1]" alt="" class="rounded-tr-2xl h-full w-full object-cover" />
+      </div>
 
-  <h1>
-    {{ currentBoard?.name }}
-  </h1>
+      <div id="preview-grid-3" class="rounded-br-2xl bg-neutral-200">
+        <span v-if="!images[2]" class="bg-red-300 h-6" />
+        <img v-else :src="images[2]" alt="" class="rounded-br-2xl h-full w-full object-cover" />
+      </div>
+    </figure>
+  </div>
 </template>
 
 <style scoped>

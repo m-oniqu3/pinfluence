@@ -5,34 +5,25 @@ import { supabase } from '@/lib/supabaseClient'
 import type { User } from '@/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
-  const isAuth = computed(() => !!user.value?.id)
   const user: Ref<User | null> = ref(null)
+  const isAuth = computed(() => !!user.value)
+
   const isLoading = ref(false)
 
-  function setUser(data: User) {
+  function setUser(data: User | null) {
     user.value = data
   }
 
-  function logout() {
-    user.value = null
+  async function logout() {
+    const { error } = await supabase.auth.signOut()
+
+    if (error) {
+      console.log(error)
+      return
+    }
+
+    setUser(null)
   }
 
-  async function updateAuth() {
-    supabase.auth.onAuthStateChange(async (_, session) => {
-      isLoading.value = true
-
-      if (session && session.user) {
-        const user = {
-          aud: session.user.aud,
-          email: session.user.email as string,
-          id: session.user.id
-        }
-
-        setUser(user)
-      }
-      isLoading.value = false
-    })
-  }
-
-  return { isAuth, logout, user, setUser, updateAuth, isLoading }
+  return { isAuth, logout, user, setUser, isLoading }
 })

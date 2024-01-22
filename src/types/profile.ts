@@ -1,11 +1,3 @@
-export type ProfileData = {
-  full_name: string
-  username: string
-  website: string
-  avatar_url: string
-  about: string
-}
-
 export type Profile = {
   firstName: string
   lastName: string
@@ -13,4 +5,8 @@ export type Profile = {
   website: string
   avatar_url: string
   about: string
+}
+
+export type ProfileData = Omit<Profile, 'firstName' | 'lastName'> & {
+  full_name: string
 }

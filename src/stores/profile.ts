@@ -10,17 +10,16 @@ export const useProfileStore = defineStore('profile', () => {
   const isLoading = ref(false)
 
   function setProfile(data: ProfileData) {
+    if (!auth.isAuth) return
+
     const [firstName, lastName] = data.full_name.split(' ')
-    details.value = {
-      ...data,
-      firstName,
-      lastName
-    }
+
+    details.value = { ...data, firstName, lastName }
   }
 
   async function getProfileDetails() {
+    isLoading.value = true
     try {
-      isLoading.value = true
       if (!auth.isAuth || !auth.user)
         throw new Error('You must be logged in to update your profile.')
 
@@ -28,12 +27,12 @@ export const useProfileStore = defineStore('profile', () => {
         .from('profiles')
         .select(`full_name, username, website, avatar_url, about`)
         .eq('id', auth.user.id)
-        .select(`*`)
+        .single()
 
       if (error) throw error
 
-      if (data[0]) {
-        setProfile(data[0] as ProfileData)
+      if (data) {
+        setProfile(data)
       }
     } catch (error) {
       console.log(error)

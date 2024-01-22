@@ -10,17 +10,21 @@ export default defineComponent({
 import InfiniteScroll from '@/components/InfiniteScroll.vue'
 import PinGrid from '@/components/pins/PinGrid.vue'
 import PinPreview from '@/components/pins/PinPreview.vue'
+import { useAuthStore } from '@/stores/auth'
 
 import { useFeedStore } from '@/stores/feed'
 
 import { onMounted } from 'vue'
 
 const feed = useFeedStore()
+const auth = useAuthStore()
 
 onMounted(() => {
-  // Load initial photos
+  if (auth.user && !feed.pins.length) {
+    console.log('fetching pins')
 
-  feed.getInitialPins()
+    feed.getInitialPins()
+  }
 })
 </script>
 

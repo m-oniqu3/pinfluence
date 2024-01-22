@@ -9,22 +9,28 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { type PinPreview } from '@/types/pin'
-import { defineProps, onMounted, ref } from 'vue'
+import { defineProps, ref } from 'vue'
 
 const props = defineProps<{
   details: PinPreview
 }>()
 
 const router = useRouter()
-
 const hovering = ref(false)
 
-onMounted(() => {
-  // if (props.details.board_id) {
-  //   boardName.value = boardStore.boardKeys ? boardStore.boardKeys[props.details.board_id] : ''
-  // }
-})
+const isPinListOpen = ref(false)
+const positions = ref({ x: 0, y: 0 })
+const menuDimensions = ref({ width: 0, height: 0 })
+
+function setMenuDemensions(dimensions: { width: number; height: number }) {
+  menuDimensions.value = dimensions
+}
+
+const togglePinList = (val: boolean) => {
+  isPinListOpen.value = val
+}
 
 function loadImage(event: Event) {
   const target = event.target as HTMLImageElement
@@ -32,9 +38,21 @@ function loadImage(event: Event) {
 }
 
 function savePin(event: Event) {
-  //capture click event
   event.stopPropagation()
   console.log('saving pin')
+  togglePinList(true)
+
+  //use the event and width of the pin to position the menu
+  const { clientX, clientY } = event as MouseEvent
+
+  const xPos = clientX + 360 > window.innerWidth ? window.innerWidth - 360 : clientX + 360
+
+  const yPos =
+    clientY - 100 + 500 > window.innerHeight ? window.innerHeight - 500 - 100 : clientY - 100
+  positions.value = {
+    x: xPos + 40,
+    y: yPos
+  }
 }
 </script>
 
@@ -45,14 +63,13 @@ function savePin(event: Event) {
     @mouseover="hovering = true"
     @mouseout="hovering = false"
   >
-    <!-- <router-link :to="{ name: 'pin-details', params: { id: props.details.id } }"> -->
     <figcaption
       v-show="hovering"
-      class="absolute h-full w-full p-4 rounded-2xl z-0"
+      class="absolute h-full w-full rounded-2xl z-0"
       :class="hovering ? 'bg-black bg-opacity-50' : ''"
       @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
     >
-      <div class="flex justify-between items-center z-[1]" @click.stop>
+      <div class="flex justify-between items-center z-[1] p-4 bg-orange-500 h-20" @click.stop>
         <h1 class="text-white font-bold text-base truncate">Architecture</h1>
         <BaseButton class="bg-primary text-white self-start" @click.stop="savePin($event)"
           >Save</BaseButton
@@ -67,6 +84,13 @@ function savePin(event: Event) {
       @load="loadImage"
     />
     <!-- </router-link> -->
+    <PinSaveMenu
+      v-if="isPinListOpen"
+      :positions="positions"
+      :isMenuOpen="isPinListOpen"
+      @close-menu="togglePinList(false)"
+      @set-menu-dimensions="setMenuDemensions"
+    />
   </figure>
 </template>
 

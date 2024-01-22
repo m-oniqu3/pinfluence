@@ -9,6 +9,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { supabase } from '@/lib/supabaseClient'
 import { downloadImage } from '@/services/profileServices'
+
 import { ref, toRefs, watchEffect } from 'vue'
 
 const prop = defineProps(['path', 'size'])

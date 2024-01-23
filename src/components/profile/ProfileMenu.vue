@@ -36,11 +36,13 @@ const activeOption = ref(0)
         </template>
 
         <ul class="w-[10.5rem]" id="content" @click="emit('closeMenu')">
-          <router-link :to="{ name: 'create' }">
-            <MenuItem :id="0" :activeOption="activeOption" @enter="activeOption = 0">
-              Pin
-            </MenuItem>
-          </router-link>
+          <li>
+            <router-link :to="{ name: 'create' }">
+              <MenuItem :id="0" :activeOption="activeOption" @enter="activeOption = 0">
+                Pin
+              </MenuItem>
+            </router-link>
+          </li>
 
           <MenuItem
             :id="1"

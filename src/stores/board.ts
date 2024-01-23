@@ -2,18 +2,53 @@ import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import type { Board, NewBoard } from '@/types/board'
 import { defineStore } from 'pinia'
-import { ref, type Ref } from 'vue'
+import { computed, ref, type Ref } from 'vue'
 
 export const useBoardStore = defineStore('board', () => {
   const auth = useAuthStore()
 
   const boards: Ref<Map<Board['id'], Board>> = ref(new Map())
+  const boardList = computed(() =>
+    Array.from(boards.value.values()).sort((a, b) => {
+      // Sort alphabetically
+      const nameA = a.name.toUpperCase()
+      const nameB = b.name.toUpperCase()
+
+      return nameA.localeCompare(nameB)
+    })
+  )
+
+  const recentBoards = ref<Board[]>([
+    {
+      created_at: '2024-01-10T18:53:38.764234+00:00',
+      id: 21,
+      name: 'movies',
+      secret: false
+    },
+    {
+      created_at: '2024-01-10T18:52:56.981473+00:00',
+      id: 20,
+      name: 'cartoons',
+      secret: false
+    },
+    {
+      created_at: '2024-01-10T18:46:13.402914+00:00',
+      id: 18,
+      name: 'plants',
+      secret: false
+    }
+  ])
 
   const isLoading = ref(false)
 
   function insertBoard(id: Board['id'], board: Board): void {
     // Logic to insert a new board entry
     boards.value.set(id, board)
+  }
+
+  function searchBoard(name: string) {
+    // Logic to search for a board
+    return boardList.value.filter((board) => board.name.includes(name))
   }
 
   async function createBoard(boardData: NewBoard) {
@@ -73,9 +108,11 @@ export const useBoardStore = defineStore('board', () => {
 
   return {
     boards,
+    boardList,
     isLoading,
-
     createBoard,
-    getBoards
+    getBoards,
+    recentBoards,
+    searchBoard
   }
 })

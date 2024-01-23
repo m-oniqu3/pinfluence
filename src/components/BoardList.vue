@@ -18,10 +18,10 @@ const props = defineProps<{
 const emit = defineEmits<{
   (event: 'closeMenu'): void
 
-  (event: 'update:modelValue', value: { id: string; name: string }): void
+  (event: 'update:modelValue', value: { id: number; name: string }): void
 }>()
 
-function selectBoard(boardId: string, boardName: string) {
+function selectBoard(boardId: number, boardName: string) {
   emit('update:modelValue', { id: boardId, name: boardName })
   emit('closeMenu')
 }
@@ -48,10 +48,10 @@ const boardStore = useBoardStore()
 
         <ul class="w-[400px] h-64 overflow-hidden overflow-y-scroll px-3">
           <template v-if="boardStore.boards">
-            <h1 class="text-sm font-normal py-1">All Boards</h1>
+            <li class="text-sm font-normal py-1">All Boards</li>
 
             <li
-              v-for="board in Array.from(boardStore.boards.values())"
+              v-for="board in boardStore.boardList"
               :key="board.id"
               class="p-2 w-full grid grid-cols-[auto,1fr] gap-4 hover:rounded-2xl hover:bg-neutral-200"
               @click.stop="selectBoard(board.id, board.name)"
@@ -63,7 +63,7 @@ const boardStore = useBoardStore()
             </li>
           </template>
 
-          <p v-else class="text-sm font-normal py-1">No boards found</p>
+          <li v-else class="text-sm font-normal py-1">No boards found</li>
         </ul>
 
         <div class="border-t-[1px] border-slate-300 grid grid-cols-[auto,1fr] gap-4 py-3 px-4">

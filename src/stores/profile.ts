@@ -33,7 +33,6 @@ export const useProfileStore = defineStore('profile', () => {
 
       if (data) {
         setProfile(data)
-        console.log(data)
       }
     } catch (error) {
       console.log(error)

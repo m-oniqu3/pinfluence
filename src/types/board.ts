@@ -1,5 +1,5 @@
 export type BoardOverview = {
-  id: string
+  id: number
   name: string
   secret: boolean
   created_at: string

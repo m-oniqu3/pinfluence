@@ -26,7 +26,7 @@ const emit = defineEmits<{
 <template>
   <AppMenu :positions="props.positions" v-if="props.isMenuOpen" @close-menu="emit('closeMenu')">
     <ul class="w-[400px] py-2 h-[200px] overflow-y-auto">
-      <h1 class="px-4 py-2 text-sm">Matched Tags ({{ tagsList.length }})</h1>
+      <li class="px-4 py-2 text-sm">Matched Tags ({{ tagsList.length }})</li>
       <li v-if="props.isLoadingTags" class="px-4 py-1">Loading...</li>
       <template v-else>
         <li

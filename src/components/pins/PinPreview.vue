@@ -9,11 +9,13 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import AppMenu from '@/components/app/AppMenu.vue'
 import AppModal from '@/components/app/AppModal.vue'
+// import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
-import PinSaveModal from '@/components/pins/PinSaveModal.vue'
 import { type PinPreview } from '@/types/pin'
-import { defineProps, ref } from 'vue'
+import { calculateXPosition, calculateYPosition } from '@/utils/menu'
+import { ref } from 'vue'
 
 const props = defineProps<{
   details: PinPreview
@@ -40,32 +42,28 @@ function loadImage(event: Event) {
   target.classList.add('lazyloaded')
 }
 
-function savePin(event: Event) {
-  //use the event and width of the pin to position the menu
-  const { clientX, clientY } = event as MouseEvent
-
-  // if the menu is going to be off the screen, move it to the left
-  const noAvailableWidth = clientX + menuDimensions.value.width > window.innerWidth
-  const noAvailableHeight = window.innerHeight < menuDimensions.value.height + 100
-
-  //if window is too small, open modal
-  if (window.innerWidth < 768 || noAvailableHeight) {
-    togglePinListModal(true)
-    return
-  }
-
+// open pin list and position it
+const openPinList = (clientX: number, clientY: number) => {
   togglePinList(true)
 
-  const xPos = noAvailableWidth
-    ? window.innerWidth - menuDimensions.value.width
-    : clientX + menuDimensions.value.width
-
-  const yPos =
-    clientY - 100 + menuDimensions.value.height >= window.innerHeight
-      ? window.innerHeight - menuDimensions.value.height - 100
-      : clientY - 100
+  const xPos = calculateXPosition(clientX, menuDimensions.value.width)
+  const yPos = calculateYPosition(clientY, menuDimensions.value.height)
 
   positions.value = { x: xPos, y: yPos }
+}
+
+// toggle either the modal or the menu
+const handleSavePin = (event: MouseEvent) => {
+  const { clientX, clientY } = event
+
+  const shouldOpenModal =
+    window.innerWidth < 768 || window.innerHeight < menuDimensions.value.height + 100
+
+  if (shouldOpenModal && !isPinListModalOpen.value) {
+    togglePinListModal(true)
+  } else {
+    openPinList(clientX, clientY)
+  }
 }
 </script>
 
@@ -74,6 +72,7 @@ function savePin(event: Event) {
     class="relative break-inside-avoid"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
+    :style="{ minHeight: '500px' }"
   >
     <figcaption
       v-show="hovering"
@@ -81,11 +80,9 @@ function savePin(event: Event) {
       :class="hovering ? 'bg-black bg-opacity-50' : ''"
       @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
     >
-      <div class="flex justify-between items-center z-[1] p-4 h-20" @click.stop>
+      <div class="flex justify-between items-center z-[1] p-2 h-16" @click.stop>
         <h1 class="text-white font-bold text-base truncate">Architecture</h1>
-        <BaseButton class="bg-primary text-white self-start" @click.stop="savePin($event)"
-          >Save</BaseButton
-        >
+        <BaseButton class="bg-primary text-white" @click.stop="handleSavePin">Save</BaseButton>
       </div>
     </figcaption>
 
@@ -95,18 +92,17 @@ function savePin(event: Event) {
       class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
       @load="loadImage"
     />
+
+    <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
+      <PinSaveMenu
+        @close-modal="togglePinListModal(false)"
+        :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
+      />
+    </AppMenu>
   </figure>
 
-  <PinSaveMenu
-    v-if="isPinListOpen"
-    :positions="positions"
-    :isMenuOpen="isPinListOpen"
-    :menuDimensions="menuDimensions"
-    @close-menu="togglePinList(false)"
-  />
-
   <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
-    <PinSaveModal @close-modal="togglePinListModal(false)" />
+    <PinSaveMenu @close-modal="togglePinListModal(false)" />
   </AppModal>
 </template>
 

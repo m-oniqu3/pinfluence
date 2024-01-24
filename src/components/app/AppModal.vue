@@ -41,7 +41,7 @@ onUnmounted(() => {
     />
     <transition name="modal" mode="out-in">
       <div
-        class="absolute top-0 left-0 h-full w-full flex justify-center items-center z-30"
+        class="fixed top-0 left-0 h-full w-full flex justify-center items-center z-30"
         v-if="props.open"
         @click="emit('closeModal')"
       >

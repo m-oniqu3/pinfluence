@@ -42,7 +42,11 @@ function updateInput(event: Event) {
       v-if="props.modelValue"
       class="bg-black w-6 h-6 rounded-full grid place-items-center absolute right-6 cursor-pointer"
     >
-      <font-awesome-icon icon="fa-solid fa-times" class="text-white" />
+      <font-awesome-icon
+        icon="fa-solid fa-times"
+        class="text-white"
+        @click="emit('update:modelValue', '')"
+      />
     </div>
   </form>
 </template>

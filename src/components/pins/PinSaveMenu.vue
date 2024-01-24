@@ -2,37 +2,24 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'PinSaveMenu'
+  name: 'PinSaveModal'
 })
 </script>
 
 <script setup lang="ts">
-import AppMenu from '@/components/app/AppMenu.vue'
 import BoardOption from '@/components/boards/BoardOption.vue'
 import BoardSearch from '@/components/boards/BoardSearch.vue'
 import { useBoardStore } from '@/stores/board'
 import type { Board } from '@/types/board'
-import { defineEmits, ref, type Ref } from 'vue'
-
-const props = defineProps<{
-  isMenuOpen: boolean
-  positions: { x: number; y: number }
-  menuDimensions: { width: number; height: number }
-}>()
+import { computed, defineEmits, ref, type Ref } from 'vue'
 
 const emit = defineEmits<{
-  (event: 'closeMenu'): void
-  (event: 'setMenuDemensions', dimensions: { width: number; height: number }): void
+  (event: 'closeModal'): void
 }>()
 
 const boardStore = useBoardStore()
-
-const menuStyle = {
-  width: props.menuDimensions.width + 'px',
-  height: props.menuDimensions.height + 'px'
-}
-
 const searchInput = ref('')
+
 const searchResults: Ref<Board[]> = ref([])
 
 function getSearchResults() {
@@ -40,72 +27,90 @@ function getSearchResults() {
     searchResults.value = boardStore.searchBoard(searchInput.value)
   }
 }
+
+const isHeightSmall = computed(() => {
+  return window.innerHeight < 500
+})
+
+const gridClass = computed(() => {
+  return window.innerHeight >= 500 ? 'defaultGrid' : 'smallGrid'
+})
 </script>
 
 <template>
-  <div>
-    <AppMenu :positions="props.positions" v-if="props.isMenuOpen" @close-menu="emit('closeMenu')">
-      <section id="section" @click.stop :style="menuStyle">
-        <h1 class="h-16 w-full grid place-items-center font-semibold">Save</h1>
+  <section class="bg-white wrapper rounded-lg" @click.stop id="section" :class="gridClass">
+    <h1 class="grid place-items-center h-full w-full font-semibold" v-show="!isHeightSmall">
+      Save
+    </h1>
 
-        <BoardSearch v-model="searchInput" @input="getSearchResults()" />
+    <BoardSearch v-model="searchInput" @input="getSearchResults()" />
 
-        <ul class="px-3 py-4 overflow-scroll">
-          <li v-if="boardStore.boardList.length === 0" class="text-gray-500">No boards found</li>
+    <ul class="px-3 py-4 overflow-scroll">
+      <template v-if="searchInput">
+        <li v-if="searchInput && searchResults.length === 0" class="text-gray-500">
+          No boards found
+        </li>
 
-          <template v-if="searchInput">
-            <li v-if="searchInput && searchResults.length === 0" class="text-gray-500">
-              No boards found
-            </li>
+        <BoardOption
+          v-for="board in searchResults"
+          :key="board.id"
+          :board="board"
+          @close-menu="emit('closeModal')"
+        />
+      </template>
 
-            <BoardOption
-              v-for="board in searchResults"
-              :key="board.id"
-              :board="board"
-              @close-menu="emit('closeMenu')"
-            />
-          </template>
-
-          <template v-else>
-            <template v-if="boardStore.recentBoards.length && !searchInput">
-              <li class="text-xs py-2 px-2">Top Choices</li>
-
-              <BoardOption
-                v-for="board in boardStore.recentBoards"
-                :key="board.id"
-                :board="board"
-                @close-menu="emit('closeMenu')"
-              />
-            </template>
-
-            <li class="text-xs py-2 px-2">All Boards</li>
-
-            <BoardOption
-              v-for="board in boardStore.boardList"
-              :key="board.id"
-              :board="board"
-              @close-menu="emit('closeMenu')"
-            />
-          </template>
-        </ul>
-
-        <div
-          class="flex items-center gap-4 px-4 rounded-b-lg cursor hover:bg-neutral-200 border-t-[1px] border-slate-200"
+      <template v-else>
+        <template
+          v-if="boardStore.recentBoards.length && !searchInput && boardStore.boardList.length"
         >
-          <div class="h-12 w-12 rounded-lg bg-neutral-200 grid place-items-center">
-            <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-black" />
-          </div>
+          <li class="text-xs py-2 px-2">Top Choices</li>
 
-          <h1 class="text-base font-semibold">Create Board</h1>
-        </div>
-      </section>
-    </AppMenu>
-  </div>
+          <BoardOption
+            v-for="board in boardStore.recentBoards"
+            :key="board.id"
+            :board="board"
+            @close-menu="emit('closeModal')"
+          />
+        </template>
+
+        <li v-if="boardStore.boardList.length === 0" class="text-gray-500">No boards found.</li>
+        <li v-else class="text-xs py-2 px-2">All Boards</li>
+
+        <BoardOption
+          v-for="board in boardStore.boardList"
+          :key="board.id"
+          :board="board"
+          @close-menu="emit('closeModal')"
+        />
+      </template>
+    </ul>
+
+    <div
+      v-show="!isHeightSmall"
+      class="flex items-center gap-4 px-4 rounded-b-lg cursor hover:bg-neutral-200 border-t-[1px] border-slate-200"
+    >
+      <div class="h-12 w-12 rounded-lg bg-neutral-200 grid place-items-center">
+        <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-black" />
+      </div>
+
+      <h1 class="text-base font-semibold">Create Board</h1>
+    </div>
+  </section>
 </template>
 
-<style scope>
+<style scoped>
 #section {
   display: grid;
+  max-width: 360px;
+}
+
+.defaultGrid {
   grid-template-rows: 64px 64px 1fr 80px;
+  height: 450px;
+}
+
+.smallGrid {
+  grid-template-rows: 64px 1fr;
+  max-height: 300px;
 }
 </style>

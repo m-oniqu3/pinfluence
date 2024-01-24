@@ -8,11 +8,15 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import AppMenu from '@/components/app/AppMenu.vue'
+import AppModal from '@/components/app/AppModal.vue'
 import CommentPanel from '@/components/pins/CommentPanel.vue'
+import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { fetchExtraPinDetails, getPinDetails } from '@/services/createPinServices'
 import type { Owner } from '@/types/owner'
 import { type PinDetails } from '@/types/pin'
 import { capitalizeSentence } from '@/utils/capitalize'
+import { calculateXPosition, calculateYPosition } from '@/utils/menu'
 import { onMounted, ref, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
@@ -55,6 +59,43 @@ onMounted(async () => {
     isLoading.value = false
   }
 })
+
+const isPinListOpen = ref(false)
+const isPinListModalOpen = ref(false)
+const positions = ref({ x: 0, y: 0 })
+const menuDimensions = ref({ width: 360, height: 500 })
+
+const togglePinList = (val: boolean) => {
+  isPinListOpen.value = val
+}
+
+const togglePinListModal = (val: boolean) => {
+  isPinListModalOpen.value = val
+}
+
+// open pin list and position it
+const openPinList = (clientX: number, clientY: number) => {
+  togglePinList(true)
+
+  const xPos = calculateXPosition(clientX, menuDimensions.value.width)
+  const yPos = calculateYPosition(clientY, menuDimensions.value.height)
+
+  positions.value = { x: xPos, y: yPos }
+}
+
+// toggle either the modal or the menu
+const handleSavePin = (event: MouseEvent) => {
+  const { clientX, clientY } = event
+
+  const shouldOpenModal =
+    window.innerWidth < 768 || window.innerHeight < menuDimensions.value.height + 100
+
+  if (shouldOpenModal) {
+    togglePinListModal(true)
+  } else {
+    openPinList(clientX, clientY)
+  }
+}
 </script>
 
 <template>
@@ -69,19 +110,19 @@ onMounted(async () => {
       <img
         :src="pin.image"
         :alt="pin.name"
-        class="rounded-t-[2rem] w-full lg:rounded-t-none lg:rounded-s-[2rem] lg:h-full lg:object-cover"
+        class="rounded-t-[2rem] w-full lg:rounded-t-none lg:rounded-l-[2rem] lg:h-full lg:object-cover"
       />
     </figure>
 
     <section class="space-y-2 w-full">
       <header
-        class="bg-white flex justify-between items-center h-20 px-6 lg:sticky lg:top-20 lg:z-[1]"
+        class="bg-white flex justify-between items-center h-20 px-6 lg:sticky lg:top-20 lg:z-[1] lg:rounded-tr-[2rem]"
       >
         <p>Share</p>
 
         <div class="flex gap-4 items-center">
           <p>{{ board }}</p>
-          <BaseButton class="bg-primary text-neutral">Save</BaseButton>
+          <BaseButton class="bg-primary text-neutral" @click="handleSavePin">Save</BaseButton>
         </div>
       </header>
 
@@ -139,4 +180,15 @@ onMounted(async () => {
       </form>
     </section>
   </section>
+
+  <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
+    <PinSaveMenu
+      @close-modal="togglePinListModal(false)"
+      :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
+    />
+  </AppMenu>
+
+  <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
+    <PinSaveMenu @close-modal="togglePinListModal(false)" />
+  </AppModal>
 </template>

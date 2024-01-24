@@ -13,9 +13,7 @@ import { useBoardStore } from '@/stores/board'
 import type { Board } from '@/types/board'
 import { computed, defineEmits, ref, type Ref } from 'vue'
 
-const emit = defineEmits<{
-  (event: 'closeModal'): void
-}>()
+const emit = defineEmits<{ (event: 'closeModal'): void; (event: 'createBoard'): void }>()
 
 const boardStore = useBoardStore()
 const searchInput = ref('')
@@ -86,6 +84,7 @@ const gridClass = computed(() => {
     </ul>
 
     <div
+      @click="emit('createBoard')"
       v-show="!isHeightSmall"
       class="flex items-center gap-4 px-4 rounded-b-lg cursor hover:bg-neutral-200 border-t-[1px] border-slate-200"
     >

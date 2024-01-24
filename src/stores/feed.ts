@@ -18,7 +18,7 @@ export const useFeedStore = defineStore('feed', () => {
         .from('created-pins')
         .select('id, name, board_id, image, user_id')
         .range(0, maxRange.value)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: true })
 
       if (error) throw error
 

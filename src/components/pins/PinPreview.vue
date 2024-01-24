@@ -9,9 +9,9 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import CreateBoard from '@/components/CreateBoard.vue'
 import AppMenu from '@/components/app/AppMenu.vue'
 import AppModal from '@/components/app/AppModal.vue'
-// import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { type PinPreview } from '@/types/pin'
 import { calculateXPosition, calculateYPosition } from '@/utils/menu'
@@ -26,6 +26,7 @@ const hovering = ref(false)
 
 const isPinListOpen = ref(false)
 const isPinListModalOpen = ref(false)
+const isCreatingBoard = ref(false)
 const positions = ref({ x: 0, y: 0 })
 const menuDimensions = ref({ width: 360, height: 500 })
 
@@ -35,6 +36,12 @@ const togglePinList = (val: boolean) => {
 
 const togglePinListModal = (val: boolean) => {
   isPinListModalOpen.value = val
+}
+
+function toggleCreateModal(val: boolean) {
+  if (isPinListOpen.value) togglePinList(false)
+  if (isPinListModalOpen.value) togglePinListModal(false)
+  isCreatingBoard.value = val
 }
 
 function loadImage(event: Event) {
@@ -96,13 +103,18 @@ const handleSavePin = (event: MouseEvent) => {
     <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
       <PinSaveMenu
         @close-modal="togglePinListModal(false)"
+        @create-board="toggleCreateModal(true)"
         :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
       />
     </AppMenu>
   </figure>
 
   <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
-    <PinSaveMenu @close-modal="togglePinListModal(false)" />
+    <PinSaveMenu @close-modal="togglePinListModal(false)" @create-board="toggleCreateModal(true)" />
+  </AppModal>
+
+  <AppModal :open="isCreatingBoard" @close-modal="toggleCreateModal(false)">
+    <CreateBoard @close-modal="toggleCreateModal(false)" />
   </AppModal>
 </template>
 

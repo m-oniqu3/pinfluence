@@ -4,18 +4,21 @@ import { useAuthStore } from '@/stores/auth'
 import { useBoardStore } from '@/stores/board'
 import { useProfileStore } from '@/stores/profile'
 
-import { computed, onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { RouterView } from 'vue-router'
 
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
 const boardsStore = useBoardStore()
 
-const isLoading = computed(() => {
-  return authStore.isLoading || profileStore.isLoading || boardsStore.isLoading
-})
+// const isLoading = computed(() => {
+//   return authStore.isLoading || profileStore.isLoading || boardsStore.isLoading
+// })
+
+const isLoading = ref(false)
 
 onMounted(async () => {
+  isLoading.value = true
   await authStore.getUser()
 
   if (!authStore.user?.id) return
@@ -23,11 +26,12 @@ onMounted(async () => {
   //promise.all to run multiple promises at the same time
 
   await Promise.all([boardsStore.getBoards(), profileStore.getProfileDetails()])
+  isLoading.value = false
 })
 </script>
 
 <template>
-  <p v-if="isLoading" class="text-center">Loading...</p>
+  <p v-if="isLoading || authStore.isLoading" class="text-center">Loading...</p>
 
   <template v-else>
     <AppNavbar />

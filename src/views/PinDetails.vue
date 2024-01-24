@@ -8,6 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import CreateBoard from '@/components/CreateBoard.vue'
 import AppMenu from '@/components/app/AppMenu.vue'
 import AppModal from '@/components/app/AppModal.vue'
 import CommentPanel from '@/components/pins/CommentPanel.vue'
@@ -62,6 +63,7 @@ onMounted(async () => {
 
 const isPinListOpen = ref(false)
 const isPinListModalOpen = ref(false)
+const isCreatingBoard = ref(false)
 const positions = ref({ x: 0, y: 0 })
 const menuDimensions = ref({ width: 360, height: 500 })
 
@@ -71,6 +73,12 @@ const togglePinList = (val: boolean) => {
 
 const togglePinListModal = (val: boolean) => {
   isPinListModalOpen.value = val
+}
+
+function toggleCreateModal(val: boolean) {
+  if (isPinListOpen.value) togglePinList(false)
+  if (isPinListModalOpen.value) togglePinListModal(false)
+  isCreatingBoard.value = val
 }
 
 // open pin list and position it
@@ -104,7 +112,7 @@ const handleSavePin = (event: MouseEvent) => {
 
   <section
     v-else
-    class="wrapper rounded-[2rem] border-[1px] border-gray-50 shadow-md sm:w-2/3 mb-8 lg:grid lg:grid-cols-2 lg:w-10/12 xl:max-w-5xl relative"
+    class="wrapper rounded-[2rem] border-[1px] border-gray-100 shadow-xl sm:w-2/3 mb-8 lg:grid lg:grid-cols-2 lg:w-10/12 xl:max-w-5xl relative"
   >
     <figure class="w-full">
       <img
@@ -184,11 +192,16 @@ const handleSavePin = (event: MouseEvent) => {
   <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
     <PinSaveMenu
       @close-modal="togglePinListModal(false)"
+      @create-board="toggleCreateModal(true)"
       :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
     />
   </AppMenu>
 
   <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
-    <PinSaveMenu @close-modal="togglePinListModal(false)" />
+    <PinSaveMenu @close-modal="togglePinListModal(false)" @create-board="toggleCreateModal(true)" />
+  </AppModal>
+
+  <AppModal :open="isCreatingBoard" @close-modal="toggleCreateModal(false)">
+    <CreateBoard @close-modal="toggleCreateModal(false)" />
   </AppModal>
 </template>

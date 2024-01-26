@@ -2,9 +2,11 @@
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { supabase } from '@/lib/supabaseClient'
+import { useProfileStore } from '@/stores/profile'
 import { modal, type ModalActions } from '@/types/keys'
 import { validateEmail, validatePassword } from '@/utils/validation'
 import { defineComponent, inject, ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'SignUp'
@@ -12,6 +14,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+const profileStore = useProfileStore()
+const router = useRouter()
 const { closeModal, openModal } = inject(modal) as ModalActions
 
 const credentials = ref({ email: '', password: '' })
@@ -52,10 +56,15 @@ async function submitForm() {
     const { data, error } = await signUpNewUser(credentials.value.email, credentials.value.password)
 
     if (error) {
+      console.log(error.message, error.name)
       throw error
     }
 
     console.log(data)
+
+    closeModal()
+    // navigate home
+    router.push({ name: 'home' })
   } catch (error) {
     console.error(error)
   } finally {

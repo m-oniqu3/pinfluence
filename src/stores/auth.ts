@@ -21,18 +21,21 @@ export const useAuthStore = defineStore('auth', () => {
   async function getUser() {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.auth.getSession()
+      const { data, error } = await supabase.auth.getUser()
 
       if (error) {
-        throw error
+        if (error.status === 404 || error.status === 401) {
+          await logout()
+          throw new Error('Not authenticated')
+        }
       }
 
-      if (data.session?.user) {
-        const user = data.session.user
+      if (data.user && !error) {
+        console.log(data.user)
         setUser({
-          id: user.id,
-          email: user.email as string,
-          aud: user.aud
+          id: data.user.id,
+          email: data.user.email as string,
+          aud: data.user.aud
         })
       }
     } catch (error) {

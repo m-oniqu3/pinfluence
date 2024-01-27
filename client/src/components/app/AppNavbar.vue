@@ -11,39 +11,36 @@ import BaseButton from '@/components/BaseButton.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import AppModal from '@/components/app/AppModal.vue'
-import { downloadImage } from '@/services/profileServices'
-import { useAuthStore } from '@/stores/auth'
-import { useProfileStore } from '@/stores/profile'
 import type { AuthComponent } from '@/types/keys'
 import { modal } from '@/types/keys'
-import { computed, onMounted, provide, ref, watch, type Ref } from 'vue'
+import { computed, provide, ref, type Ref } from 'vue'
 
-const auth = useAuthStore()
-const profile = useProfileStore()
-const avatar = ref(profile.details?.avatar_url)
+// const auth = useAuthStore()
+// const profile = useProfileStore()
+const avatar = ref('')
 
-async function updateAvatar(url: string) {
-  const image = await downloadImage(url)
-  if (image) {
-    avatar.value = image
-  }
-}
+// async function updateAvatar(url: string) {
+//   const image = await downloadImage(url)
+//   if (image) {
+//     avatar.value = image
+//   }
+// }
 
-onMounted(async () => {
-  if (avatar.value && auth.isAuth) {
-    await updateAvatar(avatar.value)
-  }
-})
+// onMounted(async () => {
+//   if (avatar.value && auth.isAuth) {
+//     await updateAvatar(avatar.value)
+//   }
+// })
 
-watch(
-  () => profile.details?.avatar_url,
-  async (newAvatarUrl) => {
-    console.log('newAvatarUrl', newAvatarUrl)
-    if (newAvatarUrl && auth.isAuth) {
-      await updateAvatar(newAvatarUrl)
-    }
-  }
-)
+// watch(
+//   () => profile.details?.avatar_url,
+//   async (newAvatarUrl) => {
+//     console.log('newAvatarUrl', newAvatarUrl)
+//     if (newAvatarUrl && auth.isAuth) {
+//       await updateAvatar(newAvatarUrl)
+//     }
+//   }
+// )
 
 const selectedComponent: Ref<AuthComponent | null> = ref(null)
 
@@ -60,7 +57,7 @@ const isModalOpen = computed(() => selectedComponent.value !== null)
     <nav class="wrapper flex justify-between items-center gap-4">
       <AppLogo class="fa-xl" />
 
-      <div v-if="!auth.isAuth" class="flex items-center gap-2">
+      <div v-if="true" class="flex items-center gap-2">
         <BaseButton class="bg-primary text-neutral" @click="openModal('log-in')">Log in</BaseButton>
         <BaseButton class="bg-neutral-100 text-black" @click="openModal('sign-up')"
           >Sign up</BaseButton

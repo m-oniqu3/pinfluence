@@ -7,24 +7,24 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { supabase } from '@/lib/supabaseClient'
-import { onMounted, ref } from 'vue'
+// import { supabase } from '@/lib/supabaseClient'
+import { ref } from 'vue'
 
 const countries = ref([]) as any
 
 async function getCountries() {
-  const { data } = await supabase.from('countries').select()
-  countries.value = data
+  // const { data } = await supabase.from('countries').select()
+  // countries.value = data
 }
 
-onMounted(() => {
-  getCountries()
-})
+// onMounted(() => {
+//   getCountries()
+// })
 </script>
 
 <template>
   <p>public home</p>
-  <ul>
+  <!-- <ul>
     <li v-for="country in countries" :key="country.id">{{ country.name }}</li>
-  </ul>
+  </ul> -->
 </template>

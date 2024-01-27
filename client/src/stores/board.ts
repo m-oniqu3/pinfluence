@@ -1,4 +1,4 @@
-import { supabase } from '@/lib/supabaseClient'
+// import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
 import type { Board, NewBoard } from '@/types/board'
 import { defineStore } from 'pinia'
@@ -59,18 +59,18 @@ export const useBoardStore = defineStore('board', () => {
 
       const entry = Object.assign({}, boardData, { user_id: auth.user.id })
 
-      const { data, error } = await supabase
-        .from('boards')
-        .insert(entry)
-        .select('id, name, secret, created_at')
-        .single()
-      if (error) throw error
+      // const { data, error } = await supabase
+      //   .from('boards')
+      //   .insert(entry)
+      //   .select('id, name, secret, created_at')
+      //   .single()
+      // if (error) throw error
 
-      console.log(data)
-      if (data) {
-        console.log(data)
-        insertBoard(data.id, data)
-      }
+      // console.log(data)
+      // if (data) {
+      //   console.log(data)
+      //   insertBoard(data.id, data)
+      // }
     } catch (error) {
       console.log(error)
     } finally {
@@ -82,23 +82,23 @@ export const useBoardStore = defineStore('board', () => {
     try {
       console.log('Getting boards')
       isLoading.value = true
-      const { data, error } = await supabase
-        .from('boards')
-        .select('id, name, secret, created_at')
-        .order('created_at', { ascending: false })
+      // const { data, error } = await supabase
+      //   .from('boards')
+      //   .select('id, name, secret, created_at')
+      //   .order('created_at', { ascending: false })
 
-      if (error) throw error
+      // if (error) throw error
 
-      if (!data.length) {
-        console.log('No data yet, early return')
-        return
-      }
+      // if (!data.length) {
+      //   console.log('No data yet, early return')
+      //   return
+      // }
 
-      if (data.length > 0) {
-        data.forEach((board: Board) => {
-          insertBoard(board.id, board)
-        })
-      }
+      // if (data.length > 0) {
+      //   data.forEach((board: Board) => {
+      //     insertBoard(board.id, board)
+      //   })
+      // }
     } catch (error) {
       console.log(error)
     } finally {

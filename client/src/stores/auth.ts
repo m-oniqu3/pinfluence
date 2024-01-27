@@ -1,7 +1,6 @@
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
 
-import { supabase } from '@/lib/supabaseClient'
 import type { User } from '@/types/auth'
 
 export const useAuthStore = defineStore('auth', () => {
@@ -21,23 +20,21 @@ export const useAuthStore = defineStore('auth', () => {
   async function getUser() {
     setIsLoading(true)
     try {
-      const { data, error } = await supabase.auth.getUser()
-
-      if (error) {
-        if (error.status === 404 || error.status === 401) {
-          await logout()
-          throw new Error('Not authenticated')
-        }
-      }
-
-      if (data.user && !error) {
-        console.log(data.user)
-        setUser({
-          id: data.user.id,
-          email: data.user.email as string,
-          aud: data.user.aud
-        })
-      }
+      // const { data, error } = await supabase.auth.getUser()
+      // if (error) {
+      //   if (error.status === 404 || error.status === 401) {
+      //     await logout()
+      //     throw new Error('Not authenticated')
+      //   }
+      // }
+      // if (data.user && !error) {
+      //   console.log(data.user)
+      //   setUser({
+      //     id: data.user.id,
+      //     email: data.user.email as string,
+      //     aud: data.user.aud
+      //   })
+      // }
     } catch (error) {
       console.log(error)
     } finally {
@@ -46,18 +43,20 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    // const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-    return error
+    // return error
+
+    return null
   }
 
   async function logout() {
-    const { error } = await supabase.auth.signOut()
+    // const { error } = await supabase.auth.signOut()
 
-    if (error) {
-      console.log(error)
-      return
-    }
+    // if (error) {
+    //   console.log(error)
+    //   return
+    // }
 
     setUser(null)
   }

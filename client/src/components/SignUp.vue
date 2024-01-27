@@ -1,8 +1,7 @@
 <script lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
-import { supabase } from '@/lib/supabaseClient'
-import { useProfileStore } from '@/stores/profile'
+
 import { modal, type ModalActions } from '@/types/keys'
 import { validateEmail, validatePassword } from '@/utils/validation'
 import { defineComponent, inject, ref } from 'vue'
@@ -14,7 +13,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-const profileStore = useProfileStore()
 const router = useRouter()
 const { closeModal, openModal } = inject(modal) as ModalActions
 
@@ -34,15 +32,14 @@ function validateField(field: string) {
 }
 
 async function signUpNewUser(email: string, password: string) {
-  const { data, error } = await supabase.auth.signUp({
-    email: email,
-    password: password,
-    options: {
-      emailRedirectTo: 'http://localhost:5173/'
-    }
-  })
-
-  return { data, error }
+  // const { data, error } = await supabase.auth.signUp({
+  //   email: email,
+  //   password: password,
+  //   options: {
+  //     emailRedirectTo: 'http://localhost:5173/'
+  //   }
+  // })
+  // return { data, error }
 }
 
 async function submitForm() {
@@ -53,14 +50,14 @@ async function submitForm() {
 
   try {
     isLoading.value = true
-    const { data, error } = await signUpNewUser(credentials.value.email, credentials.value.password)
+    await signUpNewUser(credentials.value.email, credentials.value.password)
 
-    if (error) {
-      console.log(error.message, error.name)
-      throw error
-    }
+    // if (error) {
+    //   console.log(error.message, error.name)
+    //   throw error
+    // }
 
-    console.log(data)
+    // console.log(data)
 
     closeModal()
     // navigate home

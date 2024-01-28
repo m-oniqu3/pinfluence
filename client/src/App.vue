@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import AppNavbar from '@/components/app/AppNavbar.vue'
 import { api } from '@/services/api'
 import { onMounted } from 'vue'
 // const authStore = useAuthStore()
@@ -42,6 +43,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <AppNavbar />
   <p>hey</p>
   <!-- <p v-if="isLoading || authStore.isLoading" class="text-center">Loading...</p> -->
 

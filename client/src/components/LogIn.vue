@@ -1,14 +1,6 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import InputField from '@/components/InputField.vue'
-import router from '@/router'
-import { useAuthStore } from '@/stores/auth'
-import { useProfileStore } from '@/stores/profile'
-
-import { modal, type ModalActions } from '@/types/keys'
-
-import { validateEmail, validatePassword } from '@/utils/validation'
-import { defineComponent, inject, ref } from 'vue'
+import axios from 'axios'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'LogIn'
@@ -16,27 +8,36 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
+import InputField from '@/components/InputField.vue'
+import { useAuthStore } from '@/stores/auth'
+import { useProfileStore } from '@/stores/profile'
+
+import { modal, type ModalActions } from '@/types/keys'
+
+import { api } from '@/services/api'
+import { validateEmail, validatePassword } from '@/utils/validation'
+import { assign } from '@sa-net/utils'
+import { inject, reactive, ref } from 'vue'
+
 const authStore = useAuthStore()
 const profileStore = useProfileStore()
 
 const { closeModal, openModal } = inject(modal) as ModalActions
 
-const credentials = ref({ email: '', password: '' })
-const errors = ref({ isEmailValid: false, isPasswordValid: false })
+const credentials = reactive({ email: '', password: '' })
+const errors = reactive({ isEmailValid: false, isPasswordValid: false })
 const loading = ref(false)
 
-const loginFailed = ref({
-  status: false,
-  message: ''
-})
+const loginMessage = ref('')
 
 function validateField(field: string) {
   switch (field) {
     case 'email':
-      errors.value.isEmailValid = !validateEmail(credentials.value.email)
+      errors.isEmailValid = !validateEmail(credentials.email)
       break
     case 'password':
-      errors.value.isPasswordValid = !validatePassword(credentials.value.password)
+      errors.isPasswordValid = !validatePassword(credentials.password)
       break
   }
 }
@@ -44,23 +45,40 @@ function validateField(field: string) {
 async function submitForm() {
   loading.value = true
   try {
-    console.log('submitting form')
+    const response = await authStore.login(credentials)
 
-    const error = await authStore.login(credentials.value.email, credentials.value.password)
-    if (error) throw error
+    if (!response.user || !response.session) {
+      throw new Error('Something went wrong')
+    }
 
-    await profileStore.getProfileDetails()
+    const token = response.session.access_token
+
+    // set user and session
+    authStore.setUser(response.user)
+    authStore.setSession(token)
+
+    //update axios headers
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    api.defaults.headers.common['Content-Type'] = 'application/json'
+
+    // await profileStore.getProfileDetails()
 
     closeModal()
     // navigate home
-    router.push({ name: 'home' })
+    // router.push({ name: 'home' })
   } catch (error: any) {
-    loginFailed.value = {
-      status: true,
-      message: error.message
+    let message = ''
+
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data.error ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
     }
+
+    loginMessage.value = message
   } finally {
     loading.value = false
+    assign(credentials, { email: '', password: '' })
   }
 }
 </script>
@@ -70,7 +88,7 @@ async function submitForm() {
     class="bg-neutral w-full rounded-lg p-6 relative max-w-sm mx-auto"
     @click.stop.prevent
     @submit.prevent="submitForm"
-    @input="loginFailed = { status: false, message: '' }"
+    @input="loginMessage = ''"
   >
     <font-awesome-icon
       icon="fa-solid fa-xmark"
@@ -78,13 +96,11 @@ async function submitForm() {
       @click="closeModal"
     />
 
-    <header class="flex flex-col gap-8 items-center py-2 mb-4">
+    <header class="space-y-4 text-center py-2 mb-4 h-28">
       <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
       <h2 class="text-2xl font-bold">Welcome to Pinfluence</h2>
 
-      <p v-if="loginFailed.status">
-        {{ loginFailed.message }}
-      </p>
+      <p v-show="loginMessage">{{ loginMessage }}</p>
     </header>
 
     <InputField
@@ -107,7 +123,7 @@ async function submitForm() {
     />
 
     <p class="text-sm text-red-500 h-4 mb-4">
-      <span v-if="errors.isPasswordValid"> Password must be at least 8 characters. </span>
+      <span v-if="errors.isPasswordValid"> Password must be at least 6 characters. </span>
     </p>
 
     <BaseButton
@@ -115,6 +131,7 @@ async function submitForm() {
       type="submit"
       class="bg-primary w-full text-neutral mt-2"
       id="submit"
+      :disabled="errors.isEmailValid || errors.isPasswordValid || loading"
     >
       {{ loading ? 'Loading' : '  Log In' }}
     </BaseButton>

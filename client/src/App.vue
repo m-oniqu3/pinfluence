@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import AppNavbar from '@/components/app/AppNavbar.vue'
-import { api } from '@/services/api'
-import { onMounted } from 'vue'
 // const authStore = useAuthStore()
 // const profileStore = useProfileStore()
 // const boardsStore = useBoardStore()
@@ -11,18 +9,6 @@ import { onMounted } from 'vue'
 // })
 
 // const isLoading = ref(false)
-
-onMounted(() => {
-  api
-    .get('/')
-    .then((res) => {
-      console.log(res.data)
-    })
-
-    .catch((error) => {
-      console.error('Error fetching data:', error)
-    })
-})
 
 // onMounted(async () => {
 //   isLoading.value = true

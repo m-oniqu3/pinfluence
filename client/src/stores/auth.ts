@@ -21,21 +21,9 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function getUser() {
-    // const { data, error } = await supabase.auth.getUser()
-    // if (error) {
-    //   if (error.status === 404 || error.status === 401) {
-    //     await logout()
-    //     throw new Error('Not authenticated')
-    //   }
-    // }
-    // if (data.user && !error) {
-    //   console.log(data.user)
-    //   setUser({
-    //     id: data.user.id,
-    //     email: data.user.email as string,
-    //     aud: data.user.aud
-    //   })
-    // }
+    const response = await api.get<{ data: User | null }>('auth')
+    console.log(response.data)
+    return response.data.data
   }
 
   async function login(credentials: { email: string; password: string }) {

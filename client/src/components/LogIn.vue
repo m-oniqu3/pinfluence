@@ -1,6 +1,7 @@
 <script lang="ts">
 import axios from 'axios'
 import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'LogIn'
@@ -11,7 +12,7 @@ export default defineComponent({
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { useAuthStore } from '@/stores/auth'
-import { useProfileStore } from '@/stores/profile'
+// import { useProfileStore } from '@/stores/profile'
 
 import { modal, type ModalActions } from '@/types/keys'
 
@@ -21,7 +22,8 @@ import { assign } from '@sa-net/utils'
 import { inject, reactive, ref } from 'vue'
 
 const authStore = useAuthStore()
-const profileStore = useProfileStore()
+const router = useRouter()
+// const profileStore = useProfileStore()
 
 const { closeModal, openModal } = inject(modal) as ModalActions
 
@@ -65,7 +67,7 @@ async function submitForm() {
 
     closeModal()
     // navigate home
-    // router.push({ name: 'home' })
+    router.push({ name: 'home' })
   } catch (error: any) {
     let message = ''
 

@@ -7,15 +7,14 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-// import PrivateHome from '@/components/pages/PrivateHome.vue'
+import PrivateHome from '@/components/pages/PrivateHome.vue'
 import PublicHome from '@/components/pages/PublicHome.vue'
-// import { useAuthStore } from '@/stores/auth'
+import { useAuthStore } from '@/stores/auth'
 
-// const auth = useAuthStore()
+const auth = useAuthStore()
 </script>
 
 <template>
-  <PublicHome />
-  <!-- <PrivateHome v-if="auth.isAuth" />
-  <PublicHome v-else /> -->
+  <PrivateHome v-if="auth.isAuth" />
+  <PublicHome v-else />
 </template>

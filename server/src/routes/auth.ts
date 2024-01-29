@@ -1,15 +1,20 @@
 import { isRecord } from "@sa-net/utils";
 import { supabase } from "@server/lib/supabaseClient";
+import { requireAuth } from "@server/middleware/auth";
 import { AuthError } from "@supabase/supabase-js";
 import express from "express";
 
 export const router = express.Router();
 
 // returns the current authed user
-router.get("/auth", async (req, res) => {});
+router.get("/auth", requireAuth, (req, res) => {
+  // the request reached this handler, so the user is authenticated
+  const user = req.user;
+
+  return res.status(200).json({ data: user });
+});
 
 // login user
-
 router.post("/auth", async (req, res) => {
   try {
     console.log(req.body);
@@ -27,8 +32,6 @@ router.post("/auth", async (req, res) => {
       throw new Error("Invalid request body");
     }
 
-    console.log(email, password);
-
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -41,7 +44,6 @@ router.post("/auth", async (req, res) => {
     return res.status(200).json({ data });
   } catch (error: unknown) {
     if (error instanceof AuthError) {
-      console.log("error instanceof AuthError", error.message);
       return res.status(401).json({ error: error.message });
     }
 
@@ -70,6 +72,6 @@ router.post("/auth/signup", async (_req, res) => {
 });
 
 // logout user
-router.delete("/auth", async (_req, res) => {
+router.delete("/auth", async (_req, _res) => {
   console.log("logout route");
 });

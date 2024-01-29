@@ -1,4 +1,6 @@
 import { inRecord, isFunction, isRecord, toEntries } from "@sa-net/utils";
+import { loadUser } from "@server/middleware/auth";
+
 import cors from "cors";
 import express from "express";
 
@@ -11,6 +13,8 @@ const PORT = parseInt(serverURL.port) ?? 3001;
 
 app.use(cors());
 app.use(express.json());
+
+app.use(loadUser);
 
 // returns an object of all the files in the routes folder
 const routes = import.meta.glob("./routes/**/*.ts", { eager: true });

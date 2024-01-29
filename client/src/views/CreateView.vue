@@ -11,7 +11,7 @@ import BaseButton from '@/components/BaseButton.vue'
 import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
-import { supabase } from '@/lib/supabaseClient'
+
 import { createPin, createPinTag, createTag } from '@/services/createPinServices'
 import { useAuthStore } from '@/stores/auth'
 import { useCreatedPinsStore } from '@/stores/createdPins'
@@ -89,19 +89,19 @@ const isLoadingTags = ref(false)
 const tagLabel = computed(() => `Tagged topics (${selectedTags.value.length})`)
 
 // Get tags from the database based on the input value
-async function getMatchTags(val: string) {
-  isLoadingTags.value = true
-  const { data: tags, error } = await supabase
-    .from('tags')
-    .select('id, name')
-    .ilike('name', `%${val}%`)
+// async function getMatchTags(val: string) {
+//   isLoadingTags.value = true
+//   const { data: tags, error } = await supabase
+//     .from('tags')
+//     .select('id, name')
+//     .ilike('name', `%${val}%`)
 
-  if (!error) {
-    tagsList.value = tags || []
-  }
+//   if (!error) {
+//     tagsList.value = tags || []
+//   }
 
-  isLoadingTags.value = false
-}
+//   isLoadingTags.value = false
+// }
 
 // Filter tags list to show only tags that are not selected
 const filteredTagList = computed(() => {
@@ -298,8 +298,8 @@ console.log(selectedTags.value)
           :label="tagLabel"
           placeholder="Search for tags"
           @click="handleTagsList"
-          @input.prevent="getMatchTags(newTag.trim())"
         />
+        <!-- @input.prevent="getMatchTags(newTag.trim())" should go to input above -->
         <span class="text-xs pt-1 text-gray-700"> Don't worry, people won't see your tags </span>
 
         <span

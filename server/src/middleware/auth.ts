@@ -22,15 +22,15 @@ export async function loadUser(
 
   const authHeader = req.headers.authorization;
 
-  if (authHeader) {
-    const brokenHeader = authHeader.split(" ");
+  if (!authHeader) return next();
 
-    if (brokenHeader.length !== 2) {
-      return next();
-    }
+  const brokenHeader = authHeader.split(" ");
 
-    const token = brokenHeader[1];
+  if (brokenHeader.length !== 2) return next();
 
+  const token = brokenHeader[1];
+
+  try {
     //verify token with supabase
     const user = await getUserFromToken(token);
 
@@ -38,8 +38,14 @@ export async function loadUser(
     if (user) {
       req.user = user;
     }
+
+    next();
+  } catch (error: unknown) {
+    console.error("Error verifying token:", error);
+
+    //do next(error) to pass error to express error handler
+    next();
   }
-  next();
 }
 
 //middleware to check if user is authenticated

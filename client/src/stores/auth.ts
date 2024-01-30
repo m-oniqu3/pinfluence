@@ -33,14 +33,8 @@ export const useAuthStore = defineStore('auth', () => {
 
   async function logout() {
     // remove the header and delete it from storage
-    // const { error } = await supabase.auth.signOut()
-
-    // if (error) {
-    //   console.log(error)
-    //   return
-    // }
-
-    setUser(null)
+    const response = await api.delete<{ data: string }>('auth')
+    return response
   }
 
   return { isAuth, logout, user, setUser, getUser, login, setSession, removeSession }

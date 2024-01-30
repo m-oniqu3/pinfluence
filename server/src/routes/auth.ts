@@ -6,9 +6,11 @@ import express from "express";
 
 export const router = express.Router();
 
-// returns the current authed user
+/**
+ * get the current user
+ * if the request reaches this handler, the user is authenticated
+ */
 router.get("/auth", requireAuth, (req, res) => {
-  // the request reached this handler, so the user is authenticated
   const user = req.user;
 
   return res.status(200).json({ data: user });
@@ -72,6 +74,21 @@ router.post("/auth/signup", async (_req, res) => {
 });
 
 // logout user
-router.delete("/auth", async (_req, _res) => {
-  console.log("logout route");
+router.delete("/auth", async (_req, res) => {
+  try {
+    const { error } = await supabase.auth.signOut();
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json({ data: "Logout Successful" });
+  } catch (error: unknown) {
+    if (error instanceof AuthError) {
+      return res.status(401).json({ error: error.message });
+    }
+
+    console.log(error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
 });

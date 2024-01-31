@@ -31,11 +31,16 @@ export const useAuthStore = defineStore('auth', () => {
     return response.data.data
   }
 
+  async function signup(credentials: { email: string; password: string }) {
+    const response = await api.post<AuthTokenResponse>('auth/signup', credentials)
+    return response.data.data
+  }
+
   async function logout() {
     // remove the header and delete it from storage
     const response = await api.delete<{ data: string }>('auth')
     return response
   }
 
-  return { isAuth, logout, user, setUser, getUser, login, setSession, removeSession }
+  return { isAuth, logout, user, setUser, getUser, login, signup, setSession, removeSession }
 })

@@ -1,11 +1,8 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import InputField from '@/components/InputField.vue'
-
-import { modal, type ModalActions } from '@/types/keys'
-import { validateEmail, validatePassword } from '@/utils/validation'
-import { defineComponent, inject, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { assign } from '@sa-net/utils'
+import axios from 'axios'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'SignUp'
@@ -13,59 +10,67 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
+import InputField from '@/components/InputField.vue'
+import { modal, type ModalActions } from '@/types/keys'
+import { validateEmail, validatePassword } from '@/utils/validation'
+import { inject, reactive, ref } from 'vue'
+import { useRouter } from 'vue-router'
 const router = useRouter()
+
+const authStore = useAuthStore()
 const { closeModal, openModal } = inject(modal) as ModalActions
 
-const credentials = ref({ email: '', password: '' })
+const credentials = reactive({ email: '', password: '' })
 const isLoading = ref(false)
-const errors = ref({ isEmailValid: false, isPasswordValid: false })
+const errors = reactive({ isEmailValid: false, isPasswordValid: false })
+
+const signupError = ref('')
 
 function validateField(field: string) {
   switch (field) {
     case 'email':
-      errors.value.isEmailValid = !validateEmail(credentials.value.email)
+      errors.isEmailValid = !validateEmail(credentials.email)
       break
     case 'password':
-      errors.value.isPasswordValid = !validatePassword(credentials.value.password)
+      errors.isPasswordValid = !validatePassword(credentials.password)
       break
   }
 }
 
-async function signUpNewUser(email: string, password: string) {
-  // const { data, error } = await supabase.auth.signUp({
-  //   email: email,
-  //   password: password,
-  //   options: {
-  //     emailRedirectTo: 'http://localhost:5173/'
-  //   }
-  // })
-  // return { data, error }
-}
-
 async function submitForm() {
   console.log('submitting form')
-  if (errors.value.isEmailValid || errors.value.isPasswordValid) {
+  if (errors.isEmailValid || errors.isPasswordValid) {
     return
   }
 
   try {
     isLoading.value = true
-    await signUpNewUser(credentials.value.email, credentials.value.password)
+    const response = await authStore.signup(credentials)
 
-    // if (error) {
-    //   console.log(error.message, error.name)
-    //   throw error
-    // }
+    if (!response.user) {
+      throw new Error('Something went wrong')
+    }
 
-    // console.log(data)
+    // user should check their email to verify their account
+    signupError.value = 'Please check your email to verify your account.'
 
     closeModal()
     // navigate home
     router.push({ name: 'home' })
-  } catch (error) {
-    console.error(error)
+  } catch (error: any) {
+    let message = ''
+
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data.error ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
+    }
+
+    signupError.value = message
   } finally {
     isLoading.value = false
+    assign(credentials, { email: '', password: '' })
   }
 }
 </script>
@@ -75,6 +80,7 @@ async function submitForm() {
     class="bg-neutral w-full rounded-lg p-6 relative max-w-sm mx-auto"
     @click.stop.prevent
     @submit.prevent="submitForm"
+    @input="signupError = ''"
   >
     <font-awesome-icon
       icon="fa-solid fa-xmark"
@@ -82,12 +88,16 @@ async function submitForm() {
       @click="closeModal"
     />
 
-    <header class="flex flex-col items-center gap-6 py-2 mb-4">
+    <header class="space-y-4 text-center py-2 mb-4 h-32">
       <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
       <div class="text-center">
         <h2 class="text-2xl font-bold">Welcome to Pinfluence</h2>
         <p>Find new ideas to try</p>
       </div>
+
+      <p class="text-sm text-red-500">
+        <span v-if="signupError">{{ signupError }}</span>
+      </p>
     </header>
 
     <InputField

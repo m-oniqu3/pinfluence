@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { loadUser } from "./middleware/auth";
-import router from "./routes/auth";
+import router from "./routes";
 
 import cors from "cors";
 

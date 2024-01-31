@@ -31,7 +31,7 @@ const credentials = reactive({ email: '', password: '' })
 const errors = reactive({ isEmailValid: false, isPasswordValid: false })
 const loading = ref(false)
 
-const loginMessage = ref('')
+const loginError = ref('')
 
 function validateField(field: string) {
   switch (field) {
@@ -77,7 +77,7 @@ async function submitForm() {
       message = 'Something went wrong. Please try again.'
     }
 
-    loginMessage.value = message
+    loginError.value = message
   } finally {
     loading.value = false
     assign(credentials, { email: '', password: '' })
@@ -90,7 +90,7 @@ async function submitForm() {
     class="bg-neutral w-full rounded-lg p-6 relative max-w-sm mx-auto"
     @click.stop.prevent
     @submit.prevent="submitForm"
-    @input="loginMessage = ''"
+    @input="loginError = ''"
   >
     <font-awesome-icon
       icon="fa-solid fa-xmark"
@@ -102,7 +102,7 @@ async function submitForm() {
       <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
       <h2 class="text-2xl font-bold">Welcome to Pinfluence</h2>
 
-      <p v-show="loginMessage">{{ loginMessage }}</p>
+      <p v-show="loginError">{{ loginError }}</p>
     </header>
 
     <InputField

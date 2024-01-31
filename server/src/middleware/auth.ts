@@ -1,6 +1,6 @@
-import { getUserFromToken } from "@server/utils/authUtils";
 import { type User } from "@supabase/supabase-js";
 import { type NextFunction, type Request, type Response } from "express";
+import { getUserFromToken } from "../utils/authUtils";
 
 declare global {
   namespace Express {
@@ -53,8 +53,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   console.log("requireAuth");
   if (!req.user) {
     console.log("Unauthorized, no user found");
-    return res.status(401).json({ error: "Unauthorized" });
+    res.status(401).json({ error: "Unauthorized" });
+  } else {
+    next();
   }
-
-  next();
 }

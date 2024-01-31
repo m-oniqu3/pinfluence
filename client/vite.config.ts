@@ -7,7 +7,7 @@ import { defineConfig, loadEnv } from 'vite'
 export default defineConfig((env) => {
   // load env vars from .env files
   // filter the vars
-  const envs = loadEnv(env.mode, '../', ['SERVER_', 'CLIENT_'])
+  const envs = loadEnv(env.mode, './', ['SERVER_', 'CLIENT_'])
 
   // get url and api path from env vars
   const serverURL = new URL(envs.SERVER_URL ?? 'http://localhost:3001')

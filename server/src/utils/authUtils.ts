@@ -1,7 +1,7 @@
-import { supabase } from "@server/lib/supabaseClient";
-import { AuthError } from "@supabase/supabase-js";
+import { AuthError, type User } from "@supabase/supabase-js";
+import { supabase } from "../lib/supabaseClient";
 
-export async function getUserFromToken(token: string) {
+export async function getUserFromToken(token: string): Promise<User | null> {
   try {
     console.log("get user from token");
     const { data, error } = await supabase.auth.getUser(token);
@@ -18,4 +18,6 @@ export async function getUserFromToken(token: string) {
       console.log("Something went wrong. Could not get user from token.");
     }
   }
+
+  return null;
 }

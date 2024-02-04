@@ -53,7 +53,7 @@ export async function login(req: Request, res: Response) {
 //sign up user
 export async function signup(req: Request, res: Response) {
   const redirectUrl = new URL(
-    process.env.CLIENT_URL ?? "http://localhost:3000"
+    process.env.REDIRECT_URL ?? "http://localhost:3000/verification/"
   );
 
   try {
@@ -68,17 +68,29 @@ export async function signup(req: Request, res: Response) {
       throw new Error("Invalid request body");
     }
 
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error: signupError } = await supabase.auth.signUp({
       email,
       password,
 
-      options: {
-        emailRedirectTo: redirectUrl.toString(),
-        data: {
-          username: email.split("@")[0] + Math.floor(Math.random() * 1000),
-        },
-      },
+      options: { emailRedirectTo: redirectUrl.toString() },
     });
+
+    if (signupError) {
+      throw signupError;
+    }
+
+    if (!data || data.user === null) {
+      throw new Error("Failed to sign up user. Please try again");
+    }
+
+    const base_name = email.split("@")[0];
+    const username = base_name + data.user.id.split("-")[0];
+
+    // update the user's username
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ id: data.user.id, username, full_name: base_name })
+      .select();
 
     if (error) {
       throw error;

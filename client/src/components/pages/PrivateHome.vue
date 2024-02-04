@@ -7,10 +7,11 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+// const feed = useFeedStore()
+
 import { useAuthStore } from '@/stores/auth'
 
-// const feed = useFeedStore()
-const auth = useAuthStore()
+const authStore = useAuthStore()
 
 // onMounted(() => {
 //   if (auth.user?.id && !feed.pins.length) {
@@ -22,7 +23,7 @@ const auth = useAuthStore()
 </script>
 
 <template>
-  <p>Private Home, {{ auth.user?.id }}</p>
+  <p>Private Home, {{ authStore.user?.id }}</p>
 </template>
 
 <!-- <template>

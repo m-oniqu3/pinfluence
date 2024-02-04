@@ -7,18 +7,16 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
-import AppModal from '@/components/app/AppModal.vue'
 import { useAuthStore } from '@/stores/auth'
-import type { AuthComponent } from '@/types/keys'
-import { modal } from '@/types/keys'
-import { computed, provide, ref, type Ref } from 'vue'
+import { ref } from 'vue'
 
 const auth = useAuthStore()
 // const profile = useProfileStore()
-const avatar = ref('')
+
+// random avatar
+const avatar = ref('https://picsum.photos/200')
 
 // async function updateAvatar(url: string) {
 //   const image = await downloadImage(url)
@@ -42,40 +40,39 @@ const avatar = ref('')
 //     }
 //   }
 // )
-
-const selectedComponent: Ref<AuthComponent | null> = ref(null)
-
-const openModal = (component: AuthComponent) => (selectedComponent.value = component)
-const closeModal = () => (selectedComponent.value = null)
-
-provide(modal, { openModal, closeModal })
-
-const isModalOpen = computed(() => selectedComponent.value !== null)
 </script>
 
 <template>
   <header class="h-20 flex justify-center items-center fixed top-0 left-0 right-0 z-10 bg-white">
     <nav class="wrapper flex justify-between items-center gap-4">
-      <AppLogo class="fa-xl" />
+      <router-link to="/">
+        <AppLogo class="fa-xl" />
+      </router-link>
 
-      <div v-if="!auth.isAuth" class="flex items-center gap-2">
-        <BaseButton class="bg-primary text-neutral" @click="openModal('log-in')">Log in</BaseButton>
-        <BaseButton class="bg-neutral-100 text-black" @click="openModal('sign-up')"
-          >Sign up</BaseButton
-        >
-      </div>
+      <ul v-if="!auth.isAuth" class="flex items-center gap-2">
+        <li>
+          <router-link to="/login" class="bg-black text-neutral btn font-bold" id="link"
+            >Log in</router-link
+          >
+        </li>
+        <li>
+          <router-link to="/register" class="bg-neutral-100 text-black btn font-bold" id="link"
+            >Sign up</router-link
+          >
+        </li>
+      </ul>
 
       <template v-else>
         <ul class="xs:hidden sm:flex">
           <li>
-            <router-link to="/" class="btn text-black">Home</router-link>
+            <router-link :to="{ name: 'home' }" class="btn text-black">Home</router-link>
           </li>
           <li>
-            <router-link to="/create" class="btn text-black">Create</router-link>
+            <router-link :to="{ name: 'create' }" class="btn text-black">Create</router-link>
           </li>
 
           <li>
-            <router-link to="/about" class="btn text-black">About</router-link>
+            <router-link :to="{ name: 'about' }" class="btn text-black">About</router-link>
           </li>
         </ul>
 
@@ -96,19 +93,16 @@ const isModalOpen = computed(() => selectedComponent.value !== null)
       </template>
     </nav>
   </header>
-
-  <AppModal @close-modal="closeModal" :open="isModalOpen">
-    <KeepAlive>
-      <Transition name="fade" mode="out-in">
-        <component :is="selectedComponent" />
-      </Transition>
-    </KeepAlive>
-  </AppModal>
 </template>
 
 <style scoped>
 .btn.router-link-active {
   background-color: black;
+  color: white;
+}
+
+#link.router-link-active {
+  background-color: red;
   color: white;
 }
 

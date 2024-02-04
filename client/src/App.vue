@@ -2,11 +2,6 @@
 import AppNavbar from '@/components/app/AppNavbar.vue'
 import { RouterView } from 'vue-router'
 
-import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
-import { onMounted, ref } from 'vue'
-
-const authStore = useAuthStore()
 // const profileStore = useProfileStore()
 // const boardsStore = useBoardStore()
 
@@ -33,40 +28,38 @@ const authStore = useAuthStore()
 //   }
 // })
 
-const loading = ref(false)
+// onMounted(async () => {
+//   try {
+//     loading.value = true
+//     console.log('getting user')
+//     const data = await authStore.getUser()
 
-onMounted(async () => {
-  loading.value = true
-  try {
-    const data = await authStore.getUser()
+//     console.log(data, ' from App.vue')
 
-    authStore.setUser(data)
-  } catch (error: any) {
-    let message = ''
+//     authStore.setUser(data)
+//   } catch (error: any) {
+//     let message = ''
 
-    if (axios.isAxiosError(error)) {
-      message = error.response?.data.error ?? error.message
-    } else {
-      message = 'Something went wrong. Please try again.'
-    }
+//     if (axios.isAxiosError(error)) {
+//       message = error.response?.data.error ?? error.message
+//     } else {
+//       message = 'Something went wrong. Please try again.'
+//     }
 
-    console.log(message, ' from App.vue')
-    authStore.setUser(null)
-  } finally {
-    loading.value = false
-  }
-})
+//     console.log(message, ' from App.vue')
+//     authStore.setUser(null)
+//   } finally {
+//     loading.value = false
+//     console.log('finished getting user')
+//   }
+// })
 </script>
 
 <template>
-  <p v-if="loading">Loading...</p>
-
-  <template v-else>
-    <AppNavbar />
-    <div class="mt-24">
-      <RouterView />
-    </div>
-  </template>
+  <AppNavbar />
+  <div class="mt-24">
+    <RouterView :style="{ minHeight: 'calc(100vh - 96px)' }" />
+  </div>
 </template>
 
 <style scoped></style>

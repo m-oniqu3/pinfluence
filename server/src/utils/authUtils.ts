@@ -4,6 +4,7 @@ import { supabase } from "../lib/supabaseClient";
 export async function getUserFromToken(token: string): Promise<User | null> {
   try {
     console.log("get user from token");
+
     const { data, error } = await supabase.auth.getUser(token);
 
     if (error) {

@@ -6,23 +6,27 @@ import { api } from '@/services/api'
 
 export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
-  const isAuth = computed(() => !!user.value?.id)
+  const isAuth = computed(() => !!user.value)
+
+  console.log('useAuthStore', user.value, isAuth.value)
 
   function setUser(data: User | null) {
     user.value = data
   }
 
-  function setSession(token: Session['access_token']) {
+  function setSession(token: Session['access_token'], user: User) {
     localStorage.setItem('sb-token', token)
+    localStorage.setItem('sb-user', JSON.stringify(user))
   }
 
   function removeSession() {
     localStorage.removeItem('sb-token')
+    localStorage.removeItem('sb-user')
   }
 
   async function getUser() {
     const response = await api.get<{ data: User | null }>('auth')
-    console.log(response.data)
+
     return response.data.data
   }
 

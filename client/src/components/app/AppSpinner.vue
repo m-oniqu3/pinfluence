@@ -2,12 +2,12 @@
 import { defineComponent } from 'vue'
 
 export default defineComponent({
-  name: 'PublicHome'
+  name: 'AppSpinner'
 })
 </script>
 
 <script setup lang="ts"></script>
 
 <template>
-  <p>public home</p>
+  <img src="@/assets/images/spinner.svg" alt="Loading..." />
 </template>

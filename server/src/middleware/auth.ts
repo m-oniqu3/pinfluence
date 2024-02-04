@@ -53,7 +53,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   console.log("requireAuth");
   if (!req.user) {
     console.log("Unauthorized, no user found");
-    res.status(401).json({ error: "Unauthorized" });
+    res.status(401).redirect("/logout");
   } else {
     next();
   }

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'CreateView'
@@ -12,14 +12,13 @@ import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
 
-import { createPin, createPinTag, createTag } from '@/services/createPinServices'
+import { createTag } from '@/services/createPinServices'
 import { useAuthStore } from '@/stores/auth'
-import { useCreatedPinsStore } from '@/stores/createdPins'
-import type { PinPreview, UploadPin } from '@/types/pin'
-import { computed, watch } from 'vue'
+import type { UploadPin } from '@/types/pin'
+import { computed, ref, watch } from 'vue'
 
 const auth = useAuthStore()
-const createdPinStore = useCreatedPinsStore()
+// const createdPinStore = useCreatedPinsStore()
 const loading = ref(false)
 
 const isSelectBoardModalOpen = ref(false)
@@ -141,10 +140,10 @@ async function uploadNewTag() {
   const trimmedNewTag = newTag.value.trim()
   const data = await createTag(trimmedNewTag)
 
-  if (data) {
-    selectedTags.value.push(data[0])
-    newTag.value = ''
-  }
+  // if (data) {
+  //   selectedTags.value.push(data[0])
+  //   newTag.value = ''
+  // }
 }
 
 // Event handler for selecting a tag
@@ -187,17 +186,18 @@ async function createNewPin() {
       userId: auth.user.id,
       file: pinDetails.value.file as File
     }
-    const data = await createPin(newPin)
-    const result = data[0] as PinPreview
+    // const data = await createPin(newPin)
+    // // const result = data[0] as PinPreview
+    // const result = data
 
-    if (!result) return
+    // if (!result) return
 
-    if (selectedTags.value.length > 0) {
-      console.log(selectedTags.value, result.id)
-      await createPinTag(selectedTags.value, result.id.toString())
-    }
+    // if (selectedTags.value.length > 0) {
+    //   console.log(selectedTags.value, result.id)
+    //   await createPinTag(selectedTags.value, result.id.toString())
+    // }
 
-    createdPinStore.addPin(result)
+    // createdPinStore.addPin(result)
   } catch (error) {
     console.log(error)
   } finally {

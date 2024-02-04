@@ -1,31 +1,26 @@
 <script lang="ts">
-import axios from 'axios'
 import { defineComponent } from 'vue'
-import { useRouter } from 'vue-router'
 
 export default defineComponent({
-  name: 'LogIn'
+  name: 'LoginVue'
 })
 </script>
 
 <script setup lang="ts">
+import axios from 'axios'
+
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { useAuthStore } from '@/stores/auth'
-// import { useProfileStore } from '@/stores/profile'
-
-import { modal, type ModalActions } from '@/types/keys'
+import { useRouter } from 'vue-router'
 
 import { api } from '@/services/api'
 import { validateEmail, validatePassword } from '@/utils/validation'
 import { assign } from '@sa-net/utils'
-import { inject, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 
 const authStore = useAuthStore()
 const router = useRouter()
-// const profileStore = useProfileStore()
-
-const { closeModal, openModal } = inject(modal) as ModalActions
 
 const credentials = reactive({ email: '', password: '' })
 const errors = reactive({ isEmailValid: false, isPasswordValid: false })
@@ -44,6 +39,10 @@ function validateField(field: string) {
   }
 }
 
+onMounted(() => {
+  console.log('login view mounted')
+})
+
 async function submitForm() {
   loading.value = true
   try {
@@ -57,7 +56,7 @@ async function submitForm() {
 
     // set user and session
     authStore.setUser(response.user)
-    authStore.setSession(token)
+    authStore.setSession(token, response.user)
 
     //update axios headers
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -65,7 +64,6 @@ async function submitForm() {
 
     // await profileStore.getProfileDetails()
 
-    closeModal()
     // navigate home
     router.push({ name: 'home' })
   } catch (error: any) {
@@ -86,63 +84,62 @@ async function submitForm() {
 </script>
 
 <template>
-  <form
-    class="bg-neutral w-full rounded-lg p-6 relative max-w-sm mx-auto"
-    @click.stop.prevent
-    @submit.prevent="submitForm"
-    @input="loginError = ''"
-  >
-    <font-awesome-icon
-      icon="fa-solid fa-xmark"
-      class="fa-xl absolute top-2 right-2 cursor-pointer"
-      @click="closeModal"
-    />
-
-    <header class="space-y-4 text-center py-2 mb-4 h-28">
-      <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
-      <h2 class="text-2xl font-bold">Welcome to Pinfluence</h2>
-
-      <p v-show="loginError">{{ loginError }}</p>
-    </header>
-
-    <InputField
-      v-model="credentials.email"
-      name="email"
-      type="email"
-      label="Email"
-      @blur="validateField('email')"
-    />
-    <p class="text-sm text-red-500 h-4 mb-4">
-      <span v-if="errors.isEmailValid"> Email is invalid. </span>
-    </p>
-
-    <InputField
-      v-model="credentials.password"
-      name="password"
-      type="password"
-      label="Password"
-      @blur="validateField('password')"
-    />
-
-    <p class="text-sm text-red-500 h-4 mb-4">
-      <span v-if="errors.isPasswordValid"> Password must be at least 6 characters. </span>
-    </p>
-
-    <BaseButton
-      @click="submitForm"
-      type="submit"
-      class="bg-primary w-full text-neutral mt-2"
-      id="submit"
-      :disabled="errors.isEmailValid || errors.isPasswordValid || loading"
+  <section class="wrapper max-w-sm h-full grid place-items-center">
+    <form
+      class="w-full rounded-lg p-6"
+      @click.stop.prevent
+      @submit.prevent="submitForm"
+      @input="loginError = ''"
     >
-      {{ loading ? 'Loading' : '  Log In' }}
-    </BaseButton>
+      <header class="space-y-4 py-2 mb-4 h-32">
+        <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
+        <div>
+          <h2 class="text-xl font-bold">Welcome to Pinfluence</h2>
+          <p>Log in to continue exploring</p>
+        </div>
 
-    <p class="text-sm text-center mt-4">
-      Not on pinterest yet?
-      <span class="font-bold cursor-pointer" @click="openModal('sign-up')">Sign up</span>
-    </p>
-  </form>
+        <p v-show="loginError" class="font-bold text-red-500">{{ loginError }}</p>
+      </header>
+
+      <InputField
+        v-model="credentials.email"
+        name="email"
+        type="email"
+        label="Email"
+        @blur="validateField('email')"
+      />
+      <p class="text-sm text-red-500 h-4 mb-4">
+        <span v-if="errors.isEmailValid"> Email is invalid. </span>
+      </p>
+
+      <InputField
+        v-model="credentials.password"
+        name="password"
+        type="password"
+        label="Password"
+        @blur="validateField('password')"
+      />
+
+      <p class="text-sm text-red-500 h-4 mb-4">
+        <span v-if="errors.isPasswordValid"> Password must be at least 6 characters. </span>
+      </p>
+
+      <BaseButton
+        @click="submitForm"
+        type="submit"
+        class="bg-primary w-full text-neutral mt-2"
+        id="submit"
+        :disabled="errors.isEmailValid || errors.isPasswordValid || loading"
+      >
+        {{ loading ? 'Loading' : '  Log In' }}
+      </BaseButton>
+
+      <p class="text-sm text-center mt-4">
+        Not on pinterest yet?
+        <router-link to="/register" class="font-bold cursor-pointer">Sign up</router-link>
+      </p>
+    </form>
+  </section>
 </template>
 
 <style scoped>

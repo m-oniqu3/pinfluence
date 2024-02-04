@@ -1,7 +1,5 @@
 import './assets/main.css'
 
-import LogIn from '@/components/LogIn.vue'
-import SignUp from '@/components/SignUp.vue'
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 
@@ -11,6 +9,7 @@ import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
+import { useAuthStore } from '@/stores/auth'
 import {
   faChevronDown,
   faCircleArrowUp,
@@ -40,7 +39,14 @@ app.use(createPinia())
 app.use(router)
 
 app.component('font-awesome-icon', FontAwesomeIcon)
-app.component('log-in', LogIn)
-app.component('sign-up', SignUp)
+
+const userString = localStorage.getItem('sb-user')
+
+const user = userString ? JSON.parse(userString) : null
+
+console.log(user)
+const auth = useAuthStore()
+
+auth.setUser(user)
 
 app.mount('#app')

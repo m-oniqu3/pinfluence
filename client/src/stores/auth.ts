@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
 
 import { api } from '@/services/api'
+import type { Profile } from '@/types/profile'
 
 export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
@@ -45,8 +46,8 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function getUserProfile(id: string) {
-    const response = await api.post('profile', { id })
-    console.log(response.data)
+    const response = await api.post<{ data: Profile }>('profile', { id })
+    return response.data.data
   }
 
   return {

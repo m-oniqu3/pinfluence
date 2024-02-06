@@ -1,10 +1,10 @@
 export type Profile = {
-  firstName: string
-  lastName: string
+  full_name: string
   username: string
   website: string
   avatar_url: string
   about: string
+  id: string
 }
 
 export type ProfileData = Omit<Profile, 'firstName' | 'lastName'> & {

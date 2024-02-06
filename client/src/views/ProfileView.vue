@@ -11,7 +11,11 @@ import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 </script>
 
 <template>
-  <ProfileHeader />
+  <Suspense>
+    <ProfileHeader />
+
+    <template #fallback> Loading... </template>
+  </Suspense>
   <!-- <Suspense>
     <ProfileBody />
 

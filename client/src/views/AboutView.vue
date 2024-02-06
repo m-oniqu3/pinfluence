@@ -22,7 +22,7 @@ async function logout() {
       authStore.setUser(null)
       authStore.removeSession()
       console.log(response.data.data)
-      router.push('/')
+      router.push('/login')
     }
 
     console.log(response)

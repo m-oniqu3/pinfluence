@@ -7,18 +7,17 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import ProfileBody from '@/components/profile/ProfileBody.vue'
 import ProfileHeader from '@/components/profile/ProfileHeader.vue'
 </script>
 
 <template>
   <ProfileHeader />
-  <Suspense>
+  <!-- <Suspense>
     <ProfileBody />
 
-    <!-- loading state via #fallback slot -->
+     loading state via #fallback slot
     <template #fallback> Loading... </template>
-  </Suspense>
+  </Suspense> -->
 </template>
 
 <style scoped></style>

@@ -49,7 +49,6 @@ const router = createRouter({
       path: '/verification/',
       name: 'verification',
       component: () => import('../views/VerificationView.vue'),
-
       beforeEnter: [authGuard, requireToken]
     },
     {
@@ -58,6 +57,11 @@ const router = createRouter({
 
       component: () => import('../views/AboutView.vue'),
       meta: { requiresAuth: true }
+    },
+    {
+      path: '/:profile',
+      name: 'profile',
+      component: () => import('../views/ProfileView.vue')
     }
     // {
     //   path: '/profile',

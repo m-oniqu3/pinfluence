@@ -10,9 +10,10 @@ export default defineComponent({
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const auth = useAuthStore()
+const user = computed(() => auth.user)
 // const profile = useProfileStore()
 
 // random avatar
@@ -79,15 +80,22 @@ const avatar = ref('https://picsum.photos/200')
         <SearchBar class="w-[60%] md:w-10/12" />
 
         <div class="flex gap-3 items-center min-w-max">
-          <!-- <router-link :to="{ name: 'profile' }"> -->
-          <img
-            v-if="avatar"
-            :src="avatar"
-            alt="avatar"
-            class="w-8 h-8 object-cover rounded-full border-2 border-gray-600"
-          />
-          <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
-          <!-- </router-link> -->
+          <template v-if="user">
+            <router-link :to="{ name: 'profile', params: { profile: user.id } }">
+              <img
+                v-if="avatar"
+                :src="avatar"
+                alt="avatar"
+                class="w-8 h-8 object-cover rounded-full border-2 border-gray-600"
+              />
+              <font-awesome-icon
+                v-else
+                icon="fa-solid fa-circle-user"
+                class="fa-xl text-gray-600"
+              />
+            </router-link>
+          </template>
+
           <font-awesome-icon icon="fa-solid fa-chevron-down" class="fa-lg text-gray-600" />
         </div>
       </template>

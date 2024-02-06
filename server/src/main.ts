@@ -1,11 +1,9 @@
-import "dotenv/config";
-import { loadUser } from "./middleware/auth";
-import router from "./routes";
-
 import cors from "cors";
-
+import "dotenv/config";
 import express from "express";
-import { loggerMiddleware } from "src/middleware/logger";
+import { loadUser } from "./middleware/auth";
+import { loggerMiddleware } from "./middleware/logger";
+import router from "./routes";
 
 const app = express();
 

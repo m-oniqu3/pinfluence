@@ -1,4 +1,6 @@
 <script lang="ts">
+import { useAuthStore } from '@/stores/auth'
+import axios from 'axios'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -7,16 +9,51 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import AppLogo from '@/components/app/AppLogo.vue'
-import { useProfileStore } from '@/stores/profile'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+// const profile = useProfileStore()
+// const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
 
-const profile = useProfileStore()
-const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
+const router = useRouter()
+const authStore = useAuthStore()
+const isLoading = ref(false)
+
+async function getProfile() {
+  try {
+    const { params } = router.currentRoute.value
+
+    if (!params.profile) {
+      return
+    }
+
+    const id = params.profile as string
+    await authStore.getUserProfile(id)
+  } catch (error: any) {
+    let message = ''
+
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data.error ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
+    }
+
+    console.log('Failed to get profile. ' + message, ' from getProfile')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  isLoading.value = true
+  await getProfile()
+})
 </script>
 
 <template>
-  <header class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
+  <p v-if="isLoading">Loading...</p>
+  <p v-else>profile header</p>
+
+  <!-- <header class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
     <figure>
       <img
         v-if="profile.details?.avatar_url"
@@ -50,7 +87,7 @@ const url = import.meta.env.VITE_SUPABASE_STORAGE_URL
     <router-link to="/settings/profile">
       <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
     </router-link>
-  </header>
+  </header> -->
 </template>
 
 <style scoped>

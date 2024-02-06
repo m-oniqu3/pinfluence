@@ -8,8 +8,6 @@ export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
   const isAuth = computed(() => !!user.value)
 
-  console.log('useAuthStore', user.value, isAuth.value)
-
   function setUser(data: User | null) {
     user.value = data
   }
@@ -46,5 +44,21 @@ export const useAuthStore = defineStore('auth', () => {
     return response
   }
 
-  return { isAuth, logout, user, setUser, getUser, login, signup, setSession, removeSession }
+  async function getUserProfile(id: string) {
+    const response = await api.post('profile', { id })
+    console.log(response.data)
+  }
+
+  return {
+    isAuth,
+    logout,
+    user,
+    setUser,
+    getUser,
+    login,
+    signup,
+    setSession,
+    removeSession,
+    getUserProfile
+  }
 })

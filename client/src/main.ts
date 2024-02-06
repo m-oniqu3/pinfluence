@@ -44,7 +44,6 @@ const userString = localStorage.getItem('sb-user')
 
 const user = userString ? JSON.parse(userString) : null
 
-console.log(user)
 const auth = useAuthStore()
 
 auth.setUser(user)

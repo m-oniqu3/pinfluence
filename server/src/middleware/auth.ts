@@ -1,4 +1,4 @@
-import { type User } from "@supabase/supabase-js";
+import { AuthError, type User } from "@supabase/supabase-js";
 import { type NextFunction, type Request, type Response } from "express";
 import { getUserFromToken } from "../utils/authUtils";
 
@@ -13,7 +13,7 @@ declare global {
 // this middleware checks for the authorization header
 export async function loadUser(
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ) {
   console.log("loadUser");
@@ -41,9 +41,21 @@ export async function loadUser(
 
     next();
   } catch (error: unknown) {
-    console.error("Error verifying token:", error);
+    if (error instanceof AuthError) {
+      console.log(error);
 
-    //do next(error) to pass error to express error handler
+      // Check if the error indicates that the token is expired
+      if (error.status === 401) {
+        console.log("Token expired");
+
+        res
+          .status(401)
+          .send("Token expired. Please try registering or logging in again.");
+        return;
+      }
+    }
+
+    console.log("Error getting user from token");
     next();
   }
 }
@@ -53,7 +65,8 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   console.log("requireAuth");
   if (!req.user) {
     console.log("Unauthorized, no user found");
-    res.status(401).redirect("/logout");
+    // res.status(401).redirect("/logout");
+    res.status(401).send("Unauthorized. No user found");
   } else {
     next();
   }

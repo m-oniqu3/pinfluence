@@ -14,6 +14,8 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
+// Define storage for uploaded files (no storage on server)
+
 app.use(loggerMiddleware);
 
 app.use(loadUser);

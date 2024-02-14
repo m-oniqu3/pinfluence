@@ -40,13 +40,32 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    // remove the header and delete it from storage
     const response = await api.delete<{ data: string }>('auth')
     return response
   }
 
-  async function getUserProfile(id: string) {
+  async function getUserProfileById(id: string) {
     const response = await api.post<{ data: Profile }>('profile', { id })
+    return response.data.data
+  }
+
+  async function getUserProfile() {
+    const response = await api.get<{ data: Profile }>('profile')
+    return response.data.data
+  }
+
+  async function updateProfileAvatar(id: string, formData: FormData) {
+    const response = await api.post<{ data: string }>(`profile/${id}/avatar`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    })
+
+    return response.data.data
+  }
+
+  async function updateProfile(data: Profile) {
+    const response = await api.put<{ data: Profile }>(`profile/${data.id}`, data)
     return response.data.data
   }
 
@@ -60,6 +79,9 @@ export const useAuthStore = defineStore('auth', () => {
     signup,
     setSession,
     removeSession,
-    getUserProfile
+    getUserProfile,
+    getUserProfileById,
+    updateProfile,
+    updateProfileAvatar
   }
 })

@@ -1,41 +1,56 @@
-<script lang="ts">
+<script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import ProfileAvatar from '@/components/settings/ProfileAvatar.vue'
-import { supabase } from '@/lib/supabaseClient'
 import { useAuthStore } from '@/stores/auth'
-import { useProfileStore } from '@/stores/profile'
-import { computed, defineComponent, ref } from 'vue'
+import type { Profile } from '@/types/profile'
+import { assign } from '@sa-net/utils'
+import axios from 'axios'
+import { computed, onMounted, reactive, ref } from 'vue'
 
-export default defineComponent({
-  name: 'ProfileSettings'
+const authStore = useAuthStore()
+const isLoading = ref(false)
+
+const initial = { firstName: '', lastName: '', username: '', website: '', avatar_url: '', about: '' }
+
+const profile = reactive({ ...initial })
+const originalDetails = reactive({ ...profile })
+
+async function getProfile() {
+  try {
+    const response = await authStore.getUserProfile()
+
+    return response
+  } catch (error: any) {
+    let message = ''
+
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data.error ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
+    }
+
+    console.log('Failed to get profile. ' + message, ' from getProfile')
+  } finally {
+    isLoading.value = false
+  }
+}
+
+onMounted(async () => {
+  isLoading.value = true
+  const response = await getProfile()
+
+  if (response) {
+    const [firstName, lastName] = response.full_name.split(' ')
+    assign(profile, { ...response, firstName, lastName })
+    assign(originalDetails, { ...profile })
+  }
 })
-</script>
-
-<script setup lang="ts">
-const auth = useAuthStore()
-const userProfile = useProfileStore()
-
-const fetchingProfile = ref(userProfile.isLoading)
-const loading = ref(false)
-
-// use store info here and init it in onmount
-const profileDetails = ref({
-  firstName: userProfile.details?.firstName ?? '',
-  lastName: userProfile.details?.lastName ?? '',
-  username: userProfile.details?.username ?? '',
-  website: userProfile.details?.website ?? '',
-  avatar_url: userProfile.details?.avatar_url ?? '',
-  about: userProfile.details?.about ?? ''
-})
-
-const originalProfileDetails = ref({ ...profileDetails.value })
 
 const errors = ref({ isFirstNameValid: false, isUserNameValid: false })
 
-// use computed instead of watch
 const isProfileUpdated = computed(() => {
-  return JSON.stringify(profileDetails?.value) !== JSON.stringify(originalProfileDetails.value)
+  return JSON.stringify(profile) !== JSON.stringify(originalDetails)
 })
 
 const isValidForm = computed(() => {
@@ -45,47 +60,48 @@ const isValidForm = computed(() => {
 function validateField(field: string) {
   switch (field) {
     case 'firstName':
-      errors.value.isFirstNameValid = profileDetails.value.firstName.length < 3
+      errors.value.isFirstNameValid = profile.firstName.length < 3
       break
-    case 'password':
-      errors.value.isUserNameValid = profileDetails.value.username.length < 3
+    case 'username':
+      errors.value.isUserNameValid = profile.username.length < 3
       break
   }
 }
 
 async function updateProfile() {
   try {
-    loading.value = true
+    isLoading.value = true
 
-    if (!auth.user?.id) throw new Error('You must be logged in to update your profile.')
+    const user = authStore.user
 
-    const updates = {
-      id: auth.user.id,
-      full_name: `${profileDetails.value.firstName} ${profileDetails.value.lastName}`,
-      username: profileDetails.value.username,
-      website: profileDetails.value.website,
-      avatar_url: profileDetails.value.avatar_url,
-      about: profileDetails.value.about
+    if (!user) {
+      throw new Error('User not found')
     }
 
-    const { error } = await supabase.from('profiles').upsert(updates)
+    const updates: Profile = {
+      id: user.id,
+      full_name: `${profile.firstName} ${profile.lastName}`,
+      username: profile.username,
+      website: profile.website,
+      about: profile.about,
+      avatar_url: profile.avatar_url
+    }
 
-    if (error) throw error
+    const response = await authStore.updateProfile(updates)
 
-    userProfile.setProfile(updates)
-    // get profile to update store
-    //TODO: Show success message
+    assign(profile, { ...response })
+    assign(originalDetails, { ...profile })
   } catch (error: any) {
     console.error(error, error.message)
   } finally {
-    loading.value = false
+    isLoading.value = false
   }
 }
 </script>
 
 <template>
-  <p v-if="fetchingProfile" class="text-center">Fetching profile...</p>
-  <p v-else-if="loading" class="text-center">Loading...</p>
+  <!-- <p v-if="fetchingProfile" class="text-center">Fetching profile...</p> -->
+  <p v-if="isLoading" class="text-center">Loading...</p>
   <form v-else class="space-y-8 max-w-xl" id="profile-form">
     <header class="mb-4">
       <div class="flex justify-between items-center">
@@ -93,20 +109,19 @@ async function updateProfile() {
         <BaseButton
           type="submit"
           class="bg-primary text-white disabled:bg-neutral-200 disabled:text-black"
-          :disabled="loading || !isValidForm"
+          :disabled="isLoading || !isValidForm"
           @click="updateProfile"
         >
           Save
         </BaseButton>
       </div>
       <p class="mt-2">
-        Keep your personal details private. Information you add here is visible to any who can view
-        your profile.
+        Keep your personal details private. Information you add here is visible to any who can view your profile.
       </p>
     </header>
 
     <div>
-      <ProfileAvatar v-model:path="profileDetails.avatar_url" @upload="updateProfile" />
+      <ProfileAvatar v-model:path="profile.avatar_url" @upload="updateProfile" />
     </div>
 
     <div class="grid grid-cols-2 gap-4 mt-8">
@@ -115,7 +130,7 @@ async function updateProfile() {
           label="First name"
           name="firstname"
           type="text"
-          v-model.trim="profileDetails.firstName"
+          v-model.trim="profile.firstName"
           @blur="validateField('firstName')"
         />
         <p class="text-sm text-red-500 h-4 mb-4">
@@ -123,24 +138,19 @@ async function updateProfile() {
         </p>
       </div>
 
-      <InputField
-        label="Last name"
-        name="lastname"
-        type="text"
-        v-model.trim="profileDetails.lastName"
-      />
+      <InputField label="Last name" name="lastname" type="text" v-model.trim="profile.lastName" />
     </div>
 
-    <InputField label="About" name="about" type="textarea" v-model.trim="profileDetails.about" />
+    <InputField label="About" name="about" type="textarea" v-model.trim="profile.about" />
 
-    <InputField label="Website" name="website" type="text" v-model.trim="profileDetails.website" />
+    <InputField label="Website" name="website" type="text" v-model.trim="profile.website" />
 
     <div>
       <InputField
         label="Username"
         name="username"
         type="text"
-        v-model.trim="profileDetails.username"
+        v-model.trim="profile.username"
         @blur="validateField('username')"
       />
       <p class="text-sm text-red-500 h-4 mb-4">

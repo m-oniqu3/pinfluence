@@ -14,12 +14,5 @@ export async function getUserFromToken(token: string): Promise<User | null> {
     return data.user;
   } catch (error: unknown) {
     throw error;
-
-    // if (error instanceof AuthError) {
-
-    //   console.log(error);
-    // } else {
-    //   console.log("Something went wrong. Could not get user from token.");
-    // }
   }
 }

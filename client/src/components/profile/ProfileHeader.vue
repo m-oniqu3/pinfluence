@@ -30,7 +30,7 @@ async function getProfile() {
     }
 
     const id = params.profile as string
-    const response = await authStore.getUserProfile(id)
+    const response = await authStore.getUserProfileById(id)
 
     profile.value = response
   } catch (error: any) {
@@ -79,7 +79,7 @@ await getProfile()
       </span>
     </p>
 
-    <router-link to="/settings/profile">
+    <router-link :to="{ name: 'settings.profile' }">
       <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
     </router-link>
   </header>

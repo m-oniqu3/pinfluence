@@ -6,7 +6,7 @@ export default defineComponent({
 })
 </script>
 
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import PinGrid from '@/components/pins/PinGrid.vue'
 import PinPreview from '@/components/pins/PinPreview.vue'
 import { useCreatedPinsStore } from '@/stores/createdPins'
@@ -33,4 +33,8 @@ if (!createdPinsStore.createdPins) {
       }"
     />
   </PinGrid>
+</template> -->
+
+<template>
+  <p>created pins</p>
 </template>

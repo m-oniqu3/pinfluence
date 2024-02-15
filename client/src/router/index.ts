@@ -1,11 +1,6 @@
 import { useAuthStore } from '@/stores/auth'
 
-import {
-  createRouter,
-  createWebHistory,
-  type NavigationGuardNext,
-  type RouteLocationNormalized
-} from 'vue-router'
+import { createRouter, createWebHistory, type NavigationGuardNext, type RouteLocationNormalized } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -61,7 +56,20 @@ const router = createRouter({
     {
       path: '/:profile',
       name: 'profile',
-      component: () => import('../views/ProfileView.vue')
+      component: () => import('../views/ProfileView.vue'),
+      redirect: { name: 'profile.saved' },
+      children: [
+        {
+          path: 'created',
+          name: 'profile.created',
+          component: () => import('@/components/pins/CreatedPins.vue')
+        },
+        {
+          path: 'saved',
+          name: 'profile.saved',
+          component: () => import('@/components/pins/SavedPins.vue')
+        }
+      ]
     },
     // {
     //   path: '/profile',
@@ -129,11 +137,7 @@ router.beforeEach((to, _from, next) => {
   }
 })
 
-function authGuard(
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized,
-  next: NavigationGuardNext
-) {
+function authGuard(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
   console.log('authGuard')
 
   const auth = useAuthStore()
@@ -145,11 +149,7 @@ function authGuard(
   }
 }
 
-function requireToken(
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized,
-  next: NavigationGuardNext
-) {
+function requireToken(to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) {
   console.log('requireToken')
 
   if (!to.hash) {

@@ -1,8 +1,10 @@
 import cors from "cors";
 import "dotenv/config";
 import express from "express";
-import { loadUser } from "./middleware/auth";
-import { loggerMiddleware } from "./middleware/logger";
+import "module-alias/register";
+
+import { loadUser } from "@/middleware/auth";
+import { loggerMiddleware } from "@/middleware/logger";
 import router from "./routes";
 
 const app = express();
@@ -13,8 +15,6 @@ app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
-
-// Define storage for uploaded files (no storage on server)
 
 app.use(loggerMiddleware);
 

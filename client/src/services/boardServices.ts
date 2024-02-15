@@ -1,29 +1,8 @@
-// import { supabase } from '@/lib/supabaseClient'
+import { api } from '@/services/api'
 
-type BoardData = {
-  name: string
-  secret: boolean
-  user_id: string
-}
-async function createBoard(boardData: BoardData) {
-  // const { data, error } = await supabase.from('boards').insert(boardData).single()
-  // return { data, error }
-}
-
-async function getBoards() {
-  // const board = useBoardStore()
-  // const auth = useAuthStore()
-  // try {
-  //   if (!auth.isAuth || !auth.user) throw new Error('Cannot get boards.')
-  //   const { data, error } = await supabase
-  //     .from('boards')
-  //     .select('id, name, secret, created_at')
-  //     .order('created_at', { ascending: false })
-  //   if (error) throw error
-  //   board.setBoards(data as Board[])
-  // } catch (error) {
-  //   console.log(error)
-  // }
+export async function createBoard(board: { name: string; secret: boolean }) {
+  const response = await api.post<{ data: string }>('board', board)
+  return response.data.data
 }
 
 export async function getBoardById(id: string | null) {

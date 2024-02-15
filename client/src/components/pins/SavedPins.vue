@@ -31,20 +31,13 @@ const closeBoardModal = () => (isBoardModalOpen.value = false)
         <p>Create one to save your pins!</p>
       </div>
 
-      <div
-        class="h-12 w-12 rounded-full bg-primary grid place-items-center cursor-pointer"
-        @click="openBoardModal"
-      >
+      <div class="h-12 w-12 rounded-full bg-primary grid place-items-center cursor-pointer" @click="openBoardModal">
         <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
       </div>
     </article>
 
     <article v-else class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-      <PreviewGrid
-        v-for="board in Array.from(userBoards.boards.values())"
-        :key="board.id"
-        :board="board"
-      >
+      <PreviewGrid v-for="board in Array.from(userBoards.boards.values())" :key="board.id" :board="board">
       </PreviewGrid>
     </article>
 

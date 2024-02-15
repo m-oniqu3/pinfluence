@@ -33,18 +33,13 @@ function validateInput() {
 async function submit() {
   if (!auth.user) return
 
-  await boardStore.createBoard(boardDetails.value)
-
-  emit('closeModal')
+  console.log(boardDetails.value)
+  // emit('closeModal')
 }
 </script>
 
 <template>
-  <form
-    class="wrapper bg-neutral relative rounded-lg p-8 space-y-8 max-w-lg"
-    @click.stop
-    @submit.prevent="submit"
-  >
+  <form class="wrapper bg-neutral relative rounded-lg p-8 space-y-8 max-w-lg" @click.stop @submit.prevent="submit">
     <font-awesome-icon
       icon="fa-solid fa-xmark"
       class="fa-xl absolute top-2 right-2 cursor-pointer"
@@ -82,11 +77,7 @@ async function submit() {
       >
     </div>
 
-    <BaseButton
-      type="submit"
-      class="bg-primary text-neutral float-right disabled:bg-neutral-200"
-      :disabled="!!error"
-    >
+    <BaseButton type="submit" class="bg-primary text-neutral float-right disabled:bg-neutral-200" :disabled="!!error">
       {{ boardStore.isLoading ? 'Creating...' : 'Create' }}
     </BaseButton>
   </form>

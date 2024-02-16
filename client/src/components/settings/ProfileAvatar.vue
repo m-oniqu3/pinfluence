@@ -72,7 +72,7 @@ watchEffect(() => {
 
 <template>
   <form class="flex gap-4 items-center">
-    <img v-if="src" :src="src" alt="Avatar" class="h-[7.5rem] w-[7.5rem] object-cover rounded-full" />
+    <img v-if="src" :src="src" alt="Avatar" class="h-[7.5rem] w-[7.5rem] object-cover rounded-full bg-neutral-100" />
 
     <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-7x text-gray-600" />
 

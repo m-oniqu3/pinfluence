@@ -1,7 +1,7 @@
 import { api } from '@/services/api'
 
 export async function createBoard(board: { name: string; secret: boolean }) {
-  const response = await api.post<{ data: string }>('board', board)
+  const response = await api.post<{ data: number }>('boards', board)
   return response.data.data
 }
 

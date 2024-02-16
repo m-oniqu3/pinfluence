@@ -12,10 +12,12 @@ import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
 
-import { createTag } from '@/services/createPinServices'
+import { createTag, getTags } from '@/services/tagServices'
 import { useAuthStore } from '@/stores/auth'
 import type { UploadPin } from '@/types/pin'
-import { computed, ref, watch } from 'vue'
+import type { Tag } from '@/types/tag'
+import { isAxiosError } from 'axios'
+import { computed, ref, watchEffect } from 'vue'
 
 const auth = useAuthStore()
 // const createdPinStore = useCreatedPinsStore()
@@ -81,26 +83,28 @@ async function updateImage(event: Event) {
 // TAGS
 
 const newTag = ref('')
-const tagsList = ref<{ id: string; name: string }[]>([])
-const selectedTags = ref<{ id: string; name: string }[]>([])
+const tagsList = ref<Tag[]>([])
+const selectedTags = ref<Tag[]>([])
 const isTagsListOpen = ref(false)
 const isLoadingTags = ref(false)
 const tagLabel = computed(() => `Tagged topics (${selectedTags.value.length})`)
 
 // Get tags from the database based on the input value
-// async function getMatchTags(val: string) {
-//   isLoadingTags.value = true
-//   const { data: tags, error } = await supabase
-//     .from('tags')
-//     .select('id, name')
-//     .ilike('name', `%${val}%`)
+async function getMatchTags(val: string) {
+  isLoadingTags.value = true
 
-//   if (!error) {
-//     tagsList.value = tags || []
-//   }
+  try {
+    if (!val) return
+    const response = await getTags(val)
+    tagsList.value = response ?? []
+  } catch (error) {
+    if (isAxiosError(error)) console.log(error.response?.data)
 
-//   isLoadingTags.value = false
-// }
+    console.log(error)
+  } finally {
+    isLoadingTags.value = false
+  }
+}
 
 // Filter tags list to show only tags that are not selected
 const filteredTagList = computed(() => {
@@ -109,51 +113,48 @@ const filteredTagList = computed(() => {
 })
 
 // Open tags list when user types and there are tags to show
-watch(
-  () => newTag.value,
-  () => {
-    const hasFilteredTags = filteredTagList.value.length > 0
-    const hasInput = newTag.value.trim().length > 0
+watchEffect(() => {
+  const hasFilteredTags = !!filteredTagList.value.length
+  const hasInput = !!newTag.value.trim().length
 
-    if (hasFilteredTags && hasInput) {
-      isTagsListOpen.value = true
-    } else {
-      isTagsListOpen.value = false
-    }
+  if (hasFilteredTags && hasInput) {
+    isTagsListOpen.value = true
+  } else {
+    isTagsListOpen.value = false
   }
-)
+})
 
 // Show add button when user types a tag that doesn't exist in the list
-const shouldShowAddBtn = computed(() => {
+const showAddButton = computed(() => {
   if (filteredTagList.value.length > 0) return false
 
-  const trimmedNewTag = newTag.value.trim().toLowerCase()
-  return (
-    newTag.value.length >= 1 &&
-    !selectedTags.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag) &&
-    !filteredTagList.value.some((tag) => tag.name.toLowerCase() === trimmedNewTag)
-  )
+  return newTag.value.length >= 1 && tagsList.value.length === 0
 })
 
 // Handle adding a new tag
 async function uploadNewTag() {
-  const trimmedNewTag = newTag.value.trim()
-  const data = await createTag(trimmedNewTag)
+  try {
+    if (!newTag.value.trim().length) return
 
-  // if (data) {
-  //   selectedTags.value.push(data[0])
-  //   newTag.value = ''
-  // }
+    const tag = await createTag(newTag.value)
+
+    if (!tag) return
+
+    selectTag(tag)
+  } catch (error) {
+    if (isAxiosError(error)) console.log(error.response?.data)
+    console.log(error)
+  }
 }
 
 // Event handler for selecting a tag
-function selectTag(tag: { id: string; name: string }) {
+function selectTag(tag: Tag) {
   selectedTags.value.push(tag)
   newTag.value = ''
 }
 
 // Event handler for removing a tag
-function removeTag(id: string) {
+function removeTag(id: Tag['id']) {
   selectedTags.value = selectedTags.value.filter((tag) => tag.id !== id)
 }
 
@@ -214,12 +215,7 @@ console.log(selectedTags.value)
   <header class="h-20 border-y-[1px] border-gray-300 flex items-center">
     <div class="wrapper flex items-center justify-between">
       <h2 class="text-xl font-semibold">Create Pin</h2>
-      <BaseButton
-        v-if="pinDetails.image"
-        type="submit"
-        class="bg-primary text-neutral"
-        @click="createNewPin"
-      >
+      <BaseButton v-if="pinDetails.image" type="submit" class="bg-primary text-neutral" @click="createNewPin">
         {{ loading ? 'Publishing...' : 'Publish' }}
       </BaseButton>
     </div>
@@ -235,11 +231,7 @@ console.log(selectedTags.value)
         >
           <font-awesome-icon icon="fa-solid fa-pen" />
         </button>
-        <img
-          :src="pinDetails.image"
-          alt="Uploaded image"
-          class="mx-auto rounded-3xl object-cover"
-        />
+        <img :src="pinDetails.image" alt="Uploaded image" class="mx-auto rounded-3xl object-cover" />
       </figure>
 
       <label
@@ -298,12 +290,13 @@ console.log(selectedTags.value)
           :label="tagLabel"
           placeholder="Search for tags"
           @click="handleTagsList"
+          @input.prevent="getMatchTags(newTag.trim())"
         />
         <!-- @input.prevent="getMatchTags(newTag.trim())" should go to input above -->
         <span class="text-xs pt-1 text-gray-700"> Don't worry, people won't see your tags </span>
 
         <span
-          v-if="shouldShowAddBtn"
+          v-if="showAddButton"
           class="absolute top-9 right-2 h-6 w-6 grid place-items-center bg-primary rounded-full cursor-pointer"
           @click="uploadNewTag"
         >

@@ -8,18 +8,19 @@ export default defineComponent({
 
 <script setup lang="ts">
 import AppMenu from '@/components/app/AppMenu.vue'
+import type { Tag } from '@/types/tag'
 import { defineEmits, defineProps } from 'vue'
 
 const props = defineProps<{
   isMenuOpen: boolean
   positions: { x: number; y: number }
-  tagsList: { id: string; name: string }[]
+  tagsList: Tag[]
   isLoadingTags: boolean
 }>()
 
 const emit = defineEmits<{
   (event: 'closeMenu'): void
-  (event: 'addTag', tag: { id: string; name: string }): void
+  (event: 'addTag', tag: Tag): void
 }>()
 </script>
 

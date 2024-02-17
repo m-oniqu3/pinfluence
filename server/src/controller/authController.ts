@@ -52,9 +52,7 @@ export async function login(req: Request, res: Response) {
 
 //sign up user
 export async function signup(req: Request, res: Response) {
-  const redirectUrl = new URL(
-    process.env.REDIRECT_URL ?? "http://localhost:3000/verification/"
-  );
+  const redirectUrl = new URL(process.env.REDIRECT_URL ?? "http://localhost:3000/verification/");
 
   try {
     //todo: check if req.body is an object

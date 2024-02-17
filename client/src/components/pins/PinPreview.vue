@@ -63,8 +63,7 @@ const openPinList = (clientX: number, clientY: number) => {
 const handleSavePin = (event: MouseEvent) => {
   const { clientX, clientY } = event
 
-  const shouldOpenModal =
-    window.innerWidth < 768 || window.innerHeight < menuDimensions.value.height + 100
+  const shouldOpenModal = window.innerWidth < 768 || window.innerHeight < menuDimensions.value.height + 100
 
   if (shouldOpenModal && !isPinListModalOpen.value) {
     togglePinListModal(true)
@@ -79,7 +78,7 @@ const handleSavePin = (event: MouseEvent) => {
     class="relative break-inside-avoid"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
-    :style="{ minHeight: '500px' }"
+    :style="{ minHeight: 'fit-content' }"
   >
     <figcaption
       v-show="hovering"

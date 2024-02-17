@@ -2,7 +2,6 @@ export type PinPreview = {
   id: number
   name: string
   image: string
-  board_id: string | null
   user_id?: string
 }
 

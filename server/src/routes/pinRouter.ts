@@ -1,4 +1,4 @@
-import { createPin } from "@/controller/pinController";
+import { createPin, getCreatedPins } from "@/controller/pinController";
 import { requireAuth } from "@/middleware/auth";
 
 import { Router } from "express";
@@ -12,6 +12,7 @@ const storage = multer.memoryStorage();
 // Initialize multer with the storage configuration
 const upload = multer({ storage: storage });
 
+router.get("/", requireAuth, getCreatedPins);
 router.post("/", requireAuth, upload.single("file"), createPin);
 
 export default router;

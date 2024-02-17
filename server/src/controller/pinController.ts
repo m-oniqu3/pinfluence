@@ -4,6 +4,7 @@ import { decode } from "base64-arraybuffer";
 
 import { type Request, type Response } from "express";
 
+// upload file to supabase storage
 async function uploadFile(file: Express.Multer.File, userId: string) {
   const fileBase64 = decode(file.buffer.toString("base64"));
 
@@ -16,6 +17,7 @@ async function uploadFile(file: Express.Multer.File, userId: string) {
   return { fileData: data, fileError: error };
 }
 
+// upload pin details to the database
 async function uploadPinDetails(req: Request, publicUrl: string, fileName: string) {
   const details = {
     user_id: req.user!.id,
@@ -35,11 +37,13 @@ async function uploadPinDetails(req: Request, publicUrl: string, fileName: strin
   return { pinData: data, pinError: error };
 }
 
+// remove file from supabase storage
 async function removeFileFromStorage(userId: string, path: string) {
   const { data, error } = await supabase.storage.from("created-pins").remove([`${userId}/${path}`]);
   return { deleteData: data, deleteError: error };
 }
 
+// upload tags for the pin to the database
 async function uploadTags(tags: string, pinId: number) {
   // convert comma separated string to array of integers
   const tagIds = tags.split(",").map((tag) => parseInt(tag));
@@ -110,6 +114,28 @@ export async function createPin(req: Request, res: Response) {
     }
 
     console.log(error);
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+export async function getCreatedPins(req: Request, res: Response) {
+  try {
+    const user = req.user as User;
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .select("id, name, image")
+      .eq("user_id", user.id);
+
+    if (error) throw error;
+
+    return res.status(200).json({ data });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }

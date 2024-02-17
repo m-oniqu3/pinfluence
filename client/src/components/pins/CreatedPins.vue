@@ -6,35 +6,53 @@ export default defineComponent({
 })
 </script>
 
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 import PinGrid from '@/components/pins/PinGrid.vue'
-import PinPreview from '@/components/pins/PinPreview.vue'
-import { useCreatedPinsStore } from '@/stores/createdPins'
+import PinPreviewVue from '@/components/pins/PinPreview.vue'
+import { getUserCreatedPins } from '@/services/pinServices'
+import type { PinPreview } from '@/types/pin'
 
-const createdPinsStore = useCreatedPinsStore()
+import { isAxiosError } from 'axios'
 
-if (!createdPinsStore.createdPins) {
-  await createdPinsStore.getCreatedPins()
+import { onMounted, ref } from 'vue'
+
+const isLoading = ref(false)
+const pins = ref<PinPreview[]>([])
+
+async function fetchPins() {
+  try {
+    isLoading.value = true
+
+    const response = await getUserCreatedPins()
+    pins.value = response
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error(error.response?.data)
+    } else {
+      console.error(error)
+    }
+  } finally {
+    isLoading.value = false
+  }
 }
+
+onMounted(() => {
+  fetchPins()
+})
 </script>
 
 <template>
-  <p v-if="!createdPinsStore.createdPins">No pins found</p>
+  <p v-if="!pins">No pins found</p>
 
   <PinGrid v-else class="wrapper pt-8 pb-12">
-    <PinPreview
-      v-for="pin in createdPinsStore.createdPins"
+    <PinPreviewVue
+      v-for="pin in pins"
       :key="pin.id"
       :details="{
-        id: +pin.id,
+        id: pin.id,
         image: pin.image,
-        name: pin.name,
-        board_id: pin.board_id
+        name: pin.name
       }"
     />
   </PinGrid>
-</template> -->
-
-<template>
-  <p>created pins</p>
 </template>

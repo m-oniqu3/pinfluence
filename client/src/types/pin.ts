@@ -33,5 +33,4 @@ export type UploadPin = {
   link: string
   boardId: string | null
   file: File
-  userId: string
 }

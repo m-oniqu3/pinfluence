@@ -18,7 +18,6 @@ export async function getTags(req: Request, res: Response) {
       throw error;
     }
 
-    console.log(data);
     res.status(200).json({ data: data });
   } catch (error) {
     if (error.code) {

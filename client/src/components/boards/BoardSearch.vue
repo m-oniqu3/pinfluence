@@ -11,7 +11,10 @@ const props = defineProps<{
   modelValue: string
 }>()
 
-const emit = defineEmits(['update:modelValue'])
+const emit = defineEmits<{
+  (event: 'update:modelValue', value: string): void
+  (event: 'clearSearch'): void
+}>()
 
 function updateInput(event: Event) {
   const target = event.target as HTMLInputElement
@@ -42,11 +45,7 @@ function updateInput(event: Event) {
       v-if="props.modelValue"
       class="bg-black w-6 h-6 rounded-full grid place-items-center absolute right-6 cursor-pointer"
     >
-      <font-awesome-icon
-        icon="fa-solid fa-times"
-        class="text-white"
-        @click="emit('update:modelValue', '')"
-      />
+      <font-awesome-icon icon="fa-solid fa-times" class="text-white" @click="emit('clearSearch')" />
     </div>
   </form>
 </template>

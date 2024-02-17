@@ -37,7 +37,7 @@ async function getProfile() {
     let message = ''
 
     if (axios.isAxiosError(error)) {
-      message = error.response?.data.error ?? error.message
+      message = error.response?.data ?? error.message
     } else {
       message = 'Something went wrong. Please try again.'
     }

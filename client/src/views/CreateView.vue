@@ -8,13 +8,14 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
-import BoardList from '@/components/BoardList.vue'
 import InputField from '@/components/InputField.vue'
 import TagsList from '@/components/TagsList.vue'
+import AppMenu from '@/components/app/AppMenu.vue'
+import BoardList from '@/components/boards/BoardList.vue'
+import { createPin } from '@/services/pinServices'
 
 import { createTag, getTags } from '@/services/tagServices'
 import { useAuthStore } from '@/stores/auth'
-import type { UploadPin } from '@/types/pin'
 import type { Tag } from '@/types/tag'
 import { isAxiosError } from 'axios'
 import { computed, ref, watchEffect } from 'vue'
@@ -181,12 +182,17 @@ async function createNewPin() {
   try {
     if (!auth.user) return
 
-    const newPin: UploadPin = {
-      ...pinDetails.value,
-      boardId: pinDetails.value.board.id,
-      userId: auth.user.id,
-      file: pinDetails.value.file as File
-    }
+    const formData = new FormData()
+    formData.append('name', pinDetails.value.name)
+    formData.append('description', pinDetails.value.description)
+    formData.append('link', pinDetails.value.link)
+    formData.append('boardId', pinDetails.value.board.id ?? '')
+    formData.append('file', pinDetails.value.file)
+
+    const response = await createPin(formData)
+
+    console.log(response)
+
     // const data = await createPin(newPin)
     // // const result = data[0] as PinPreview
     // const result = data
@@ -200,15 +206,14 @@ async function createNewPin() {
 
     // createdPinStore.addPin(result)
   } catch (error) {
-    console.log(error)
+    if (isAxiosError(error)) console.log(error.response?.data)
+    else console.log(error)
   } finally {
     loading.value = false
     pinDetails.value = { ...initialPin }
     selectedTags.value = []
   }
 }
-
-console.log(selectedTags.value)
 </script>
 
 <template>
@@ -274,12 +279,9 @@ console.log(selectedTags.value)
           {{ pinDetails.board.name || 'Select a board' }}
         </button>
 
-        <BoardList
-          :isMenuOpen="isSelectBoardModalOpen"
-          :positions="positions"
-          @close-menu="adjustBoardModal(false)"
-          v-model="pinDetails.board"
-        />
+        <AppMenu :positions="positions" v-if="isSelectBoardModalOpen" @close-menu="adjustBoardModal(false)">
+          <BoardList @close-menu="adjustBoardModal(false)" v-model="pinDetails.board" />
+        </AppMenu>
       </div>
 
       <div class="relative">

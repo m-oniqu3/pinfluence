@@ -22,7 +22,7 @@ async function uploadImage(file: File) {
   // console.log('Image uploaded successfully')
 }
 
-export async function createPin(pinDetails: UploadPin) {
+async function createPin(pinDetails: UploadPin) {
   // const { data, error } = await supabase
   //   .from('created-pins')
   //   .insert([
@@ -44,22 +44,6 @@ export async function createPin(pinDetails: UploadPin) {
   //   await uploadImage(pinDetails.file)
   // }
   // return data
-}
-
-export async function createTag(tag: string) {
-  // try {
-  //   const { data, error } = await supabase
-  //     .from('tags')
-  //     .insert([{ name: tag }])
-  //     .select('id, name')
-  //   if (error) {
-  //     throw error
-  //   }
-  //   console.log(data)
-  //   return data
-  // } catch (error) {
-  //   console.log(error)
-  // }
 }
 
 export async function createPinTag(tags: { id: string; name: string }[], pinId: string) {

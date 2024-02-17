@@ -184,27 +184,15 @@ async function createNewPin() {
 
     const formData = new FormData()
     formData.append('name', pinDetails.value.name)
-    formData.append('description', pinDetails.value.description)
+    formData.append('desc', pinDetails.value.description)
     formData.append('link', pinDetails.value.link)
     formData.append('boardId', pinDetails.value.board.id ?? '')
     formData.append('file', pinDetails.value.file)
+    formData.append('tags', selectedTags.value.map((tag) => tag.id).join(','))
 
     const response = await createPin(formData)
 
     console.log(response)
-
-    // const data = await createPin(newPin)
-    // // const result = data[0] as PinPreview
-    // const result = data
-
-    // if (!result) return
-
-    // if (selectedTags.value.length > 0) {
-    //   console.log(selectedTags.value, result.id)
-    //   await createPinTag(selectedTags.value, result.id.toString())
-    // }
-
-    // createdPinStore.addPin(result)
   } catch (error) {
     if (isAxiosError(error)) console.log(error.response?.data)
     else console.log(error)

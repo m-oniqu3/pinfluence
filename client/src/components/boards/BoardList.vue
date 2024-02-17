@@ -89,7 +89,7 @@ onMounted(initialize)
             class="p-2 w-full grid grid-cols-[auto,1fr] gap-4 hover:rounded-2xl hover:bg-neutral-200"
             @click.stop="selectBoard(board.id, board.name)"
           >
-            <img src="https://picsum.photos/200" class="h-9 w-9 bg-neutral-100 rounded-lg" />
+            <img :src="`https://picsum.photos/seed/${board.id}/200`" class="h-9 w-9 bg-neutral-100 rounded-lg" />
             <p class="truncate flex items-center font-medium text-base">
               {{ board.name }}
             </p>

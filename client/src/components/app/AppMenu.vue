@@ -26,9 +26,7 @@ function positionMenu(resize = false) {
   if (menu.value) {
     menuWidth.value = menu.value.offsetWidth
 
-    const xValue = resize
-      ? window.innerWidth - menuWidth.value - 20
-      : props.positions.x - menuWidth.value + 20
+    const xValue = resize ? window.innerWidth - menuWidth.value - 20 : props.positions.x - menuWidth.value + 20
 
     pos.value = { x: xValue, y: props.positions.y + 40 }
   }

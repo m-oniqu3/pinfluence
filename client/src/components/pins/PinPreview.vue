@@ -28,7 +28,7 @@ const isPinListOpen = ref(false)
 const isPinListModalOpen = ref(false)
 const isCreatingBoard = ref(false)
 const positions = ref({ x: 0, y: 0 })
-const menuDimensions = ref({ width: 360, height: 500 })
+const menuDimensions = ref({ width: 360, height: 450 })
 
 const togglePinList = (val: boolean) => {
   isPinListOpen.value = val

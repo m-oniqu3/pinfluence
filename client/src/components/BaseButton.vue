@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<{ type?: 'button' | 'submit' | 'reset' }>
 </script>
 
 <template>
-  <button :type="props.type" class="px-4 h-12 rounded-full font-bold">
+  <button :type="props.type" class="px-4 h-11 rounded-full font-bold">
     <slot />
   </button>
 </template>

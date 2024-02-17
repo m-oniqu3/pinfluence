@@ -34,19 +34,12 @@ function savePin(event: Event) {
     @mouseleave="isHovering = false"
   >
     <!-- generate random image url -->
-    <img
-      class="h-12 w-12 bg-black rounded-lg"
-      :src="`https://picsum.photos/seed/${props.board.id}/200`"
-    />
+    <img class="h-12 w-12 bg-black rounded-lg" :src="`https://picsum.photos/seed/${props.board.id}/200`" />
     <p class="truncate flex items-center font-semibold text-base">{{ props.board.name }}</p>
 
     <font-awesome-icon :icon="['fas', 'lock']" v-show="board.secret" class="self-center" />
-    <BaseButton
-      class="bg-primary text-white absolute top-3 right-2"
-      v-show="isHovering"
-      @click.stop="savePin"
-    >
-      Save
-    </BaseButton>
+    <div class="absolute top-0 right-2 h-full grid place-items-center">
+      <BaseButton class="bg-primary text-white" v-show="isHovering" @click.stop="savePin"> Save </BaseButton>
+    </div>
   </li>
 </template>

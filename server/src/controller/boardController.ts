@@ -32,9 +32,7 @@ export async function createBoard(req: Request, res: Response) {
     }
 
     console.log(error);
-    return res
-      .status(500)
-      .json({ error: error.message || "Internal server error" });
+    return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
 
@@ -63,8 +61,38 @@ export async function getBoards(req: Request, res: Response) {
     }
 
     console.log(error);
-    return res
-      .status(500)
-      .json({ error: error.message || "Internal server error" });
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+export async function getBoardById(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const user = req.user as User;
+
+    if (!id) {
+      throw new Error("Board id is required");
+    }
+
+    const { data, error } = await supabase
+      .from("boards")
+      .select("id, name, secret, description")
+      .eq("user_id", user.id)
+      .eq("id", id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json({ data: data });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      // postgrest error
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }

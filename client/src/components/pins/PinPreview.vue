@@ -9,9 +9,9 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
-import CreateBoard from '@/components/CreateBoard.vue'
 import AppMenu from '@/components/app/AppMenu.vue'
 import AppModal from '@/components/app/AppModal.vue'
+import CreateBoard from '@/components/boards/CreateBoard.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { type PinPreview } from '@/types/pin'
 import { calculateXPosition, calculateYPosition } from '@/utils/menu'

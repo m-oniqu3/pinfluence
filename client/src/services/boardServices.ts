@@ -14,10 +14,7 @@ export async function getBoards(sortBy: string, order: string) {
   return response.data.data
 }
 
-export async function getBoardById(id: string | null) {
-  // // if no id, early return
-  // if (!id) return null
-  // const { data, error } = await supabase.from('boards').select('id, name').eq('id', id).single()
-  // if (error) throw error
-  // return data as BoardInfo
+export async function getBoardById(id: number) {
+  const response = await api.get<{ data: Board }>(`boards/${id}`)
+  return response.data.data
 }

@@ -1,4 +1,4 @@
-export type BoardOverview = {
+export type Board = {
   id: number
   name: string
   secret: boolean
@@ -7,8 +7,6 @@ export type BoardOverview = {
   description?: string
 }
 
-export type Board = Pick<BoardOverview, 'id' | 'name' | 'secret' | 'created_at'>
+export type NewBoard = Pick<Board, 'name' | 'secret'>
 
-export type NewBoard = Pick<BoardOverview, 'name' | 'secret'>
-
-export type BoardInfo = Pick<BoardOverview, 'id' | 'name'>
+export type BoardInfo = Pick<Board, 'id' | 'name'>

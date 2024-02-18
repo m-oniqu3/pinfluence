@@ -7,8 +7,8 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import CreateBoard from '@/components/CreateBoard.vue'
 import AppModal from '@/components/app/AppModal.vue'
+import CreateBoard from '@/components/boards/CreateBoard.vue'
 import ProfileMenu from '@/components/profile/ProfileMenu.vue'
 
 const isMenuOpen = ref(false)
@@ -52,11 +52,7 @@ function getPosition(event: MouseEvent) {
       @click="openMenu"
       @click.prevent="getPosition"
     >
-      <font-awesome-icon
-        icon="fa-solid fa-plus"
-        class="fa-lg"
-        :class="isMenuOpen ? 'text-white' : ''"
-      />
+      <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg" :class="isMenuOpen ? 'text-white' : ''" />
     </li>
   </ul>
 

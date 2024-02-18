@@ -8,7 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BoardSearch from '@/components/boards/BoardSearch.vue'
-import { getBoards } from '@/services/boardServices'
+import { getCurrentUserBoards } from '@/services/boardServices'
 import type { Board } from '@/types/board'
 import { isAxiosError } from 'axios'
 import { onMounted, ref } from 'vue'
@@ -47,7 +47,7 @@ function clearSearch() {
 async function fetchBoards() {
   try {
     isLoading.value = true
-    const response = await getBoards('name', 'asc')
+    const response = await getCurrentUserBoards('name', 'asc')
 
     return response
   } catch (error) {

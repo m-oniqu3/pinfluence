@@ -19,7 +19,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.get("/", requireAuth, getUserProfile);
-router.post("/", getUserProfileById);
+router.get("/user/:userId", getUserProfileById);
 
 router.put("/:id", requireAuth, checkProfilePermission, updateProfile);
 router.post(

@@ -11,9 +11,14 @@ export type PinDetails = {
   image: string
   description: string
   link: string
-  board_id: string | null
   user_id: string
   created_at: string
+
+  user: {
+    id: string
+    full_name: string
+    avatar_url: string
+  }
 }
 
 export type CreatedPin = {

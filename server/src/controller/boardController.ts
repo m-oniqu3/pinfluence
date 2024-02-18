@@ -36,11 +36,42 @@ export async function createBoard(req: Request, res: Response) {
   }
 }
 
+// get boards for the current user
+export async function getCurrentUserBoards(req: Request, res: Response) {
+  try {
+    const user = req.user as User;
+    const sortBy = (req.query.sortBy as string) ?? "created_at";
+    const order = (req.query.order as string) ?? "desc";
+
+    const { data, error } = await supabase
+      .from("boards")
+      .select("id, name, secret, created_at, user_id")
+      .order(sortBy, { ascending: order === "asc" })
+      .eq("user_id", user.id);
+
+    if (error) {
+      throw error;
+    }
+
+    return res.status(200).json({ data: data });
+  } catch (error) {
+    if (error.code) {
+      // PostgREST error
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log(error);
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+// get boards for a specific user
 export async function getBoards(req: Request, res: Response) {
   try {
     const sortBy = (req.query.sortBy as string) ?? "created_at";
     const order = (req.query.order as string) ?? "desc";
-    const userId = req.query.userId as string;
+
+    const userId = req.params.userId as string;
 
     if (!userId) {
       throw new Error("User id is required");

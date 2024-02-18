@@ -71,25 +71,6 @@ const router = createRouter({
         }
       ]
     },
-    // {
-    //   path: '/profile',
-    //   name: 'profile',
-    //   component: () => import('../views/ProfileView.vue'),
-    //   meta: { requiresAuth: true },
-    //   redirect: { name: 'profile.created' },
-    //   children: [
-    //     {
-    //       path: 'created',
-    //       name: 'profile.created',
-    //       component: () => import('@/components/pins/CreatedPins.vue')
-    //     },
-    //     {
-    //       path: 'saved',
-    //       name: 'profile.saved',
-    //       component: () => import('@/components/pins/SavedPins.vue')
-    //     }
-    //   ]
-    // },
 
     {
       path: '/settings',
@@ -109,6 +90,12 @@ const router = createRouter({
           component: () => import('@/components/settings/AccountSettings.vue')
         }
       ]
+    },
+    {
+      path: '/pin/:id',
+      name: 'pin-details',
+      component: () => import('../views/PinDetails.vue'),
+      meta: { requiresAuth: true }
     }
     // {
     //   path: '/search/pins/:query',
@@ -116,12 +103,6 @@ const router = createRouter({
     //   component: SearchView,
     //   meta: { requiresAuth: true }
     // },
-    // {
-    //   path: '/pin/:id',
-    //   name: 'pin-details',
-    //   component: () => import('../views/PinDetails.vue'),
-    //   meta: { requiresAuth: true }
-    // }
   ]
 })
 

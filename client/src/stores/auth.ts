@@ -45,7 +45,7 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function getUserProfileById(id: string) {
-    const response = await api.post<{ data: Profile }>('profile', { id })
+    const response = await api.get<{ data: Profile }>(`profile/user/${id}`)
     return response.data.data
   }
 

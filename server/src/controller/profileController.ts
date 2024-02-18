@@ -7,10 +7,10 @@ import { supabase } from "../lib/supabaseClient";
 // we dont get the id from req.user because this is access from a public route
 export async function getUserProfileById(req: Request, res: Response) {
   try {
-    const id = req.body.id;
+    const id = req.params.userId;
 
     if (!id) {
-      throw new Error("Invalid request body");
+      throw new Error("Missing identification for user");
     }
 
     const { data: profile, error } = await supabase
@@ -122,19 +122,15 @@ export async function updateProfileAvatar(req: Request, res: Response) {
     const fileExt = file.originalname.split(".").pop();
     const filePath = `${Math.random()}.${fileExt}`;
 
-    const { data, error } = await supabase.storage
-      .from("avatars")
-      .upload(filePath, fileBase64, {
-        contentType: "image/png",
-      });
+    const { data, error } = await supabase.storage.from("avatars").upload(filePath, fileBase64, {
+      contentType: "image/png",
+    });
 
     if (error) {
       throw error;
     }
 
-    const { data: photo } = supabase.storage
-      .from("avatars")
-      .getPublicUrl(data.path);
+    const { data: photo } = supabase.storage.from("avatars").getPublicUrl(data.path);
 
     return res.status(200).json({ data: photo.publicUrl });
   } catch (error: unknown) {

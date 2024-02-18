@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
-import { getBoardById, getBoards, updateBoard } from '@/services/boardServices'
+import { getBoardById, getCurrentUserBoards, updateBoard } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
 import type { Board } from '@/types/board'
 import { isAxiosError } from 'axios'
@@ -31,6 +31,7 @@ const isValidForm = computed(() => {
 })
 
 async function getBoardDetails() {
+  console.log('fetching board details', props.boardId)
   try {
     isLoading.value = true
     const response = await getBoardById(props.boardId)
@@ -99,7 +100,7 @@ async function fetchBoards() {
       throw new Error('User is not authenticated')
     }
 
-    const response = await getBoards('created_at', 'desc', authStore.user.id)
+    const response = await getCurrentUserBoards('created_at', 'desc')
 
     return response
   } catch (error) {
@@ -112,6 +113,7 @@ async function fetchBoards() {
 }
 
 onMounted(async () => {
+  console.log('fetching board details', props.boardId)
   const response = await getBoardDetails()
   console.log(response)
   if (!response) return

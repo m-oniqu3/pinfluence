@@ -7,8 +7,16 @@ export async function createBoard(board: { name: string; secret: boolean }) {
 }
 
 export async function getBoards(sortBy: string, order: string, userId: string) {
+  const response = await api.get<{ data: Board[] }>(`boards/user/${userId}`, {
+    params: { sortBy, order }
+  })
+
+  return response.data.data
+}
+
+export async function getCurrentUserBoards(sortBy: string, order: string) {
   const response = await api.get<{ data: Board[] }>('boards', {
-    params: { sortBy, order, userId }
+    params: { sortBy, order }
   })
 
   return response.data.data

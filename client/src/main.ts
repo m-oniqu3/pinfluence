@@ -11,6 +11,8 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 import { useAuthStore } from '@/stores/auth'
 import {
+  faArrowLeft,
+  faArrowUp,
   faChevronDown,
   faCircleArrowUp,
   faCircleUser,
@@ -22,6 +24,8 @@ import {
   faXmark
 } from '@fortawesome/free-solid-svg-icons'
 library.add(
+  faArrowUp,
+  faArrowLeft,
   faMagnifyingGlass,
   faChevronDown,
   faCircleUser,

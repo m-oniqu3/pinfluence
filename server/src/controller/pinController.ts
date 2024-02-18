@@ -139,3 +139,41 @@ export async function getCreatedPins(req: Request, res: Response) {
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
+
+export async function getPinById(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+
+    if (!id) {
+      throw new Error("Pin id is required");
+    }
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .select("id, name, description, link, image, user_id, created_at")
+      .eq("id", id)
+      .single();
+
+    if (error) throw error;
+
+    // get user details for the pin
+    const { data: userData, error: userError } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url")
+      .eq("id", data.user_id)
+      .single();
+
+    if (userError) throw userError;
+
+    const pin = { ...data, user: userData };
+
+    return res.status(200).json({ data: pin });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

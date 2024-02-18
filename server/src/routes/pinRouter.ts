@@ -1,4 +1,4 @@
-import { createPin, getCreatedPins } from "@/controller/pinController";
+import { createPin, getCreatedPins, getPinById } from "@/controller/pinController";
 import { requireAuth } from "@/middleware/auth";
 
 import { Router } from "express";
@@ -14,5 +14,6 @@ const upload = multer({ storage: storage });
 
 router.get("/", requireAuth, getCreatedPins);
 router.post("/", requireAuth, upload.single("file"), createPin);
+router.get("/:id", requireAuth, getPinById);
 
 export default router;

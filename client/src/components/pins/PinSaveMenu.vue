@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BoardOption from '@/components/boards/BoardOption.vue'
 import BoardSearch from '@/components/boards/BoardSearch.vue'
-import { getBoards } from '@/services/boardServices'
+import { getCurrentUserBoards } from '@/services/boardServices'
 import type { Board } from '@/types/board'
 import { isAxiosError } from 'axios'
 import { computed, defineEmits, onMounted, ref } from 'vue'
@@ -15,7 +15,7 @@ const isLoading = ref(false)
 async function fetchBoards() {
   try {
     isLoading.value = true
-    const response = await getBoards('name', 'asc')
+    const response = await getCurrentUserBoards('name', 'asc')
 
     boards.value = response
     originalBoards.value = response

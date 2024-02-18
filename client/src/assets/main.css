@@ -7,7 +7,7 @@
 
 @layer components {
     .wrapper {
-        @apply mx-auto w-[92%];
+        @apply mx-auto w-[95%];
     }
 
     .btn {

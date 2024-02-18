@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'SavedPins'
@@ -22,11 +23,22 @@ const closeBoardModal = () => (isBoardModalOpen.value = false)
 const boards = ref<Board[]>([])
 const originalBoards = ref<Board[]>([])
 const isLoading = ref(false)
+const router = useRouter()
 
 async function fetchBoards() {
   try {
     isLoading.value = true
-    const response = await getBoards('created_at', 'desc')
+
+    const { params } = router.currentRoute.value
+
+    if (!params.profile) {
+      return
+    }
+
+    const id = params.profile as string
+
+    console.log('fetching boards for user with id: ', id)
+    const response = await getBoards('created_at', 'desc', id)
 
     boards.value = response
     originalBoards.value = response
@@ -42,21 +54,17 @@ async function fetchBoards() {
 }
 
 onMounted(fetchBoards)
+
+// watch for changes in the route
+router.afterEach(fetchBoards)
 </script>
 
 <template>
-  <section>
+  <section class="wrapper pb-8">
     <p v-if="isLoading" class="text-center">Loading...</p>
 
-    <article
-      v-else-if="boards.length"
-      class="grid grid-cols-1 gap-y-6 gap-x-9 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-    >
-      <Suspense>
-        <PreviewGrid v-for="board in boards" :key="board.id" :board="board" />
-
-        <template #fallback> Loading boards... </template>
-      </Suspense>
+    <article v-else-if="boards.length" id="saved-pins">
+      <PreviewGrid v-for="board in boards" :key="board.id" :board="board" @refresh-boards="fetchBoards" />
     </article>
 
     <article v-else class="pt-4 w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto">
@@ -75,3 +83,46 @@ onMounted(fetchBoards)
     </AppModal>
   </section>
 </template>
+
+<style scoped>
+#saved-pins {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(225px, 1fr));
+  column-gap: 1rem;
+  row-gap: 1.5rem;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  #saved-pins {
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 1024px) {
+  #saved-pins {
+    max-width: 750px;
+  }
+}
+
+@media (max-width: 1200px) {
+  #saved-pins {
+    max-width: 1000px;
+  }
+}
+
+@media (min-width: 1201px) {
+  #saved-pins {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    max-width: 1200px;
+    column-gap: 1.5rem;
+  }
+}
+
+@media (min-width: 1440px) {
+  #saved-pins {
+    max-width: 1250px;
+    column-gap: 2rem;
+  }
+}
+</style>

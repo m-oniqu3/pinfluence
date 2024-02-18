@@ -4,7 +4,6 @@ import express from "express";
 import "module-alias/register";
 
 import { loadUser } from "@/middleware/auth";
-import { loggerMiddleware } from "@/middleware/logger";
 import router from "./routes";
 
 const app = express();
@@ -16,7 +15,7 @@ app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
 
-app.use(loggerMiddleware);
+// app.use(loggerMiddleware);
 
 app.use(loadUser);
 app.use("/api", router);

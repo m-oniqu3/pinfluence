@@ -11,7 +11,7 @@ export default defineComponent({
 <script setup lang="ts">
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 import type { Profile } from '@/types/profile'
@@ -20,6 +20,9 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const profile = ref<Profile | null>(null)
+const allowEditProfile = computed(() => {
+  return authStore.user?.id === profile.value?.id
+})
 
 async function getProfile() {
   try {
@@ -47,6 +50,9 @@ async function getProfile() {
 }
 
 await getProfile()
+
+// watch for changes in the route
+router.afterEach(getProfile)
 </script>
 
 <template>
@@ -79,7 +85,7 @@ await getProfile()
       </span>
     </p>
 
-    <router-link :to="{ name: 'settings.profile' }">
+    <router-link :to="{ name: 'settings.profile' }" v-if="allowEditProfile">
       <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
     </router-link>
   </header>

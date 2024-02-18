@@ -56,7 +56,7 @@ function getPosition(event: MouseEvent) {
     </li>
   </ul>
 
-  <router-view class="wrapper"> </router-view>
+  <router-view />
 
   <ProfileMenu
     :positions="positions"

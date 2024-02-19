@@ -6,7 +6,7 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       boards: {
@@ -61,45 +61,38 @@ export interface Database {
       }
       "created-pins": {
         Row: {
-          board_id: number | null
           created_at: string
           description: string | null
           id: number
           image: string
+          image_name: string
           link: string | null
           name: string | null
           user_id: string
         }
         Insert: {
-          board_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
           image: string
+          image_name?: string
           link?: string | null
           name?: string | null
           user_id: string
         }
         Update: {
-          board_id?: number | null
           created_at?: string
           description?: string | null
           id?: number
           image?: string
+          image_name?: string
           link?: string | null
           name?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "created-pins_board_id_fkey"
-            columns: ["board_id"]
-            isOneToOne: false
-            referencedRelation: "boards"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "created-pins_user_id_fkey"
+            foreignKeyName: "public_created-pins_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "users"
@@ -125,17 +118,17 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "created-pins-tags_pin_id_fkey"
-            columns: ["pin_id"]
-            isOneToOne: false
-            referencedRelation: "created-pins"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "created-pins-tags_tag_id_fkey"
             columns: ["tag_id"]
             isOneToOne: false
             referencedRelation: "tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_created-pins-tags_pin_id_fkey"
+            columns: ["pin_id"]
+            isOneToOne: false
+            referencedRelation: "created-pins"
             referencedColumns: ["id"]
           }
         ]
@@ -173,6 +166,52 @@ export interface Database {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
+      "saved-pins": {
+        Row: {
+          board_id: number
+          created_at: string
+          id: number
+          pin_id: number | null
+          user_id: string
+        }
+        Insert: {
+          board_id: number
+          created_at?: string
+          id?: number
+          pin_id?: number | null
+          user_id?: string
+        }
+        Update: {
+          board_id?: number
+          created_at?: string
+          id?: number
+          pin_id?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_saved-pins_board_id_fkey"
+            columns: ["board_id"]
+            isOneToOne: false
+            referencedRelation: "boards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_saved-pins_pin_id_fkey"
+            columns: ["pin_id"]
+            isOneToOne: false
+            referencedRelation: "created-pins"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_saved-pins_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "users"
             referencedColumns: ["id"]
           }

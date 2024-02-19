@@ -144,6 +144,54 @@ export async function getCreatedPins(req: Request, res: Response) {
   }
 }
 
+export async function getSavedPinsForBoard(req: Request, res: Response) {
+  try {
+    const userId = req.params.userId;
+    const { limit, boardId } = req.query as { limit?: string; boardId: string };
+
+    if (!userId || !boardId) {
+      throw new Error("Missing required parameters");
+    }
+
+    // get saved pins for the board
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .select("pin_id")
+      .eq("board_id", +boardId)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+
+    // number of pins saved to the board
+    const pinCount = data.length;
+
+    const selectedPins = limit ? data.slice(0, +limit) : data;
+    const pinIds = selectedPins.map((pin) => pin.pin_id);
+
+    // only fetch if there are pins, this is to avoid unnecessary fetch
+    if (pinIds.length === 0) {
+      return res.status(200).json({ data: { pins: [], count: 0 } });
+    }
+
+    const { data: pinData, error: pinError } = await supabase
+      .from("created-pins")
+      .select("id, name, image, user_id")
+      .in("id", pinIds);
+
+    if (pinError) throw pinError;
+
+    return res.status(200).json({ data: { pins: pinData, count: pinCount } });
+  } catch (error) {
+    if (error.code) {
+      console.log(error.message);
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log(error.message);
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
 export async function getPinById(req: Request, res: Response) {
   try {
     const { id } = req.params;
@@ -195,8 +243,8 @@ export async function savePin(req: Request, res: Response) {
       .from("saved-pins")
       .insert([
         {
-          pin_id: pinId,
-          board_id: boardId,
+          pin_id: +pinId,
+          board_id: +boardId,
           user_id: user.id,
         },
       ])

@@ -5,6 +5,11 @@ export type PinPreview = {
   user_id?: string
 }
 
+export type SavedPinPreview = {
+  pins: PinPreview[]
+  count: number
+}
+
 export type PinDetails = {
   id: number
   name: string

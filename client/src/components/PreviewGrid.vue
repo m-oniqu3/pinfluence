@@ -1,5 +1,6 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
 
 export default defineComponent({
   name: 'PreviewGrid'
@@ -9,10 +10,12 @@ export default defineComponent({
 <script setup lang="ts">
 import AppModal from '@/components/app/AppModal.vue'
 import EditBoard from '@/components/boards/EditBoard.vue'
+import { getSavedPinsForBoard } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
 import type { Board } from '@/types/board'
 import { timeSince } from '@/utils/timeSince'
-import { computed, ref } from 'vue'
+import { isAxiosError } from 'axios'
+import { computed, onMounted, ref } from 'vue'
 
 const props = defineProps<{
   board: Board
@@ -20,17 +23,45 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (event: 'refresh-boards'): void }>()
 
-// will be 3 images
-const images = ref<string[]>([
-  // 'https://images.pexels.com/photos/3225517/pexels-photo-3225517.jpeg?auto=compress&cs=tinysrgb&w=800',
-  // 'https://images.pexels.com/photos/235721/pexels-photo-235721.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2',
-  // 'https://images.pexels.com/photos/2275221/pexels-photo-2275221.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2'
-])
+const authStore = useAuthStore()
+const router = useRouter()
 
-const postDate = timeSince(new Date(props.board.created_at))
-
+const user = authStore.user
 const isHovering = ref(false)
 const isEditBoardModalOpen = ref(false)
+const postDate = timeSince(new Date(props.board.created_at))
+
+// will be 3 images
+const images = ref<string[]>([])
+const pinsPerBoard = ref(0)
+
+async function getImagesFromBoard() {
+  try {
+    //get id from url
+    const { params } = router.currentRoute.value
+
+    if (!params.profile) {
+      return
+    }
+
+    const response = await getSavedPinsForBoard(params.profile as string, props.board.id, 3)
+
+    if (!response) return
+
+    response.pins.forEach((pin) => images.value.push(pin.image))
+    pinsPerBoard.value = response.count
+  } catch (error: any) {
+    if (isAxiosError(error)) {
+      console.log(error.response?.data ?? error.message)
+    } else {
+      console.log('Something went wrong. Please try again.')
+    }
+  }
+}
+
+onMounted(() => {
+  getImagesFromBoard()
+})
 
 const toggleEditBoardModal = () => {
   isEditBoardModalOpen.value = !isEditBoardModalOpen.value
@@ -41,9 +72,6 @@ function updateBoards() {
   emit('refresh-boards')
   isEditBoardModalOpen.value = false
 }
-
-const authStore = useAuthStore()
-const user = authStore.user
 
 // show edit button if user is hovering and owns the board
 const showEditButton = computed(() => {
@@ -90,7 +118,8 @@ const showEditButton = computed(() => {
       <h1 class="font-semibold text-lg truncate">{{ props.board.name }}</h1>
 
       <p class="text-xs text-gray-500 grid grid-cols-[auto,1fr] gap-2 w-full">
-        <span class="w-full">{{ board.name.length }} pins</span>
+        <span class="w-full">{{ pinsPerBoard }} {{ pinsPerBoard === 1 ? 'pin' : 'pins' }}</span>
+
         <span class="w-full">
           {{ postDate }}
         </span>
@@ -120,15 +149,18 @@ figure {
 #preview-grid-1 {
   grid-column: 1 / 3;
   grid-row: 1 / 3;
+  height: 9.8rem;
 }
 
 #preview-grid-2 {
   grid-column: 3 / 4;
   grid-row: 1 / 2;
+  height: 4.9rem;
 }
 
 #preview-grid-3 {
   grid-column: 3 / 4;
   grid-row: 2 / 3;
+  height: 4.9rem;
 }
 </style>

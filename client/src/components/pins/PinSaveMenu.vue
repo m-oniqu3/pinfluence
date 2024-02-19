@@ -2,15 +2,20 @@
 import BoardOption from '@/components/boards/BoardOption.vue'
 import BoardSearch from '@/components/boards/BoardSearch.vue'
 import { getCurrentUserBoards } from '@/services/boardServices'
-import type { Board } from '@/types/board'
+import type { Board, BoardInfo } from '@/types/board'
 import { isAxiosError } from 'axios'
 import { computed, defineEmits, onMounted, ref } from 'vue'
 
-const emit = defineEmits<{ (event: 'closeModal'): void; (event: 'createBoard'): void }>()
+const emit = defineEmits<{
+  (event: 'closeModal'): void
+  (event: 'createBoard'): void
+  (event: 'selectBoard', board: BoardInfo): void
+}>()
 
 const boards = ref<Board[]>([])
 const originalBoards = ref<Board[]>([])
 const isLoading = ref(false)
+const searchInput = ref('')
 
 async function fetchBoards() {
   try {
@@ -32,7 +37,13 @@ async function fetchBoards() {
 
 onMounted(fetchBoards)
 
-const searchInput = ref('')
+const isHeightSmall = computed(() => {
+  return window.innerHeight < 500
+})
+
+const gridClass = computed(() => {
+  return window.innerHeight >= 500 ? 'defaultGrid' : 'smallGrid'
+})
 
 function getSearchResults() {
   const query = searchInput.value.toLowerCase().trim()
@@ -51,13 +62,9 @@ function clearSearch() {
   boards.value = originalBoards.value
 }
 
-const isHeightSmall = computed(() => {
-  return window.innerHeight < 500
-})
-
-const gridClass = computed(() => {
-  return window.innerHeight >= 500 ? 'defaultGrid' : 'smallGrid'
-})
+function selectBoard(board: BoardInfo) {
+  emit('selectBoard', board)
+}
 </script>
 
 <template>
@@ -73,7 +80,13 @@ const gridClass = computed(() => {
         <li v-if="!boards.length" class="text-gray-500">No boards found.</li>
         <li v-else class="text-xs py-2 px-2">All Boards</li>
 
-        <BoardOption v-for="board in boards" :key="board.id" :board="board" @close-menu="emit('closeModal')" />
+        <BoardOption
+          v-for="board in boards"
+          :key="board.id"
+          :board="board"
+          @close-menu="emit('closeModal')"
+          @select-board="selectBoard"
+        />
       </ul>
 
       <div

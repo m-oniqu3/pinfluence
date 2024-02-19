@@ -13,8 +13,11 @@ import AppMenu from '@/components/app/AppMenu.vue'
 import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
+import { savePin } from '@/services/pinServices'
+import type { BoardInfo } from '@/types/board'
 import { type PinPreview } from '@/types/pin'
 import { calculateXPosition, calculateYPosition } from '@/utils/menu'
+import { isAxiosError } from 'axios'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -50,7 +53,7 @@ function loadImage(event: Event) {
 }
 
 // open pin list and position it
-const openPinList = (clientX: number, clientY: number) => {
+function openPinList(clientX: number, clientY: number) {
   togglePinList(true)
 
   const xPos = calculateXPosition(clientX, menuDimensions.value.width)
@@ -60,7 +63,7 @@ const openPinList = (clientX: number, clientY: number) => {
 }
 
 // toggle either the modal or the menu
-const handleSavePin = (event: MouseEvent) => {
+function handleSavePin(event: MouseEvent) {
   const { clientX, clientY } = event
 
   const shouldOpenModal = window.innerWidth < 768 || window.innerHeight < menuDimensions.value.height + 100
@@ -69,6 +72,23 @@ const handleSavePin = (event: MouseEvent) => {
     togglePinListModal(true)
   } else {
     openPinList(clientX, clientY)
+  }
+}
+
+async function addPinToBoard(board: BoardInfo) {
+  console.log('Saving pin')
+  console.log(board)
+
+  // need board id, pin id
+  try {
+    const response = await savePin(props.details.id, board.id)
+    console.log(response)
+  } catch (error: any) {
+    if (isAxiosError(error)) {
+      console.log(error.response?.data)
+    } else {
+      console.log(error.message)
+    }
   }
 }
 </script>
@@ -101,15 +121,20 @@ const handleSavePin = (event: MouseEvent) => {
 
     <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
       <PinSaveMenu
-        @close-modal="togglePinListModal(false)"
+        @close-modal="togglePinList(false)"
         @create-board="toggleCreateModal(true)"
+        @select-board="addPinToBoard"
         :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
       />
     </AppMenu>
   </figure>
 
   <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
-    <PinSaveMenu @close-modal="togglePinListModal(false)" @create-board="toggleCreateModal(true)" />
+    <PinSaveMenu
+      @close-modal="togglePinListModal(false)"
+      @create-board="toggleCreateModal(true)"
+      @select-board="addPinToBoard"
+    />
   </AppModal>
 
   <AppModal :open="isCreatingBoard" @close-modal="toggleCreateModal(false)">

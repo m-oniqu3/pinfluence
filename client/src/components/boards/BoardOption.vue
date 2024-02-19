@@ -8,7 +8,7 @@ export default defineComponent({
 
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
-import { type Board } from '@/types/board'
+import { type Board, type BoardInfo } from '@/types/board'
 
 const props = defineProps<{
   board: Board
@@ -16,13 +16,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   (event: 'closeMenu'): void
+  (event: 'selectBoard', board: BoardInfo): void
 }>()
 
 const isHovering = ref(false)
 
-function savePin(event: Event) {
-  console.log('saving pin')
-  console.log(props.board.name)
+function savePin() {
+  emit('selectBoard', { id: props.board.id, name: props.board.name })
   emit('closeMenu')
 }
 </script>

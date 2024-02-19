@@ -120,12 +120,16 @@ export async function createPin(req: Request, res: Response) {
 
 export async function getCreatedPins(req: Request, res: Response) {
   try {
-    const user = req.user as User;
+    const userId = req.params.userId;
+
+    if (!userId) {
+      throw new Error("User id is required");
+    }
 
     const { data, error } = await supabase
       .from("created-pins")
       .select("id, name, image")
-      .eq("user_id", user.id);
+      .eq("user_id", userId);
 
     if (error) throw error;
 
@@ -168,6 +172,42 @@ export async function getPinById(req: Request, res: Response) {
     const pin = { ...data, user: userData };
 
     return res.status(200).json({ data: pin });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+export async function savePin(req: Request, res: Response) {
+  try {
+    // if it reaches this function then the pin exists and the board belongs to the user
+    const { pinId } = req.params;
+    const { boardId } = req.body;
+    const user = req.user as User;
+
+    //save pin to board
+
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .insert([
+        {
+          pin_id: pinId,
+          board_id: boardId,
+          user_id: user.id,
+        },
+      ])
+      .select("id")
+      .single();
+
+    if (error) throw error;
+
+    console.log(`Pin saved to board successfully, id: ${data.id}`);
+
+    return res.status(200).json({ data: "Pin saved to board successfully" });
   } catch (error) {
     console.log(error.message);
     if (error.code) {

@@ -6,9 +6,10 @@ export async function createBoard(board: { name: string; secret: boolean }) {
   return response.data.data
 }
 
-export async function getBoards(sortBy: string, order: string, userId: string) {
+// get boards for any user
+export async function getBoards(sortBy: string, order: string, userId: string, range: [number, number]) {
   const response = await api.get<{ data: Board[] }>(`boards/user/${userId}`, {
-    params: { sortBy, order }
+    params: { sortBy, order, range }
   })
 
   return response.data.data

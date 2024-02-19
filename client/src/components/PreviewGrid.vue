@@ -155,12 +155,12 @@ figure {
 #preview-grid-2 {
   grid-column: 3 / 4;
   grid-row: 1 / 2;
-  height: 4.9rem;
+  height: calc(9.8rem / 2 - 0.5px);
 }
 
 #preview-grid-3 {
   grid-column: 3 / 4;
   grid-row: 2 / 3;
-  height: 4.9rem;
+  height: calc(9.8rem / 2 - 0.5px);
 }
 </style>

@@ -65,11 +65,17 @@ export async function getCurrentUserBoards(req: Request, res: Response) {
   }
 }
 
-// get boards for a specific user
+// get boards for a specific user using pagination
 export async function getBoards(req: Request, res: Response) {
   try {
     const sortBy = (req.query.sortBy as string) ?? "created_at";
     const order = (req.query.order as string) ?? "desc";
+
+    // range is an array of two numbers
+    const range = String(req.query.range)
+      .split(",")
+      .map((r) => parseInt(r));
+    console.log("range", range);
 
     const userId = req.params.userId as string;
 
@@ -81,7 +87,8 @@ export async function getBoards(req: Request, res: Response) {
       .from("boards")
       .select("id, name, secret, created_at, user_id")
       .order(sortBy, { ascending: order === "asc" })
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .range(range[0], range[1]);
 
     if (error) {
       throw error;

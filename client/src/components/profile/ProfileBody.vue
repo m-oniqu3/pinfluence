@@ -43,11 +43,11 @@ function getPosition(event: MouseEvent) {
   </header>
 
   <ul class="wrapper h-16 flex justify-between items-center">
-    <li class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
+    <li class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
       <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
     </li>
     <li
-      class="p-4 flex place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
+      class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
       :class="isMenuOpen ? 'bg-black rounded-full' : ''"
       @click="openMenu"
       @click.prevent="getPosition"

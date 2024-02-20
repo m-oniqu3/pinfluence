@@ -98,7 +98,7 @@ async function addPinToBoard(board: BoardInfo) {
     class="relative break-inside-avoid"
     @mouseover="hovering = true"
     @mouseout="hovering = false"
-    :style="{ minHeight: 'fit-content' }"
+    :style="{ height: 400 + 'px' }"
   >
     <figcaption
       v-show="hovering"

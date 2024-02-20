@@ -11,7 +11,7 @@ router.post("/signup", signup);
 router.delete("/", logout);
 
 // temporary route to get all users
-router.get("/tempusers", requireAuth, async (_req, res) => {
+router.get("/tempusers", async (_req, res) => {
   try {
     const { data, error } = await supabase.from("profiles").select("id, full_name");
 

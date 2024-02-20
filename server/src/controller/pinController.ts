@@ -121,6 +121,7 @@ export async function createPin(req: Request, res: Response) {
 export async function getCreatedPins(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
+    const range = String(req.query.range).split(",").map(Number);
 
     if (!userId) {
       throw new Error("User id is required");
@@ -129,7 +130,9 @@ export async function getCreatedPins(req: Request, res: Response) {
     const { data, error } = await supabase
       .from("created-pins")
       .select("id, name, image")
-      .eq("user_id", userId);
+      .eq("user_id", userId)
+      .range(range[0], range[1])
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
 

@@ -11,8 +11,10 @@ export async function createPin(formData: FormData) {
   return response.data.data
 }
 
-export async function getUserCreatedPins(userId: string) {
-  const response = await api.get<{ data: PinPreview[] }>(`pins/created/${userId}`)
+export async function getUserCreatedPins(userId: string, range: [number, number]) {
+  const response = await api.get<{ data: PinPreview[] }>(`pins/created/${userId}`, {
+    params: { range }
+  })
 
   return response.data.data
 }

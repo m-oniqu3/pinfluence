@@ -11,6 +11,12 @@ export async function getUserFromToken(token: string): Promise<User | null> {
       throw error;
     }
 
+    //if user, get session
+    if (data) {
+      const session = await supabase.auth.getSession();
+      console.log("session", session);
+    }
+
     return data.user;
   } catch (error: unknown) {
     throw error;

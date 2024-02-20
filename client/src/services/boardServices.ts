@@ -32,3 +32,9 @@ export async function updateBoard(board: { id: number; name: string; secret: boo
   const response = await api.put(`boards/${board.id}`, board)
   return response.data
 }
+
+// delete board
+export async function deleteBoard(id: number) {
+  const response = await api.delete<{ data: string }>(`boards/${id}`)
+  return response.data.data
+}

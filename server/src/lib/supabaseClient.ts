@@ -9,3 +9,12 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
     autoRefreshToken: true,
   },
 });
+
+// start auto refresh session
+supabase.auth.onAuthStateChange((_event, session) => {
+  console.log("onAuthStateChange is running");
+  console.log("session", session);
+  if (session) {
+    console.log("session", session);
+  }
+});

@@ -1,5 +1,6 @@
 import {
   createBoard,
+  deleteBoard,
   getBoardById,
   getBoards,
   getCurrentUserBoards,
@@ -22,5 +23,7 @@ router.get("/user/:userId", getBoards);
 
 router.get("/:id", requireAuth, getBoardById);
 router.put("/:id", requireAuth, checkBoardPermission, updateBoard);
+
+router.delete("/:id", requireAuth, checkBoardPermission, deleteBoard);
 
 export default router;

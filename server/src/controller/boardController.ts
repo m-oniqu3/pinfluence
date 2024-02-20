@@ -146,43 +146,69 @@ export async function updateBoard(req: Request, res: Response) {
       throw new Error("Board id is required");
     }
 
-    const { name, secret, description } = req.body;
+    const { name, secret, description } = req.body as {
+      name: string;
+      secret: boolean;
+      description: string;
+    };
 
     console.log(user.aud, user.id, new Date(user.last_sign_in_at ?? 0).toLocaleTimeString());
     if (!name || secret === undefined) {
       throw new Error("Invalid request body");
     }
 
-    //get the board by id to check if it exists
-    const { data: boardData, error: boardError } = await supabase
-      .from("boards")
-      .select("id, name")
-      .eq("id", parseInt(id))
-      .single();
-
-    console.log("boardData", boardData);
-    if (boardError) {
-      throw boardError;
-    }
-
     // update board by id and user_id
     const { data, error } = await supabase
       .from("boards")
       .update({ name, secret, description })
-      .eq("id", boardData.id)
-
-      .select("id")
-      .single();
+      .eq("id", id)
+      .select();
 
     if (error) {
       throw error;
     }
 
-    if (!data.id) {
-      throw new Error("Board not found");
+    if (!data || data.length === 0) {
+      throw new Error("Could not update board");
     }
 
     return res.status(200).json({ data: "Board updated successfully" });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      // postgrest error
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+export async function deleteBoard(req: Request, res: Response) {
+  try {
+    const { id } = req.params;
+    const user = req.user as User;
+
+    if (!id) {
+      throw new Error("Missing board id. To delete a board, you need to provide the board id");
+    }
+
+    console.log("deleting board", id, user.id);
+
+    const { data, error } = await supabase
+      .from("boards")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    console.log("board deleted", data);
+
+    return res.status(200).json({ data: `Board deleted successfully` });
   } catch (error) {
     console.log(error.message);
     if (error.code) {

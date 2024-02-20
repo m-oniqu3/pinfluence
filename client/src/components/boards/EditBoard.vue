@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
-import { getBoardById, getCurrentUserBoards, updateBoard } from '@/services/boardServices'
+import { deleteBoard, getBoardById, getCurrentUserBoards, updateBoard } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
 import type { Board } from '@/types/board'
 import { isAxiosError } from 'axios'
@@ -31,7 +31,6 @@ const isValidForm = computed(() => {
 })
 
 async function getBoardDetails() {
-  console.log('fetching board details', props.boardId)
   try {
     isLoading.value = true
     const response = await getBoardById(props.boardId)
@@ -112,11 +111,31 @@ async function fetchBoards() {
   }
 }
 
+async function removeBoard() {
+  try {
+    isSubmitting.value = true
+    //send request to remove board
+    const response = await deleteBoard(props.boardId)
+    console.log(response)
+    //close modal and fetch new data
+    emit('refresh-boards')
+  } catch (error: any) {
+    if (isAxiosError(error)) {
+      console.error(error.response?.data)
+    } else {
+      console.error(error)
+    }
+  } finally {
+    isSubmitting.value = false
+  }
+}
+
 onMounted(async () => {
-  console.log('fetching board details', props.boardId)
   const response = await getBoardDetails()
-  console.log(response)
+
   if (!response) return
+
+  console.log(response.id)
 
   Object.assign(newBoard, {
     name: response.name,
@@ -184,9 +203,9 @@ onMounted(async () => {
           </div>
         </div>
 
-        <div class="cursor-pointer">
+        <div>
           <p class="text-xs pb-2">Action</p>
-          <h1 class="text-lg font-semibold">Delete board</h1>
+          <h1 class="text-lg font-semibold cursor-pointer" @click.prevent="removeBoard">Delete board</h1>
           <p>Delete this board and all its pins. This action cannot be undone.</p>
         </div>
       </form>

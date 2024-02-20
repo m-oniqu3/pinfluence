@@ -62,7 +62,6 @@ async function getImagesFromBoard() {
 
 onMounted(() => {
   getImagesFromBoard()
-  console.log(props.board.user_id)
 })
 
 const toggleEditBoardModal = () => {
@@ -82,17 +81,18 @@ const showEditButton = computed(() => {
 </script>
 
 <template>
-  <router-link
-    :to="{ name: 'board-details', params: { profile: props.board.user_id, board: props.board.id } }"
+  <div
+    @click="router.push({ name: 'board-details', params: { profile: props.board.user_id, board: props.board.id } })"
     class="mx-auto space-y-2"
     id="container"
   >
-    <figure class="rounded-2xl bg-white relative" @mouseover="isHovering = true" @mouseleave="isHovering = false">
+    <figure class="rounded-2xl bg-white relative z-0" @mouseover="isHovering = true" @mouseleave="isHovering = false">
       <!-- edit -->
       <span
         v-if="showEditButton"
-        class="absolute h-8 w-8 rounded-full grid place-items-center bottom-2 right-2 bg-white hover:bg-gray-200 cursor-pointer transition duration-300 ease-in-out"
+        class="absolute h-8 w-8 rounded-full grid place-items-center bottom-2 right-2 bg-white hover:bg-gray-200 cursor-pointer transition duration-300 ease-in-out z-[1]"
         @click="toggleEditBoardModal"
+        @click.stop=""
       >
         <font-awesome-icon :icon="['fas', 'pen']" />
       </span>
@@ -131,7 +131,7 @@ const showEditButton = computed(() => {
         </span>
       </p>
     </div>
-  </router-link>
+  </div>
 
   <AppModal @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
     <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="board.id" @refresh-boards="updateBoards" />

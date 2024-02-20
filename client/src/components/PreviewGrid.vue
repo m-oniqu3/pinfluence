@@ -35,10 +35,11 @@ const postDate = timeSince(new Date(props.board.created_at))
 const images = ref<string[]>([])
 const pinsPerBoard = ref(0)
 
+const { params } = router.currentRoute.value
+
 async function getImagesFromBoard() {
   try {
     //get id from url
-    const { params } = router.currentRoute.value
 
     if (!params.profile) {
       return
@@ -61,6 +62,7 @@ async function getImagesFromBoard() {
 
 onMounted(() => {
   getImagesFromBoard()
+  console.log(props.board.user_id)
 })
 
 const toggleEditBoardModal = () => {
@@ -80,12 +82,16 @@ const showEditButton = computed(() => {
 </script>
 
 <template>
-  <div class="mx-auto space-y-2" id="container">
+  <router-link
+    :to="{ name: 'board-details', params: { profile: props.board.user_id, board: props.board.id } }"
+    class="mx-auto space-y-2"
+    id="container"
+  >
     <figure class="rounded-2xl bg-white relative" @mouseover="isHovering = true" @mouseleave="isHovering = false">
       <!-- edit -->
       <span
         v-if="showEditButton"
-        class="absolute h-8 w-8 rounded-full grid place-items-center bottom-2 right-2 bg-white hover:bg-neutral-100 cursor-pointer transition duration-300 ease-in-out"
+        class="absolute h-8 w-8 rounded-full grid place-items-center bottom-2 right-2 bg-white hover:bg-gray-200 cursor-pointer transition duration-300 ease-in-out"
         @click="toggleEditBoardModal"
       >
         <font-awesome-icon :icon="['fas', 'pen']" />
@@ -118,14 +124,14 @@ const showEditButton = computed(() => {
       <h1 class="font-semibold text-lg truncate">{{ props.board.name }}</h1>
 
       <p class="text-xs text-gray-500 grid grid-cols-[auto,1fr] gap-2 w-full">
-        <span class="w-full">{{ pinsPerBoard }} {{ pinsPerBoard === 1 ? 'pin' : 'pins' }}</span>
+        <span class="w-full">{{ pinsPerBoard }} {{ pinsPerBoard === 1 ? 'pin' : 'pins' }} </span>
 
         <span class="w-full">
           {{ postDate }}
         </span>
       </p>
     </div>
-  </div>
+  </router-link>
 
   <AppModal @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
     <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="board.id" @refresh-boards="updateBoards" />

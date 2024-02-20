@@ -72,6 +72,13 @@ const router = createRouter({
       ]
     },
 
+    // /:profile/:board
+    {
+      path: '/:profile/:board',
+      name: 'board-details',
+      component: () => import('../views/BoardView.vue')
+    },
+
     {
       path: '/settings',
       name: 'settings',

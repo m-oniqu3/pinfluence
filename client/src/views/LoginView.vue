@@ -48,18 +48,17 @@ async function submitForm() {
   try {
     const response = await authStore.login(credentials)
 
-    if (!response.user || !response.session) {
+    if (!response.user || !response.token) {
+      console.log('no user or token')
       throw new Error('Something went wrong')
     }
 
-    const token = response.session.access_token
-
     // set user and session
     authStore.setUser(response.user)
-    authStore.setSession(token, response.user)
+    authStore.setToken(response.token)
 
     //update axios headers
-    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    api.defaults.headers.common['Authorization'] = `Bearer ${response.token}`
     api.defaults.headers.common['Content-Type'] = 'application/json'
 
     // await profileStore.getProfileDetails()
@@ -85,12 +84,7 @@ async function submitForm() {
 
 <template>
   <section class="wrapper max-w-sm h-full grid place-items-center">
-    <form
-      class="w-full rounded-lg p-6"
-      @click.stop.prevent
-      @submit.prevent="submitForm"
-      @input="loginError = ''"
-    >
+    <form class="w-full rounded-lg p-6" @click.stop.prevent @submit.prevent="submitForm" @input="loginError = ''">
       <header class="space-y-4 py-2 mb-4 h-32">
         <span class="fa-brands fa-pinterest fa-2xl text-primary"></span>
         <div>
@@ -101,13 +95,7 @@ async function submitForm() {
         <p v-show="loginError" class="font-bold text-red-500">{{ loginError }}</p>
       </header>
 
-      <InputField
-        v-model="credentials.email"
-        name="email"
-        type="email"
-        label="Email"
-        @blur="validateField('email')"
-      />
+      <InputField v-model="credentials.email" name="email" type="email" label="Email" @blur="validateField('email')" />
       <p class="text-sm text-red-500 h-4 mb-4">
         <span v-if="errors.isEmailValid"> Email is invalid. </span>
       </p>

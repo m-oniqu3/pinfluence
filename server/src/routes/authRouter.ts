@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 import express from "express";
-import { getUser, login, logout, signup } from "../controller/authController";
+import { getUser, login, logout, refresh, signup } from "../controller/authController";
 import { requireAuth } from "../middleware/auth";
 
 const router = express.Router();
@@ -9,9 +9,10 @@ router.get("/", requireAuth, getUser);
 router.post("/", login);
 router.post("/signup", signup);
 router.delete("/", logout);
+router.post("/refresh", refresh);
 
 // temporary route to get all users
-router.get("/tempusers", async (_req, res) => {
+router.get("/tempusers", requireAuth, async (_req, res) => {
   try {
     const { data, error } = await supabase.from("profiles").select("id, full_name");
 

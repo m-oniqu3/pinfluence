@@ -1,4 +1,5 @@
 <script lang="ts">
+import { api } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
 import { defineComponent } from 'vue'
 
@@ -8,17 +9,26 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-//clear store
 const authStore = useAuthStore()
-authStore.setUser(null)
-authStore.removeSession()
-
-//redirect to login
-
 const router = useRouter()
-router.push({ name: 'login' })
+
+onMounted(async () => {
+  await authStore.logout()
+
+  //clear store
+  authStore.setUser(null)
+  authStore.setToken(null)
+
+  //clear axios headers
+  delete api.defaults.headers.common['Authorization']
+  delete api.defaults.headers.common['Content-Type']
+
+  //redirect to login
+  router.push({ name: 'login' })
+})
 </script>
 
 <template>

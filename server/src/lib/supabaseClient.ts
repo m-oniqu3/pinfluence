@@ -7,14 +7,12 @@ const supabaseKey = process.env.SERVER_SUPABASE_ANON_KEY as string;
 export const supabase = createClient<Database>(supabaseUrl, supabaseKey, {
   auth: {
     autoRefreshToken: true,
+    persistSession: true,
   },
 });
 
 // start auto refresh session
 supabase.auth.onAuthStateChange((_event, session) => {
   console.log("onAuthStateChange is running");
-  console.log("session", session);
-  if (session) {
-    console.log("session", session);
-  }
+  console.log("session", session?.user.aud);
 });

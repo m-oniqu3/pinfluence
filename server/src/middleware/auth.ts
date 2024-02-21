@@ -1,6 +1,6 @@
+import { supabase } from "@/lib/supabaseClient";
 import { AuthError, type User } from "@supabase/supabase-js";
 import { type NextFunction, type Request, type Response } from "express";
-import { getUserFromToken } from "../utils/authUtils";
 
 declare global {
   namespace Express {
@@ -11,11 +11,7 @@ declare global {
 }
 
 // this middleware checks for the authorization header
-export async function loadUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
+export async function loadUserFromToken(req: Request, res: Response, next: NextFunction) {
   console.log("loadUser");
 
   req.user = null;
@@ -25,18 +21,44 @@ export async function loadUser(
   if (!authHeader) return next();
 
   const brokenHeader = authHeader.split(" ");
-
   if (brokenHeader.length !== 2) return next();
-
   const token = brokenHeader[1];
 
   try {
     //verify token with supabase
-    const user = await getUserFromToken(token);
+    const { data, error } = await supabase.auth.getUser(token);
+
+    if (error) throw error;
+
+    const user = data.user;
+    console.log("user from token", user.id);
 
     // attach user to request
     if (user) {
       req.user = user;
+      console.log("authenticated", user.aud);
+
+      // check if the session is expired
+      const { data: session, error: sessionerror } = await supabase.auth.getSession();
+
+      if (sessionerror) {
+        console.log("Error getting session", sessionerror);
+        throw sessionerror;
+      }
+
+      if (session.session) return next();
+
+      const { data, error } = await supabase.auth.setSession({
+        access_token: token,
+        refresh_token: req.cookies.refresh_token,
+      });
+
+      if (error) {
+        console.log("Error setting session", error);
+        throw error;
+      }
+
+      console.log("session set", data?.user?.aud);
     }
 
     next();
@@ -48,9 +70,7 @@ export async function loadUser(
       if (error.status === 401) {
         console.log("Token expired");
 
-        return res
-          .status(401)
-          .send("Token expired. Please try registering or logging in again.");
+        return res.status(401).json({ error: "Token expired" });
       }
     }
 
@@ -64,7 +84,7 @@ export function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.user) {
     console.log("Unauthorized, no user found");
     // res.status(401).redirect("/logout");
-    res.status(401).send("Unauthorized. No user found");
+    res.status(401).json({ error: "Unauthorized" });
     return;
   } else {
     next();

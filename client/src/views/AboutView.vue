@@ -38,7 +38,7 @@ async function logout() {
 
     if (response.status === 200) {
       authStore.setUser(null)
-      authStore.removeSession()
+      authStore.setToken('')
       console.log(response.data.data)
       router.push('/login')
     }

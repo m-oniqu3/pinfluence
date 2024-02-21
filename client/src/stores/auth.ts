@@ -1,26 +1,32 @@
-import { type AuthTokenResponse, type Session, type User } from '@supabase/supabase-js'
+import { type AuthTokenResponse } from '@supabase/supabase-js'
 import { defineStore } from 'pinia'
 import { computed, ref, type Ref } from 'vue'
 
 import { api } from '@/services/api'
 import type { Profile } from '@/types/profile'
 
+export type User = {
+  id: string
+  email: string
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user: Ref<User | null> = ref(null)
+  const token = ref<{ access_token: string; expiry: string } | null>(null)
   const isAuth = computed(() => !!user.value)
 
   function setUser(data: User | null) {
     user.value = data
+
+    if (data) {
+      localStorage.setItem('sb-user', JSON.stringify(data))
+    } else {
+      localStorage.removeItem('sb-user')
+    }
   }
 
-  function setSession(token: Session['access_token'], user: User) {
-    localStorage.setItem('sb-token', token)
-    localStorage.setItem('sb-user', JSON.stringify(user))
-  }
-
-  function removeSession() {
-    localStorage.removeItem('sb-token')
-    localStorage.removeItem('sb-user')
+  function setToken(data: { access_token: string; expiry: string } | null) {
+    token.value = data
   }
 
   async function getUser() {
@@ -30,7 +36,12 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function login(credentials: { email: string; password: string }) {
-    const response = await api.post<AuthTokenResponse>('auth', credentials)
+    const response = await api.post<{
+      data: {
+        user: User
+        token: { access_token: string; expiry: string }
+      }
+    }>('auth', credentials)
     return response.data.data
   }
 
@@ -69,19 +80,27 @@ export const useAuthStore = defineStore('auth', () => {
     return response.data.data
   }
 
+  async function refreshToken() {
+    const response = await api.post<{ data: { user: User; token: { access_token: string; expiry: string } } }>(
+      'auth/refresh'
+    )
+    return response.data.data
+  }
+
   return {
     isAuth,
     logout,
     user,
+    token,
     setUser,
     getUser,
     login,
     signup,
-    setSession,
-    removeSession,
+    setToken,
     getUserProfile,
     getUserProfileById,
     updateProfile,
-    updateProfileAvatar
+    updateProfileAvatar,
+    refreshToken
   }
 })

@@ -24,10 +24,10 @@ const isLoadingMore = ref(false)
 const isLoading = ref(false)
 const range = 9
 
-async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number, range: number) {
+async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number) {
   try {
     isLoadingInitial.value = true
-    const response = await getSavedPinsForBoard(userID, boardID, range)
+    const response = await getSavedPinsForBoard(userID, boardID)
 
     return response
   } catch (error) {
@@ -41,10 +41,11 @@ async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number, 
   }
 }
 
-async function fetchMorePinsForCurrentBoard(userID: string, boardID: string, range: number) {
+async function fetchMorePinsForCurrentBoard(userID: string, boardID: string) {
   try {
     isLoadingMore.value = true
-    const response = await getSavedPinsForBoard(userID, +boardID, range)
+
+    const response = await getSavedPinsForBoard(userID, +boardID)
 
     if (!response) return
 
@@ -85,7 +86,7 @@ async function getBoardOwnerAndPins() {
     }
     const [boardOwner, savedPins] = await Promise.all([
       fetchBoardOwnerProfile(+boardID, profile),
-      fetchInitialPinsForCurrentBoard(profile, +boardID, range)
+      fetchInitialPinsForCurrentBoard(profile, +boardID)
     ])
 
     if (!boardOwner || !savedPins) {
@@ -138,7 +139,13 @@ onMounted(() => {
         :fetch-more="fetchMorePinsForCurrentBoard"
       >
         <PinGrid class="wrapper py-12">
-          <PinPreview v-for="pin in pins.pins" :key="pin.id" :pin="pin" :details="pin" />
+          <PinPreview
+            v-for="pin in pins.pins"
+            :key="pin.id"
+            :pin="pin"
+            :details="pin"
+            @refresh-boards="getBoardOwnerAndPins"
+          />
         </PinGrid>
       </InfiniteScroll>
 

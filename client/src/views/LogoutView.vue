@@ -1,6 +1,7 @@
 <script lang="ts">
 import { api } from '@/services/api'
 import { useAuthStore } from '@/stores/auth'
+import { isAxiosError } from 'axios'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -16,18 +17,28 @@ const authStore = useAuthStore()
 const router = useRouter()
 
 onMounted(async () => {
-  await authStore.logout()
+  try {
+    //clear axios headers
+    delete api.defaults.headers.common['Authorization']
+    delete api.defaults.headers.common['Content-Type']
 
-  //clear store
-  authStore.setUser(null)
-  authStore.setToken(null)
+    const response = await authStore.logout()
 
-  //clear axios headers
-  delete api.defaults.headers.common['Authorization']
-  delete api.defaults.headers.common['Content-Type']
+    console.log('response from logout', response)
 
-  //redirect to login
-  router.push({ name: 'login' })
+    //clear store
+    authStore.setUser(null)
+    authStore.setToken(null)
+
+    //redirect to login
+    router.push({ name: 'login' })
+  } catch (error) {
+    if (isAxiosError(error)) {
+      console.error(error.response?.data)
+    } else {
+      console.error(error)
+    }
+  }
 })
 </script>
 

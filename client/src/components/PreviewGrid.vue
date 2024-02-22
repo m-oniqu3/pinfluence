@@ -39,15 +39,12 @@ const { params } = router.currentRoute.value
 
 async function getImagesFromBoard() {
   try {
-    //get id from url
-
     if (!params.profile) {
-      return
+      console.log('No profile found')
+      router.push({ name: 'home' })
     }
 
     const response = await getSavedPinsForBoard(params.profile as string, props.board.id, 3)
-
-    if (!response) return
 
     response.pins.forEach((pin) => images.value.push(pin.image))
     pinsPerBoard.value = response.count

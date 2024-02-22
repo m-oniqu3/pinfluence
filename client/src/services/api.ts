@@ -1,4 +1,5 @@
-import { useAuthStore, type User } from '@/stores/auth'
+import router from '@/router'
+import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
 // const authStore = useAuthStore()
@@ -14,38 +15,10 @@ export const api = axios.create({
   withCredentials: true
 })
 
-const instance = axios.create({
-  baseURL: __API_PATH__,
-  withCredentials: true
-})
-async function refreshToken() {
-  try {
-    //create a new axios instance to avoid infinite loop
-
-    const response = await instance.post<{ data: { user: User; token: { access_token: string; expiry: string } } }>(
-      '/refresh'
-    )
-
-    console.log(response)
-  } catch (error: any) {
-    console.log('Error refreshing token:', error.message)
-    const authStore = useAuthStore()
-    await instance.delete('auth')
-    authStore.setUser(null)
-    authStore.setToken(null)
-  }
-}
-
-// function getTokenFromStore() {
-//   const authStore = useAuthStore()
-//   return authStore.token?.access_token
-// }
-
 api.interceptors.request.use(
   async (config) => {
-    //const token = getTokenFromStore() // Implement this function to get token from wherever it's stored
-
-    const token = localStorage.getItem('sb-token') || ''
+    const token = localStorage.getItem('sb-token')
+    console.log('Token:', !!token)
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
       config.headers['Content-Type'] = 'application/json'
@@ -57,26 +30,47 @@ api.interceptors.request.use(
   }
 )
 
-let isRefreshing = false
-
 api.interceptors.response.use(
   (response) => {
     return response
   },
   async (error) => {
-    const { status, data } = error.response as { status: number; data: { error: string } }
+    const { status } = error.response as { status: number; data: { error: string } }
+    const originalRequest = error.config
+    console.log('Error:', error.response.data)
 
-    if (status === 401) {
+    if (status === 401 && error.response.data.error.includes('Invalid Refresh Token')) {
+      // remove the header from the request
+      delete api.defaults.headers.common['Authorization']
+      const authStore = useAuthStore()
+      // remove the token from the store
+      authStore.setToken(null)
+      authStore.setUser(null)
+
+      // redirect to the logout page
+      router.push('/logout')
+
+      return
+    } else if (status === 401 && error.response.data.error.includes('Token expired')) {
       try {
-        // Refresh the token
-        console.log(data.error)
-        if (!isRefreshing) {
-          isRefreshing = true
-          await refreshToken()
-          isRefreshing = false
-        }
+        // remove the header from the request
+        delete api.defaults.headers.common['Authorization']
+
+        const authStore = useAuthStore()
+        authStore.setToken(null)
+
+        // get a new token
+        const response = await api.post<{ data: { token: { access_token: string; expiry: string } } }>('/refresh')
+
+        // set the new token in the header
+        authStore.setToken(response.data.data.token)
+
+        originalRequest.headers['Authorization'] = `Bearer ${response.data.data.token.access_token}`
+
+        return api(originalRequest)
       } catch (error) {
         console.log('Error refreshing token:', error)
+        return Promise.reject(error)
       }
     } else if (error.response && error.response.status === 403) {
       console.log('Forbidden') // handle the forbidden error

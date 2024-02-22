@@ -24,6 +24,8 @@ const props = defineProps<{
   details: PinPreview
 }>()
 
+const emit = defineEmits<{ (event: 'refresh-boards'): void }>()
+
 const router = useRouter()
 const hovering = ref(false)
 
@@ -83,6 +85,8 @@ async function addPinToBoard(board: BoardInfo) {
   try {
     const response = await savePin(props.details.id, board.id)
     console.log(response)
+
+    emit('refresh-boards')
   } catch (error: any) {
     if (isAxiosError(error)) {
       console.log(error.response?.data)
@@ -95,8 +99,12 @@ async function addPinToBoard(board: BoardInfo) {
 
 <template>
   <div>
-    <figure class="relative break-inside-avoid" @mouseover="hovering = true" @mouseout="hovering = false">
-      <!-- :style="{ height: 400 + 'px' }" -->
+    <figure
+      class="relative break-inside-avoid"
+      @mouseover="hovering = true"
+      @mouseout="hovering = false"
+      :style="{ height: 400 + 'px' }"
+    >
       <figcaption
         v-show="hovering"
         class="absolute h-full w-full rounded-2xl z-0 cursor-pointer"

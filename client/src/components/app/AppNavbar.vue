@@ -50,18 +50,18 @@ const avatar = ref('https://picsum.photos/200')
         <AppLogo class="fa-xl" />
       </router-link>
 
-      <ul v-if="!auth.isAuth" class="flex items-center gap-2">
-        <li>
-          <router-link to="/login" class="bg-black text-neutral btn font-bold" id="link"
-            >Log in</router-link
-          >
-        </li>
-        <li>
-          <router-link to="/register" class="bg-neutral-100 text-black btn font-bold" id="link"
-            >Sign up</router-link
-          >
-        </li>
-      </ul>
+      <div class="w-full grid grid-cols-[1fr,auto] gap-2" v-if="!auth.isAuth">
+        <SearchBar />
+
+        <ul class="flex items-center gap-2">
+          <li>
+            <router-link to="/login" class="bg-black text-neutral btn font-bold" id="link">Log in</router-link>
+          </li>
+          <li>
+            <router-link to="/register" class="bg-neutral-100 text-black btn font-bold" id="link">Sign up</router-link>
+          </li>
+        </ul>
+      </div>
 
       <template v-else>
         <ul class="xs:hidden sm:flex">
@@ -81,18 +81,14 @@ const avatar = ref('https://picsum.photos/200')
 
         <div class="flex gap-3 items-center min-w-max">
           <template v-if="user">
-            <router-link :to="{ name: 'profile', params: { profile: user.id } }">
+            <router-link :to="{ name: 'profile.saved', params: { profile: user.id } }">
               <img
                 v-if="avatar"
                 :src="avatar"
                 alt="avatar"
                 class="w-8 h-8 object-cover rounded-full border-2 border-gray-600"
               />
-              <font-awesome-icon
-                v-else
-                icon="fa-solid fa-circle-user"
-                class="fa-xl text-gray-600"
-              />
+              <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
             </router-link>
           </template>
 

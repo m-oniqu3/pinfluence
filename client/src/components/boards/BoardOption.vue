@@ -35,7 +35,9 @@ function savePin() {
   >
     <!-- generate random image url -->
     <img class="h-12 w-12 bg-black rounded-lg" :src="`https://picsum.photos/seed/${props.board.id}/200`" />
-    <p class="truncate flex items-center font-semibold text-base">{{ props.board.name }}</p>
+    <p class="w-10/12 line-clamp-2 text-ellipsis self-center font-semibold text-base">
+      {{ props.board.name }}
+    </p>
 
     <font-awesome-icon :icon="['fas', 'lock']" v-show="board.secret" class="self-center" />
     <div class="absolute top-0 right-2 h-full grid place-items-center">

@@ -82,8 +82,8 @@ const showEditButton = computed(() => {
 
 <template>
   <div
-    @click="router.push({ name: 'board-details', params: { profile: props.board.user_id, board: props.board.id } })"
-    class="mx-auto space-y-2"
+    @click="router.push({ name: 'board-details', params: { profile: props.board.user_id, boardID: props.board.id } })"
+    class="mx-auto space-y-2 cursor-pointer"
     id="container"
   >
     <figure class="rounded-2xl bg-white relative z-0" @mouseover="isHovering = true" @mouseleave="isHovering = false">

@@ -2,12 +2,13 @@ import {
   createBoard,
   deleteBoard,
   getBoardById,
+  getBoardOwner,
   getBoards,
   getCurrentUserBoards,
   updateBoard,
 } from "@/controller/boardController";
 import { requireAuth } from "@/middleware/auth";
-import { checkBoardPermission } from "@/middleware/board";
+import { checkBoardOwner, checkBoardPermission } from "@/middleware/board";
 
 import express from "express";
 
@@ -20,6 +21,9 @@ router.post("/", requireAuth, createBoard);
 
 // get other user boards
 router.get("/user/:userId", getBoards);
+
+// public route to get board owner
+router.get("/:boardID/user/:userID", checkBoardOwner, getBoardOwner);
 
 router.get("/:id", requireAuth, getBoardById);
 router.put("/:id", requireAuth, checkBoardPermission, updateBoard);

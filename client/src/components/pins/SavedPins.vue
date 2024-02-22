@@ -34,10 +34,13 @@ async function fetchInitialBoards() {
     isLoadingInitial.value = true
 
     const { params } = router.currentRoute.value
+    console.log('params', params)
 
     if (!params.profile) return
 
     const id = params.profile as string
+
+    console.log('id', id)
     const response = await getBoards('created_at', 'desc', id, [0, range])
 
     boards.value = response

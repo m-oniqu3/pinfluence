@@ -16,6 +16,7 @@ import {
   faChevronDown,
   faCircleArrowUp,
   faCircleUser,
+  faEllipsis,
   faLock,
   faMagnifyingGlass,
   faPen,
@@ -25,6 +26,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 library.add(
   faArrowUp,
+  faEllipsis,
   faArrowLeft,
   faMagnifyingGlass,
   faChevronDown,

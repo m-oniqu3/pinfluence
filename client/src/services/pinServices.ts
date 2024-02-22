@@ -31,6 +31,14 @@ export async function savePin(pinId: number, boardId: number) {
   return response.data
 }
 
+/**
+ *
+ * @param userId string
+ * @param boardId  number
+ * @param limit? number
+ * @returns SavedPinPreview
+ * @description Returns pins that are saved to given board by given user
+ */
 export async function getSavedPinsForBoard(userId: string, boardId: number, limit?: number) {
   const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/${userId}`, {
     params: { boardId, limit }

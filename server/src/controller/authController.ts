@@ -148,6 +148,7 @@ export async function logout(req: Request, res: Response) {
 
 export async function refresh(req: Request, res: Response) {
   try {
+    console.log("attempting to refresh token");
     const refresh_token = req.cookies.refresh_token;
 
     console.log("refresh token", refresh_token);
@@ -179,6 +180,7 @@ export async function refresh(req: Request, res: Response) {
     });
   } catch (error: any) {
     if (error instanceof AuthError) {
+      console.log("auth error", error.message);
       return res.status(401).json({ error: error.message });
     }
 

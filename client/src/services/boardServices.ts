@@ -1,5 +1,5 @@
 import { api } from '@/services/api'
-import type { Board } from '@/types/board'
+import type { Board, BoardOwnerProfile } from '@/types/board'
 
 export async function createBoard(board: { name: string; secret: boolean }) {
   const response = await api.post<{ data: number }>('boards', board)
@@ -33,8 +33,24 @@ export async function updateBoard(board: { id: number; name: string; secret: boo
   return response.data
 }
 
-// delete board
+/**
+ *
+ * @param id
+ * @returns string
+ * @description Deletes a board by id
+ */
 export async function deleteBoard(id: number) {
   const response = await api.delete<{ data: string }>(`boards/${id}`)
+  return response.data.data
+}
+
+/**
+ * @param boardID number
+ * @param userID string
+ * @returns BoardOwnerProfile
+ * @description Returns the owner of the given board
+ */
+export async function getBoardOwner(boardID: number, userID: string) {
+  const response = await api.get<{ data: BoardOwnerProfile }>(`boards/${boardID}/user/${userID}`)
   return response.data.data
 }

@@ -38,29 +38,28 @@ export async function loadUserFromToken(req: Request, res: Response, next: NextF
       req.user = user;
       console.log("authenticated", user.aud);
 
-      // check if the session is expired
-      const { data: session, error: sessionerror } = await supabase.auth.getSession();
+      // // check if the session is expired
+      // const { data: session, error: sessionerror } = await supabase.auth.getSession();
 
-      if (sessionerror) {
-        console.log("Error getting session", sessionerror);
-        throw sessionerror;
-      }
+      // if (sessionerror) {
+      //   console.log("Error getting session", sessionerror);
+      //   throw sessionerror;
+      // }
 
-      if (session.session) return next();
+      // if (session.session) return next();
 
-      const { data, error } = await supabase.auth.setSession({
-        access_token: token,
-        refresh_token: req.cookies.refresh_token,
-      });
+      // //try to refresh the session
 
-      if (error) {
-        console.log("Error setting session", error);
-        throw error;
-      }
+      // const { error: refresherror } = await supabase.auth.setSession({
+      //   access_token: token,
+      //   refresh_token: req.cookies.refresh_token,
+      // });
 
-      console.log("session set", data?.user?.aud);
+      // if (refresherror) {
+      //   console.log("Error refreshing session", refresherror);
+      //   throw refresherror;
+      // }
     }
-
     next();
   } catch (error: unknown) {
     if (error instanceof AuthError) {

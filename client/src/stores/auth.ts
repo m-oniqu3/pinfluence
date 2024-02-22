@@ -27,6 +27,12 @@ export const useAuthStore = defineStore('auth', () => {
 
   function setToken(data: { access_token: string; expiry: string } | null) {
     token.value = data
+
+    if (data) {
+      localStorage.setItem('sb-token', data.access_token)
+    } else {
+      localStorage.removeItem('sb-token')
+    }
   }
 
   async function getUser() {

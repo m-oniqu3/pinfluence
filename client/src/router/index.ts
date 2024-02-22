@@ -57,7 +57,7 @@ const router = createRouter({
       path: '/:profile',
       name: 'profile',
       component: () => import('../views/ProfileView.vue'),
-      redirect: { name: 'profile.saved' },
+      redirect: { name: 'profile.created' },
       children: [
         {
           path: 'created',
@@ -74,7 +74,7 @@ const router = createRouter({
 
     // /:profile/:board
     {
-      path: '/:profile/:board',
+      path: '/:profile/:boardID',
       name: 'board-details',
       component: () => import('../views/BoardView.vue')
     },

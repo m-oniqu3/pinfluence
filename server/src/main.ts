@@ -4,6 +4,7 @@ import "dotenv/config";
 import express from "express";
 import "module-alias/register";
 
+import { refresh } from "@/controller/authController";
 import { loadUserFromToken } from "@/middleware/auth";
 import cookieParser from "cookie-parser";
 import router from "./routes";
@@ -19,6 +20,10 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 // app.use(loggerMiddleware);
+
+//refresh route to run before middleware
+
+app.use("/api/refresh", refresh);
 
 app.use(loadUserFromToken);
 

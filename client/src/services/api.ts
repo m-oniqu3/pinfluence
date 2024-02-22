@@ -1,5 +1,4 @@
-import router from '@/router'
-import { useAuthStore } from '@/stores/auth'
+import { useAuthStore, type User } from '@/stores/auth'
 import axios from 'axios'
 
 // const authStore = useAuthStore()
@@ -15,26 +14,38 @@ export const api = axios.create({
   withCredentials: true
 })
 
+const instance = axios.create({
+  baseURL: __API_PATH__,
+  withCredentials: true
+})
 async function refreshToken() {
-  const authStore = useAuthStore()
-  const response = await axios.post<{
-    data: { token: { access_token: string; expiry: string }; user: { id: string; email: string } }
-  }>('/auth/refresh')
+  try {
+    //create a new axios instance to avoid infinite loop
 
-  authStore.setToken(response.data.data.token)
-  authStore.setUser(response.data.data.user)
+    const response = await instance.post<{ data: { user: User; token: { access_token: string; expiry: string } } }>(
+      '/refresh'
+    )
 
-  return response.data.data.token.access_token
+    console.log(response)
+  } catch (error: any) {
+    console.log('Error refreshing token:', error.message)
+    const authStore = useAuthStore()
+    await instance.delete('auth')
+    authStore.setUser(null)
+    authStore.setToken(null)
+  }
 }
 
-function getTokenFromStore() {
-  const authStore = useAuthStore()
-  return authStore.token?.access_token
-}
+// function getTokenFromStore() {
+//   const authStore = useAuthStore()
+//   return authStore.token?.access_token
+// }
 
 api.interceptors.request.use(
   async (config) => {
-    const token = getTokenFromStore() // Implement this function to get token from wherever it's stored
+    //const token = getTokenFromStore() // Implement this function to get token from wherever it's stored
+
+    const token = localStorage.getItem('sb-token') || ''
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
       config.headers['Content-Type'] = 'application/json'
@@ -54,24 +65,18 @@ api.interceptors.response.use(
   },
   async (error) => {
     const { status, data } = error.response as { status: number; data: { error: string } }
-    console.log('Error response', data)
 
-    if (status === 401 && !isRefreshing) {
+    if (status === 401) {
       try {
         // Refresh the token
-        isRefreshing = true
-        const refreshedToken = await refreshToken()
-
-        // Update the request headers with the new token
-        error.config.headers['Authorization'] = `Bearer ${refreshedToken}`
-
-        // Retry the original request
-        return axios.request(error.config)
-      } catch (refreshError) {
-        console.error('Token refresh error:', refreshError)
-
-        router.push({ name: 'logout' })
-        return Promise.reject(refreshError)
+        console.log(data.error)
+        if (!isRefreshing) {
+          isRefreshing = true
+          await refreshToken()
+          isRefreshing = false
+        }
+      } catch (error) {
+        console.log('Error refreshing token:', error)
       }
     } else if (error.response && error.response.status === 403) {
       console.log('Forbidden') // handle the forbidden error

@@ -32,6 +32,8 @@ async function getProfile() {
       return
     }
 
+    console.log('profile', params.profile)
+
     const id = params.profile as string
     const response = await authStore.getUserProfileById(id)
 
@@ -90,7 +92,7 @@ router.afterEach(getProfile)
     </router-link>
   </header>
 
-  <p v-else>no profile found</p>
+  <p v-else class="text-center">no profile found</p>
 </template>
 
 <style scoped>

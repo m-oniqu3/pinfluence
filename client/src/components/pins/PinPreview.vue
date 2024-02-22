@@ -94,52 +94,50 @@ async function addPinToBoard(board: BoardInfo) {
 </script>
 
 <template>
-  <figure
-    class="relative break-inside-avoid"
-    @mouseover="hovering = true"
-    @mouseout="hovering = false"
-    :style="{ height: 400 + 'px' }"
-  >
-    <figcaption
-      v-show="hovering"
-      class="absolute h-full w-full rounded-2xl z-0 cursor-pointer"
-      :class="hovering ? 'bg-black bg-opacity-50' : ''"
-      @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
-    >
-      <div class="flex justify-between items-center z-[1] p-2 h-16" @click.stop>
-        <h1 class="text-white font-bold text-base truncate">Architecture</h1>
-        <BaseButton class="bg-primary text-white" @click.stop="handleSavePin">Save</BaseButton>
-      </div>
-    </figcaption>
+  <div>
+    <figure class="relative break-inside-avoid" @mouseover="hovering = true" @mouseout="hovering = false">
+      <!-- :style="{ height: 400 + 'px' }" -->
+      <figcaption
+        v-show="hovering"
+        class="absolute h-full w-full rounded-2xl z-0 cursor-pointer"
+        :class="hovering ? 'bg-black bg-opacity-50' : ''"
+        @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
+      >
+        <div class="flex justify-between items-center z-[1] p-2 h-16" @click.stop>
+          <h1 class="text-white font-bold text-base truncate">Architecture</h1>
+          <BaseButton class="bg-primary text-white" @click.stop="handleSavePin">Save</BaseButton>
+        </div>
+      </figcaption>
 
-    <img
-      :src="props.details.image"
-      :alt="props.details.name"
-      class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
-      @load="loadImage"
-    />
+      <img
+        :src="props.details.image"
+        :alt="props.details.name"
+        class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
+        @load="loadImage"
+      />
 
-    <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
+      <AppMenu :positions="positions" @close-menu="togglePinList(false)" v-if="isPinListOpen">
+        <PinSaveMenu
+          @close-modal="togglePinList(false)"
+          @create-board="toggleCreateModal(true)"
+          @select-board="addPinToBoard"
+          :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
+        />
+      </AppMenu>
+    </figure>
+
+    <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
       <PinSaveMenu
-        @close-modal="togglePinList(false)"
+        @close-modal="togglePinListModal(false)"
         @create-board="toggleCreateModal(true)"
         @select-board="addPinToBoard"
-        :style="{ width: menuDimensions.width + 'px', height: menuDimensions.height + 'px' }"
       />
-    </AppMenu>
-  </figure>
+    </AppModal>
 
-  <AppModal @close-modal="togglePinListModal(false)" :open="isPinListModalOpen">
-    <PinSaveMenu
-      @close-modal="togglePinListModal(false)"
-      @create-board="toggleCreateModal(true)"
-      @select-board="addPinToBoard"
-    />
-  </AppModal>
-
-  <AppModal :open="isCreatingBoard" @close-modal="toggleCreateModal(false)">
-    <CreateBoard @close-modal="toggleCreateModal(false)" />
-  </AppModal>
+    <AppModal :open="isCreatingBoard" @close-modal="toggleCreateModal(false)">
+      <CreateBoard @close-modal="toggleCreateModal(false)" />
+    </AppModal>
+  </div>
 </template>
 
 <style scoped>

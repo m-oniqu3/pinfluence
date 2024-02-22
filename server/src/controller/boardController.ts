@@ -65,11 +65,18 @@ export async function getCurrentUserBoards(req: Request, res: Response) {
   }
 }
 
-// get boards for a specific user using pagination
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @description Get boards for a specific user that is not the current user
+ */
 export async function getBoards(req: Request, res: Response) {
   try {
     const sortBy = (req.query.sortBy as string) ?? "created_at";
     const order = (req.query.order as string) ?? "desc";
+
+    const authUser = req.user as User | null;
 
     // range is an array of two numbers
     const range = String(req.query.range)
@@ -88,13 +95,21 @@ export async function getBoards(req: Request, res: Response) {
       .select("id, name, secret, created_at, user_id")
       .order(sortBy, { ascending: order === "asc" })
       .eq("user_id", userId)
+
       .range(range[0], range[1]);
 
     if (error) {
       throw error;
     }
 
-    return res.status(200).json({ data: data });
+    let boards = data;
+
+    // If the authenticated user is not the owner, filter out secret boards
+    if (authUser?.id !== userId) {
+      boards = boards.filter((board) => !board.secret);
+    }
+
+    return res.status(200).json({ data: boards });
   } catch (error) {
     if (error.code) {
       // postgrest error
@@ -217,5 +232,57 @@ export async function deleteBoard(req: Request, res: Response) {
     }
 
     return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @description Returns profile of the user who owns the board
+ */
+export async function getBoardOwner(req: Request, res: Response) {
+  try {
+    const { boardID, userID } = req.params as { boardID: string; userID: string };
+
+    if (!boardID || !userID) {
+      throw new Error("Missing required parameters");
+    }
+
+    // get profile of the user who owns the board
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("id, full_name, avatar_url")
+      .eq("id", userID)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data) {
+      return res.status(404).json({ error: "No user found." });
+    }
+
+    //get board details
+    const { data: boardData, error: boardError } = await supabase
+      .from("boards")
+      .select("id, name, secret, description")
+      .eq("id", boardID)
+      .single();
+
+    if (boardError) {
+      throw boardError;
+    }
+
+    return res.status(200).json({ data: { user: data, board: boardData } });
+  } catch (error) {
+    console.error("Error querying board:", error);
+
+    if (error.code) {
+      return res.status(404).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: error.message || "Internal Server Error" });
+    }
   }
 }

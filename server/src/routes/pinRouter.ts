@@ -19,8 +19,8 @@ const storage = multer.memoryStorage();
 // Initialize multer with the storage configuration
 const upload = multer({ storage: storage });
 
-router.get("/created/:userId", requireAuth, getCreatedPins);
-router.get("/saved/:userId", requireAuth, getSavedPinsForBoard);
+router.get("/created/:userId", getCreatedPins);
+router.get("/saved/:userId", getSavedPinsForBoard);
 router.post("/", requireAuth, upload.single("file"), createPin);
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 

@@ -43,22 +43,21 @@ function updateBoards() {
       </span>
     </h1>
 
-    <figure class="h-full flex flex-col justify-center items-center gap-2">
-      <img
-        v-if="owner.user.avatar_url"
-        :src="owner.user.avatar_url"
-        alt=""
-        class="w-12 h-12 object-cover rounded-full"
-      />
+    <router-link :to="{ name: 'profile', params: { profile: owner.user.id } }">
+      <figure class="h-full cursor-pointer flex flex-col justify-center items-center gap-2">
+        <img
+          v-if="owner.user.avatar_url"
+          :src="owner.user.avatar_url"
+          alt=""
+          class="w-12 h-12 object-cover rounded-full"
+        />
 
-      <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-lg text-gray-600" />
+        <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-lg text-gray-600" />
 
-      <figcaption class="flex flex-col items-center">
-        <p v-if="!isOwner" class="text-lg font-medium">{{ owner.user.full_name }}</p>
-        <p class="text-center">{{ owner.board.description }}</p>
-      </figcaption>
-    </figure>
-
+        <figcaption v-if="!isOwner" class="text-lg text-center font-medium">{{ owner.user.full_name }}</figcaption>
+      </figure>
+    </router-link>
+    <p class="text-center">{{ owner.board.description }}</p>
     <p v-if="owner.board.secret" class="text-black/50">
       <span>
         <font-awesome-icon :icon="['fas', 'lock']" />

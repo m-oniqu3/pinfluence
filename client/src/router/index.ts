@@ -101,8 +101,7 @@ const router = createRouter({
     {
       path: '/pin/:id',
       name: 'pin-details',
-      component: () => import('../views/PinDetails.vue'),
-      meta: { requiresAuth: true }
+      component: () => import('../views/PinDetails.vue')
     }
     // {
     //   path: '/search/pins/:query',

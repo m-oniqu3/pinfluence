@@ -28,6 +28,6 @@ router.get("/saved/board/:userId", getSavedPinsRange);
 router.post("/", requireAuth, upload.single("file"), createPin);
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 
-router.get("/:id", requireAuth, getPinById);
+router.get("/:id", getPinById);
 
 export default router;

@@ -62,6 +62,7 @@ async function fetchPinDetails() {
 
 async function fetchCurrentUser() {
   try {
+    if (!authStore.isAuth) return
     const response = await authStore.getUserProfile()
     console.log(response)
     currentUser.value = {
@@ -90,6 +91,9 @@ const isPinListModalOpen = ref(false)
 const isCreatingBoard = ref(false)
 const positions = ref({ x: 0, y: 0 })
 const menuDimensions = ref({ width: 360, height: 450 })
+const commentFormStyle = computed(() => {
+  return authStore.isAuth ? 'grid-cols-[auto,1fr]' : 'grid-cols-1'
+})
 
 const togglePinList = (val: boolean) => {
   isPinListOpen.value = val
@@ -225,8 +229,8 @@ const handleSavePin = (event: MouseEvent) => {
           <h2 class="text-xl font-semibold">1 Comment</h2>
         </header>
 
-        <fieldset class="grid grid-cols-[auto,1fr] gap-4 items-center">
-          <figure>
+        <fieldset class="grid gap-4 items-center" :class="commentFormStyle">
+          <figure v-if="authStore.isAuth">
             <img
               v-if="currentUser.avatar_url"
               :src="currentUser.avatar_url"

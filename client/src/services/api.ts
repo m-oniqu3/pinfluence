@@ -18,7 +18,7 @@ export const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     const token = localStorage.getItem('sb-token')
-    console.log('Token:', !!token)
+    console.log('Token:', token)
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`
       config.headers['Content-Type'] = 'application/json'

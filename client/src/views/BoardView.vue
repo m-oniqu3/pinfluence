@@ -129,7 +129,7 @@ onMounted(() => {
     <p v-if="isLoading" class="text-center">Loading...</p>
 
     <section v-else>
-      <BoardProfileHeader v-if="owner" :owner="owner" />
+      <BoardProfileHeader v-if="owner" :owner="owner" @refresh-boards="getBoardOwnerAndPins" />
 
       <h1 v-if="authStore.user?.id === owner?.user.id" class="text-2xl font-bold text-center">
         {{ pins.count }} {{ pins.count === 1 ? 'Pin' : 'Pins' }}

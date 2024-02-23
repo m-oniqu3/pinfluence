@@ -147,7 +147,14 @@ export async function getCreatedPins(req: Request, res: Response) {
   }
 }
 
-export async function getSavedPinsForBoard(req: Request, res: Response) {
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @returns SavedPinPreview
+ * @description Returns limited number of pins that are saved to given board by given user
+ */
+export async function getSavedPinsLimit(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
     const { limit, boardId } = req.query as {
@@ -162,25 +169,26 @@ export async function getSavedPinsForBoard(req: Request, res: Response) {
     // get saved pins for the board
     const { data: pinIDs, error } = await supabase
       .from("saved-pins")
-      .select("pin_id", { count: "exact" })
+      .select("pin_id")
       .eq("board_id", +boardId)
-      .eq("user_id", userId)
-      .limit(+limit);
+      .eq("user_id", userId);
 
     if (error) throw error;
 
     // number of pins saved to the board
     const pinCount = pinIDs.length;
 
+    const selectedPins = pinIDs.slice(0, +limit);
+
     // if no pins are saved to the board, return early
-    if (pinIDs.length === 0) {
+    if (selectedPins.length === 0) {
       return res.status(200).json({ data: { pins: [], count: 0 } });
     }
 
     const pinData: { id: number; name: string; image: string; user_id: string }[] = [];
 
     // for of loop instead of supabase.in to include duplicate pins
-    for (let id of pinIDs as { pin_id: number }[]) {
+    for (let id of selectedPins as { pin_id: number }[]) {
       const { data, error } = await supabase
         .from("created-pins")
         .select("id, name, image, user_id")
@@ -200,6 +208,75 @@ export async function getSavedPinsForBoard(req: Request, res: Response) {
     }
 
     console.log(error.message);
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @returns SavedPinPreview
+ * @description Returns a range of pins that are saved to given board by given user
+ */
+export async function getSavedPinsRange(req: Request, res: Response) {
+  try {
+    const userId = req.params.userId;
+    const boardId = req.query.boardId;
+    const range = String(req.query.range).split(",").map(Number);
+
+    if (!userId || !boardId) {
+      throw new Error("Missing required parameters");
+    }
+
+    // Query to get the pin count
+    const { data: countData, error: countError } = await supabase
+      .from("saved-pins")
+      .select("pin_id", { count: "exact" })
+      .eq("board_id", boardId)
+      .eq("user_id", userId);
+
+    if (countError) throw countError;
+
+    const pinCount = countData.length;
+
+    // Query to get pins within the specified range
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .select("pin_id")
+      .eq("board_id", boardId)
+      .eq("user_id", userId)
+      .range(range[0], range[1]);
+
+    if (error) throw error;
+    const pinIDs = data as { pin_id: number }[];
+
+    if (pinCount === 0) {
+      return res.status(200).json({ data: { pins: [], count: 0 } });
+    }
+
+    const pinData: { id: number; name: string; image: string; user_id: string }[] = [];
+
+    // for of loop instead of supabase.in to include duplicate pins
+    for (let id of pinIDs) {
+      const { data, error } = await supabase
+        .from("created-pins")
+        .select("id, name, image, user_id")
+        .eq("id", id.pin_id)
+        .single();
+
+      if (error) throw error;
+
+      if (data) pinData.push(data as { id: number; name: string; image: string; user_id: string });
+    }
+
+    return res.status(200).json({ data: { pins: pinData, count: pinCount } });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }

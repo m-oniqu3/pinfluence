@@ -24,10 +24,10 @@ const isLoadingMore = ref(false)
 const isLoading = ref(false)
 const range = 9
 
-async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number) {
+async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number, range: number) {
   try {
     isLoadingInitial.value = true
-    const response = await getSavedPinsForBoard(userID, boardID)
+    const response = await getSavedPinsForBoard(userID, boardID, [0, range])
 
     return response
   } catch (error) {
@@ -41,15 +41,18 @@ async function fetchInitialPinsForCurrentBoard(userID: string, boardID: number) 
   }
 }
 
-async function fetchMorePinsForCurrentBoard(userID: string, boardID: string) {
+async function fetchMorePinsForCurrentBoard(userID: string, boardID: number, range: number) {
   try {
     isLoadingMore.value = true
+    console.log('fetching more pins')
 
-    const response = await getSavedPinsForBoard(userID, +boardID)
+    const min = pins.value.pins.length
+    const max = min + range
+    const response = await getSavedPinsForBoard(userID, boardID, [min, max])
 
     if (!response) return
 
-    Object.assign(pins.value.pins, response.pins)
+    pins.value.pins.push(...response.pins)
   } catch (error) {
     if (isAxiosError(error)) {
       console.error(error.response?.data)
@@ -86,7 +89,7 @@ async function getBoardOwnerAndPins() {
     }
     const [boardOwner, savedPins] = await Promise.all([
       fetchBoardOwnerProfile(+boardID, profile),
-      fetchInitialPinsForCurrentBoard(profile, +boardID)
+      fetchInitialPinsForCurrentBoard(profile, +boardID, range)
     ])
 
     if (!boardOwner || !savedPins) {
@@ -134,9 +137,9 @@ onMounted(() => {
 
       <InfiniteScroll
         v-if="pins.count > 0"
-        :is-loading-intial="isLoadingInitial"
-        :is-loading-more="isLoadingMore"
-        :fetch-more="fetchMorePinsForCurrentBoard"
+        :isLoadingIntial="isLoadingInitial"
+        :isLoadingMore="isLoadingMore"
+        @load-more="fetchMorePinsForCurrentBoard(profile, +boardID, range)"
       >
         <PinGrid class="wrapper py-12">
           <PinPreview

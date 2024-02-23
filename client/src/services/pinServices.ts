@@ -35,13 +35,29 @@ export async function savePin(pinId: number, boardId: number) {
  *
  * @param userId string
  * @param boardId  number
- * @param limit? number
+ * @param limit number
  * @returns SavedPinPreview
- * @description Returns pins that are saved to given board by given user
+ * @description Returns limited number of pins that are saved to given board by given user
  */
-export async function getSavedPinsForBoard(userId: string, boardId: number, limit?: number) {
-  const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/${userId}`, {
+export async function getSavedPinsPreview(userId: string, boardId: number, limit: number) {
+  const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/preview${userId}`, {
     params: { boardId, limit }
+  })
+
+  return response.data.data
+}
+
+/**
+ *
+ * @param userID string
+ * @param boardId number
+ * @param range [number, number]
+ * @returns SavedPinPreview[]
+ * @description Returns a range of pins that are saved to given board by given user
+ */
+export async function getSavedPinsForBoard(userID: string, boardId: number, range: [number, number]) {
+  const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/board/${userID}`, {
+    params: { range, boardId }
   })
 
   return response.data.data

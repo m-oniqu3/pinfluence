@@ -10,7 +10,7 @@ export default defineComponent({
 <script setup lang="ts">
 import AppModal from '@/components/app/AppModal.vue'
 import EditBoard from '@/components/boards/EditBoard.vue'
-import { getSavedPinsForBoard } from '@/services/pinServices'
+import { getSavedPinsPreview } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
 import type { Board } from '@/types/board'
 import { timeSince } from '@/utils/timeSince'
@@ -44,7 +44,7 @@ async function getImagesFromBoard() {
       router.push({ name: 'home' })
     }
 
-    const response = await getSavedPinsForBoard(params.profile as string, props.board.id, 3)
+    const response = await getSavedPinsPreview(params.profile as string, props.board.id, 3)
 
     response.pins.forEach((pin) => images.value.push(pin.image))
     pinsPerBoard.value = response.count

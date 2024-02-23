@@ -219,7 +219,7 @@ const handleSavePin = (event: MouseEvent) => {
 
       <form
         name="comment-form"
-        class="bg-white px-6 border-t-[1px] lg:w-full lg:rounded-b-[2rem] lg:sticky h-44 lg:bottom-0 lg:z-[1]"
+        class="bg-white px-6 border-t-[1px] rounded-b-[2rem] lg:w-full lg:sticky h-44 lg:bottom-0 lg:z-[1]"
       >
         <header class="py-6">
           <h2 class="text-xl font-semibold">1 Comment</h2>

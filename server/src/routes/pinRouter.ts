@@ -2,7 +2,8 @@ import {
   createPin,
   getCreatedPins,
   getPinById,
-  getSavedPinsForBoard,
+  getSavedPinsLimit,
+  getSavedPinsRange,
   savePin,
 } from "@/controller/pinController";
 import { requireAuth } from "@/middleware/auth";
@@ -20,7 +21,10 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.get("/created/:userId", getCreatedPins);
-router.get("/saved/:userId", getSavedPinsForBoard);
+router.get("/saved/preview:userId", getSavedPinsLimit);
+
+router.get("/saved/board/:userId", getSavedPinsRange);
+
 router.post("/", requireAuth, upload.single("file"), createPin);
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 

@@ -1,5 +1,6 @@
 import { api } from '@/services/api'
 import type { PinDetails, PinPreview, SavedPinPreview } from '@/types/pin'
+import { getRange } from '@/utils/paginate'
 
 export async function createPin(formData: FormData) {
   const response = await api.post<{ data: string }>('pins', formData, {
@@ -11,9 +12,9 @@ export async function createPin(formData: FormData) {
   return response.data.data
 }
 
-export async function getUserCreatedPins(userId: string, range: [number, number]) {
+export async function getUserCreatedPins(userId: string, page: number) {
   const response = await api.get<{ data: PinPreview[] }>(`pins/created/${userId}`, {
-    params: { range }
+    params: { range: getRange(page, 10) }
   })
 
   return response.data.data

@@ -1,6 +1,4 @@
 <script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import AppLogo from '@/components/app/AppLogo.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -9,19 +7,32 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
+import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { useRouter } from 'vue-router'
 
-import type { Profile } from '@/types/profile'
+import { useQuery } from '@tanstack/vue-query'
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-const profile = ref<Profile | null>(null)
 const allowEditProfile = computed(() => {
   return authStore.user?.id === profile.value?.id
+})
+
+const {
+  isPending,
+  isError,
+  data: profile,
+  error,
+  isFetching,
+  refetch
+} = useQuery({
+  queryKey: ['profile'],
+  queryFn: getProfile
 })
 
 async function getProfile() {
@@ -29,15 +40,14 @@ async function getProfile() {
     const { params } = router.currentRoute.value
 
     if (!params.profile) {
+      // todo: toast to say no profile found
+      router.push({ name: 'home' })
       return
     }
-
-    console.log('profile', params.profile)
-
     const id = params.profile as string
     const response = await authStore.getUserProfileById(id)
 
-    profile.value = response
+    return response
   } catch (error: any) {
     let message = ''
 
@@ -47,18 +57,19 @@ async function getProfile() {
       message = 'Something went wrong. Please try again.'
     }
 
-    console.log('Failed to get profile. ' + message, ' from getProfile')
+    throw new Error('Failed to get profile. ' + message)
   }
 }
 
-await getProfile()
-
 // watch for changes in the route
-router.afterEach(getProfile)
+router.afterEach(() => refetch())
 </script>
 
 <template>
-  <header v-if="profile" class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
+  <p v-if="isPending" class="text-center">Loading...</p>
+  <p v-if="!isFetching && isError && error" class="text-center">{{ error.message }}</p>
+
+  <header v-else-if="profile" class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
     <figure>
       <img
         v-if="profile.avatar_url"

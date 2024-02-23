@@ -170,8 +170,17 @@ export async function refresh(req: Request, res: Response) {
     }
 
     const token = data.session.access_token;
+    const refresh = data.session.refresh_token;
     const expiry = data.session.expires_at;
     const user = { id: data.session.user.id, email: data.session.user.email };
+
+    // set the refresh token as a cookie
+    res.cookie("refresh_token", refresh, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     console.log(user, token);
 

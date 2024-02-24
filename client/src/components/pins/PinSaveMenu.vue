@@ -3,8 +3,9 @@ import BoardOption from '@/components/boards/BoardOption.vue'
 import BoardSearch from '@/components/boards/BoardSearch.vue'
 import { getCurrentUserBoards } from '@/services/boardServices'
 import type { Board, BoardInfo } from '@/types/board'
+import { useQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
-import { computed, defineEmits, onMounted, ref } from 'vue'
+import { computed, defineEmits, ref, watch } from 'vue'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
@@ -12,30 +13,30 @@ const emit = defineEmits<{
   (event: 'selectBoard', board: BoardInfo): void
 }>()
 
-const boards = ref<Board[]>([])
-const originalBoards = ref<Board[]>([])
-const isLoading = ref(false)
 const searchInput = ref('')
+
+const { data, error, isError, isPending } = useQuery({
+  queryKey: ['boards'],
+  queryFn: fetchBoards,
+  retry: false
+})
 
 async function fetchBoards() {
   try {
-    isLoading.value = true
     const response = await getCurrentUserBoards('name', 'asc')
 
-    boards.value = response
-    originalBoards.value = response
+    return response
   } catch (error) {
+    let message = ''
     if (isAxiosError(error)) {
-      console.error(error.response?.data)
+      message = error.response?.data ?? error.message
     } else {
-      console.error(error)
+      message = 'Something went wrong. Please try again.'
     }
-  } finally {
-    isLoading.value = false
+
+    throw new Error('Failed to get boards. ' + message)
   }
 }
-
-onMounted(fetchBoards)
 
 const isHeightSmall = computed(() => {
   return window.innerHeight < 500
@@ -43,6 +44,15 @@ const isHeightSmall = computed(() => {
 
 const gridClass = computed(() => {
   return window.innerHeight >= 500 ? 'defaultGrid' : 'smallGrid'
+})
+
+const originalBoards = computed(() => data.value ?? [])
+
+const boards = ref<Board[]>(data.value ?? [])
+
+// when data changes, update the boards ref
+watch(data, () => {
+  boards.value = data.value ?? []
 })
 
 function getSearchResults() {
@@ -69,7 +79,11 @@ function selectBoard(board: BoardInfo) {
 
 <template>
   <div class="bg-white wrapper rounded-2xl" @click.stop id="section">
-    <p v-if="isLoading" class="grid place-items-center h-full w-full">Loading...</p>
+    <p v-if="isPending" class="grid place-items-center h-full w-full">Loading...</p>
+
+    <p v-else-if="isError" class="grid place-items-center h-full w-full text-red-500">
+      {{ error }}
+    </p>
 
     <section v-else id="section" :class="gridClass" class="rounded-2xl">
       <h1 class="grid place-items-center h-full w-full font-semibold" v-show="!isHeightSmall">Save</h1>

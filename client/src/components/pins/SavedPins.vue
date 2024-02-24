@@ -1,116 +1,106 @@
-<script lang="ts">
-import { defineComponent } from 'vue'
-import { useRouter } from 'vue-router'
-
-export default defineComponent({
-  name: 'SavedPins'
-})
-</script>
-
 <script setup lang="ts">
 import InfiniteScroll from '@/components/InfiniteScroll.vue'
 import PreviewGrid from '@/components/PreviewGrid.vue'
 import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
 import { getBoards } from '@/services/boardServices'
-import type { Board } from '@/types/board'
+import { useAuthStore } from '@/stores/auth'
+import { useInfiniteQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
-import { onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const { params } = router.currentRoute.value
+const profileID = params.profile as string
+
+const authStore = useAuthStore()
 
 const isBoardModalOpen = ref(false)
-
 const openBoardModal = () => (isBoardModalOpen.value = true)
 const closeBoardModal = () => (isBoardModalOpen.value = false)
-const boards = ref<Board[]>([])
-const originalBoards = ref<Board[]>([])
-const isLoadingInitial = ref(false)
-const isLoadingMore = ref(false)
-const router = useRouter()
 
-const range = 9
+const isOwner = computed(() => {
+  return authStore.user?.id === profileID
+})
 
-async function fetchInitialBoards() {
+const {
+  data: boards,
+  isLoading,
+  error,
+  isError,
+  fetchNextPage,
+  refetch,
+  isFetchingNextPage
+} = useInfiniteQuery({
+  queryKey: ['userBoards', profileID],
+  queryFn: ({ pageParam }) => fetchBoards(pageParam, profileID),
+  initialPageParam: 0,
+
+  getNextPageParam: (lastPage, allPages) => {
+    const nextPage: number | undefined = lastPage?.length === 10 ? allPages.length : undefined
+    return nextPage
+  }
+})
+
+async function fetchBoards(pageParam: number, profile: string) {
   try {
-    isLoadingInitial.value = true
+    const response = await getBoards('created_at', 'desc', profile, pageParam)
+    return response
+  } catch (error: any) {
+    let message = ''
 
-    const { params } = router.currentRoute.value
-    console.log('params', params)
-
-    if (!params.profile) return
-
-    const id = params.profile as string
-
-    console.log('id', id)
-    const response = await getBoards('created_at', 'desc', id, [0, range])
-
-    boards.value = response
-    originalBoards.value = response
-  } catch (error) {
     if (isAxiosError(error)) {
-      console.error(error.response?.data)
+      message = error.response?.data ?? error.message
     } else {
-      console.error(error)
+      message = error.message
     }
-  } finally {
-    isLoadingInitial.value = false
+
+    throw new Error('Failed to get boards. ' + message)
   }
 }
-
-async function fetchMoreBoards() {
-  try {
-    isLoadingMore.value = true
-
-    const { params } = router.currentRoute.value
-    if (!params.profile) return
-
-    const id = params.profile as string
-    const min = boards.value.length
-    const max = min + range
-
-    const response = await getBoards('created_at', 'desc', id, [min, max])
-
-    boards.value = [...boards.value, ...response]
-  } catch (error) {
-    if (isAxiosError(error)) {
-      console.error(error.response?.data)
-    } else {
-      console.error(error)
-    }
-  } finally {
-    isLoadingMore.value = false
-  }
-}
-
-onMounted(fetchInitialBoards)
 
 // watch for changes in the route
-router.afterEach(fetchInitialBoards)
+router.afterEach(() => refetch())
 </script>
 
 <template>
   <section class="wrapper pb-8">
-    <p v-if="isLoadingInitial" class="text-center">Loading...</p>
+    <p v-if="isLoading" class="text-center">Loading...</p>
+    <p v-else-if="isError && error" class="text-center">{{ error.message }}</p>
 
     <InfiniteScroll
-      v-else-if="boards.length"
-      :isLoadingIntial="isLoadingInitial"
-      :isLoadingMore="isLoadingMore"
-      @load-more="fetchMoreBoards"
+      v-else-if="boards?.pages"
+      :isLoadingIntial="isLoading"
+      :isLoadingMore="isFetchingNextPage"
+      @load-more="fetchNextPage"
     >
       <article id="saved-pins">
-        <PreviewGrid v-for="board in boards" :key="board.id" :board="board" @refresh-boards="fetchInitialBoards" />
+        <PreviewGrid v-for="board in boards.pages.flat()" :key="board.id" :board="board" @refresh-boards="refetch" />
       </article>
     </InfiniteScroll>
 
-    <article v-else class="pt-4 w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto">
-      <div class="text-center space-y-2">
-        <h1 class="font-bold text-3xl">You don't have any boards yet.</h1>
-        <p>Create one to save your pins!</p>
-      </div>
+    <article
+      v-if="!boards?.pages.flat().length && !isLoading"
+      class="pt-4 w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto"
+    >
+      <template v-if="isOwner">
+        <div class="text-center space-y-2">
+          <h1 class="font-bold text-3xl">You don't have any boards yet.</h1>
+          <p>Create one to save your pins!</p>
+        </div>
 
-      <div class="h-12 w-12 rounded-full bg-primary grid place-items-center cursor-pointer" @click="openBoardModal">
-        <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
-      </div>
+        <div class="h-12 w-12 rounded-full bg-primary grid place-items-center cursor-pointer" @click="openBoardModal">
+          <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />
+        </div>
+      </template>
+
+      <template v-else>
+        <div class="text-center space-y-2">
+          <h1 class="font-bold text-3xl">This user doesn't have any boards yet.</h1>
+          <p>Check back later!</p>
+        </div>
+      </template>
     </article>
 
     <AppModal @close-modal="closeBoardModal" :open="isBoardModalOpen">

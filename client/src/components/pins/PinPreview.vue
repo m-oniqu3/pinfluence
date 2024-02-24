@@ -14,6 +14,7 @@ import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { savePin } from '@/services/pinServices'
+import { useAuthStore } from '@/stores/auth'
 import type { BoardInfo } from '@/types/board'
 import { type PinPreview } from '@/types/pin'
 import { calculateXPosition, calculateYPosition } from '@/utils/menu'
@@ -26,6 +27,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{ (event: 'refresh-boards'): void }>()
 
+const authStore = useAuthStore()
 const router = useRouter()
 const hovering = ref(false)
 
@@ -100,13 +102,13 @@ async function addPinToBoard(board: BoardInfo) {
 <template>
   <div>
     <figure
-      class="relative break-inside-avoid"
+      class="relative rounded-2xl bg-slate-300 cursor-pointer"
       @mouseover="hovering = true"
       @mouseout="hovering = false"
-      :style="{ height: 400 + 'px' }"
+      @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
     >
       <figcaption
-        v-show="hovering"
+        v-show="hovering && authStore.isAuth"
         class="absolute h-full w-full rounded-2xl z-0 cursor-pointer"
         :class="hovering ? 'bg-black bg-opacity-50' : ''"
         @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
@@ -120,7 +122,7 @@ async function addPinToBoard(board: BoardInfo) {
       <img
         :src="props.details.image"
         :alt="props.details.name"
-        class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
+        class="rounded-2xl h-full w-full object-cover lazyload"
         @load="loadImage"
       />
 
@@ -149,6 +151,14 @@ async function addPinToBoard(board: BoardInfo) {
 </template>
 
 <style scoped>
+figure {
+  min-height: 300px;
+  height: 400px;
+}
+
+img {
+  min-height: 300px;
+}
 .lazyload {
   opacity: 50%;
   transition: opacity 0.3s ease-in-out;

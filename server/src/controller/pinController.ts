@@ -222,23 +222,23 @@ export async function getSavedPinsLimit(req: Request, res: Response) {
 export async function getSavedPinsRange(req: Request, res: Response) {
   try {
     const userId = req.params.userId;
-    const boardId = req.query.boardId;
-    const range = String(req.query.range).split(",").map(Number);
+    const { range, boardId } = req.query as {
+      boardId: string;
+      range: string;
+    };
+
+    const [from, to] = String(range).split(",").map(Number);
 
     if (!userId || !boardId) {
       throw new Error("Missing required parameters");
     }
 
     // Query to get the pin count
-    const { data: countData, error: countError } = await supabase
+    const { count } = await supabase
       .from("saved-pins")
       .select("pin_id", { count: "exact" })
       .eq("board_id", boardId)
       .eq("user_id", userId);
-
-    if (countError) throw countError;
-
-    const pinCount = countData.length;
 
     // Query to get pins within the specified range
     const { data, error } = await supabase
@@ -246,12 +246,13 @@ export async function getSavedPinsRange(req: Request, res: Response) {
       .select("pin_id")
       .eq("board_id", boardId)
       .eq("user_id", userId)
-      .range(range[0], range[1]);
+      .range(from, to)
+      .order("created_at", { ascending: false });
 
     if (error) throw error;
     const pinIDs = data as { pin_id: number }[];
 
-    if (pinCount === 0) {
+    if (count === 0) {
       return res.status(200).json({ data: { pins: [], count: 0 } });
     }
 
@@ -270,7 +271,7 @@ export async function getSavedPinsRange(req: Request, res: Response) {
       if (data) pinData.push(data as { id: number; name: string; image: string; user_id: string });
     }
 
-    return res.status(200).json({ data: { pins: pinData, count: pinCount } });
+    return res.status(200).json({ data: { pins: pinData, count } });
   } catch (error) {
     console.log(error.message);
     if (error.code) {

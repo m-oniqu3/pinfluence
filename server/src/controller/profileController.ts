@@ -8,25 +8,26 @@ import { supabase } from "../lib/supabaseClient";
 export async function getUserProfileById(req: Request, res: Response) {
   try {
     const id = req.params.userId;
+    console.log(id, "from profile id");
 
     if (!id) {
       throw new Error("Missing identification for user");
     }
 
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", id).single();
 
     if (error) {
       throw error;
     }
 
-    return res.status(200).json({ data: profile });
-  } catch (error: unknown) {
-    if (error instanceof AuthError) {
-      return res.status(401).json({ error: error.message });
+    return res.status(200).json({ data });
+  } catch (error: any) {
+    if (error.code) {
+      if (error.code === "PGRST116") {
+        return res.status(404).json({ error: "Profile not found" });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
 
     console.log(error);

@@ -8,6 +8,7 @@ import router from './router'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -43,7 +44,7 @@ const app = createApp(App)
 
 app.use(createPinia())
 app.use(router)
-
+app.use(VueQueryPlugin)
 app.component('font-awesome-icon', FontAwesomeIcon)
 
 const userString = localStorage.getItem('sb-user')

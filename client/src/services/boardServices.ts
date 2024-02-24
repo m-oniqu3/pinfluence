@@ -1,15 +1,23 @@
 import { api } from '@/services/api'
 import type { Board, BoardOwnerProfile } from '@/types/board'
+import { getRange } from '@/utils/paginate'
 
 export async function createBoard(board: { name: string; secret: boolean }) {
   const response = await api.post<{ data: number }>('boards', board)
   return response.data.data
 }
 
-// get boards for any user
-export async function getBoards(sortBy: string, order: string, userId: string, range: [number, number]) {
+/**
+ * @param sortBy string
+ * @param order string
+ * @param userId string
+ * @param page number
+ * @returns Board[]
+ * @description Returns a range of boards created by given user
+ */
+export async function getBoards(sortBy: string, order: string, userId: string, page: number) {
   const response = await api.get<{ data: Board[] }>(`boards/user/${userId}`, {
-    params: { sortBy, order, range }
+    params: { sortBy, order, range: getRange(page, 10) }
   })
 
   return response.data.data

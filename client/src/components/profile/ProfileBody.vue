@@ -10,9 +10,15 @@ export default defineComponent({
 import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
 import ProfileMenu from '@/components/profile/ProfileMenu.vue'
+import { computed } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const isMenuOpen = ref(false)
 const isBoardModalOpen = ref(false)
+
+const isSavedPinsPage = computed(() => router.currentRoute.value.name === 'profile.saved')
 
 const openMenu = () => (isMenuOpen.value = true)
 const closeMenu = () => (isMenuOpen.value = false)
@@ -42,19 +48,21 @@ function getPosition(event: MouseEvent) {
     </nav>
   </header>
 
-  <ul class="wrapper h-16 flex justify-between items-center">
-    <li class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
-      <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
-    </li>
-    <li
-      class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
-      :class="isMenuOpen ? 'bg-black rounded-full' : ''"
-      @click="openMenu"
-      @click.prevent="getPosition"
-    >
-      <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg" :class="isMenuOpen ? 'text-white' : ''" />
-    </li>
-  </ul>
+  <div class="h-16">
+    <ul v-show="isSavedPinsPage" class="wrapper h-16 flex justify-between items-center">
+      <li class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
+        <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
+      </li>
+      <li
+        class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
+        :class="isMenuOpen ? 'bg-black rounded-full' : ''"
+        @click="openMenu"
+        @click.prevent="getPosition"
+      >
+        <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg" :class="isMenuOpen ? 'text-white' : ''" />
+      </li>
+    </ul>
+  </div>
 
   <router-view />
 

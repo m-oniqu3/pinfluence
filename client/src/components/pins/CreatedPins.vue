@@ -40,17 +40,11 @@ const { data, isLoading, error, isError, fetchNextPage, refetch, isFetchingNextP
 
 async function fetchPins(pageParam: number, profile: string) {
   try {
-    if (!profile) {
-      // todo: toast to say no profile found
-      router.push({ name: 'home' })
-      return
-    }
-
     const response = await getUserCreatedPins(profile, pageParam)
-
     return response
   } catch (error: any) {
     let message = ''
+
     if (isAxiosError(error)) {
       message = error.response?.data ?? error.message
     } else {

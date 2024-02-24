@@ -23,28 +23,19 @@ const allowEditProfile = computed(() => {
   return authStore.user?.id === profile.value?.id
 })
 
+const { params } = router.currentRoute.value
+const id = params.profile as string
+
 const {
   isPending,
   isError,
   data: profile,
   error,
-  isFetching,
   refetch
-} = useQuery({
-  queryKey: ['profile'],
-  queryFn: getProfile
-})
+} = useQuery({ queryKey: ['profile', id], queryFn: () => getProfile(id), retry: false })
 
-async function getProfile() {
+async function getProfile(id: string) {
   try {
-    const { params } = router.currentRoute.value
-
-    if (!params.profile) {
-      // todo: toast to say no profile found
-      router.push({ name: 'home' })
-      return
-    }
-    const id = params.profile as string
     const response = await authStore.getUserProfileById(id)
 
     return response
@@ -67,7 +58,7 @@ router.afterEach(() => refetch())
 
 <template>
   <p v-if="isPending" class="text-center">Loading...</p>
-  <p v-if="!isFetching && isError && error" class="text-center">{{ error.message }}</p>
+  <p v-if="!isPending && isError && error" class="text-center">{{ error.message }}</p>
 
   <header v-else-if="profile" class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
     <figure>
@@ -103,7 +94,7 @@ router.afterEach(() => refetch())
     </router-link>
   </header>
 
-  <p v-else class="text-center">no profile found</p>
+  <p v-else-if="!isPending && !profile" class="text-center">no profile found</p>
 </template>
 
 <style scoped>

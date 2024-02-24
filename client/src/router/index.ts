@@ -56,12 +56,20 @@ const router = createRouter({
     {
       path: '/:profile',
       name: 'profile',
+      beforeEnter: (to, _from, next) => {
+        if (!to.params.profile) {
+          next({ name: 'home' })
+        } else {
+          next()
+        }
+      },
       component: () => import('../views/ProfileView.vue'),
       redirect: { name: 'profile.created' },
       children: [
         {
           path: 'created',
           name: 'profile.created',
+
           component: () => import('@/components/pins/CreatedPins.vue')
         },
         {
@@ -76,6 +84,16 @@ const router = createRouter({
     {
       path: '/:profile/:boardID',
       name: 'board-details',
+      beforeEnter: (to, _from, next) => {
+        if (to.params.profile && !to.params.boardID) {
+          next({ name: 'profile.saved', params: { profile: to.params.profile } })
+        } else if (!to.params.profile) {
+          next({ name: 'home', query: { ...to.query, showError: 'true' } })
+        } else {
+          next()
+        }
+      },
+
       component: () => import('../views/BoardView.vue')
     },
 

@@ -75,7 +75,10 @@ api.interceptors.response.use(
     } else if (error.response && error.response.status === 403) {
       console.log('Forbidden') // handle the forbidden error
     } else if (error.response && error.response.status === 404) {
+      window.location.href = '/'
+
       console.log('Not found') // handle the not found error with a redirect or a toast
+      console.log(originalRequest.url)
     }
     // Return the error response
     return Promise.reject(error)

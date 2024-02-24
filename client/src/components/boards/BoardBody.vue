@@ -58,7 +58,7 @@ watch([() => props.boardID, () => props.userID], () => {
 <template>
   <p v-if="isLoading" class="text-center">Loading...</p>
   <p v-if="isError" class="text-center">Error: {{ error }}</p>
-
+  <p v-else-if="!flattenedPins.length && !isLoading" class="text-center">No pins saved to this board</p>
   <section v-else-if="flattenedPins.length">
     <h1 v-if="isOwner" class="text-2xl font-bold text-center">
       {{ data?.pages[0].count }} {{ data?.pages[0].count === 1 ? 'Pin' : 'Pins' }}
@@ -76,6 +76,4 @@ watch([() => props.boardID, () => props.userID], () => {
       </PinGrid>
     </InfiniteScroll>
   </section>
-
-  <p v-if="!data?.pages && !isLoading" class="text-center">No pins saved to this board</p>
 </template>

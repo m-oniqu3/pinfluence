@@ -1,4 +1,5 @@
 <script lang="ts">
+import BaseButton from '@/components/BaseButton.vue'
 import { defineComponent } from 'vue'
 
 export default defineComponent({
@@ -7,7 +8,6 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
@@ -19,7 +19,7 @@ import { useQuery } from '@tanstack/vue-query'
 const router = useRouter()
 const authStore = useAuthStore()
 
-const allowEditProfile = computed(() => {
+const isOwner = computed(() => {
   return authStore.user?.id === profile.value?.id
 })
 
@@ -95,9 +95,19 @@ watch(
       </span>
     </p>
 
-    <router-link :to="{ name: 'settings.profile' }" v-if="allowEditProfile">
-      <BaseButton class="bg-neutral-200"> Edit Profile </BaseButton>
-    </router-link>
+    <div class="flex gap-2 items-center">
+      <p class="font-bold">12k followers</p>
+      <p class="font-bold">3k following</p>
+    </div>
+
+    <div class="flex gap-2 items-center">
+      <BaseButton v-if="!isOwner" class="btn font-bold bg-primary text-neutral"> Follow </BaseButton>
+      <BaseButton v-if="isOwner" class="btn font-bold bg-neutral-200"> Share </BaseButton>
+
+      <router-link :to="{ name: 'settings.profile' }" v-if="isOwner" class="btn font-bold bg-neutral-200">
+        Edit Profile
+      </router-link>
+    </div>
   </header>
 
   <p v-else-if="!isLoading && !profile" class="text-center">no profile found</p>

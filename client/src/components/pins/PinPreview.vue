@@ -102,10 +102,9 @@ async function addPinToBoard(board: BoardInfo) {
 <template>
   <div>
     <figure
-      class="relative break-inside-avoid cursor-pointer"
+      class="relative rounded-2xl bg-slate-300 cursor-pointer"
       @mouseover="hovering = true"
       @mouseout="hovering = false"
-      :style="{ height: 400 + 'px' }"
       @click="router.push({ name: 'pin-details', params: { id: props.details.id } })"
     >
       <figcaption
@@ -123,7 +122,7 @@ async function addPinToBoard(board: BoardInfo) {
       <img
         :src="props.details.image"
         :alt="props.details.name"
-        class="rounded-2xl h-full w-full mb-8 object-cover lazyload bg-slate-300"
+        class="rounded-2xl h-full w-full object-cover lazyload"
         @load="loadImage"
       />
 
@@ -152,6 +151,14 @@ async function addPinToBoard(board: BoardInfo) {
 </template>
 
 <style scoped>
+figure {
+  min-height: 300px;
+  height: 400px;
+}
+
+img {
+  min-height: 300px;
+}
 .lazyload {
   opacity: 50%;
   transition: opacity 0.3s ease-in-out;

@@ -1,36 +1,78 @@
 <script setup lang="ts">
 import AppModal from '@/components/app/AppModal.vue'
 import EditBoard from '@/components/boards/EditBoard.vue'
+import { getBoardOwner } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
-import type { BoardOwnerProfile } from '@/types/board'
-import { computed, ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import { computed, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{
-  owner: BoardOwnerProfile
+  boardID: number
+  userID: string
 }>()
 
-const emit = defineEmits<{ (event: 'refresh-boards'): void }>()
+const {
+  data: owner,
+  isLoading,
+  isError,
+  error,
+  refetch
+} = useQuery({
+  queryKey: ['boardOwner', props.boardID, props.userID],
+  queryFn: () => fetchBoardOwnerProfile(props.boardID, props.userID),
+  retry: false
+})
 
+const router = useRouter()
 const authStore = useAuthStore()
 const user = authStore.user
 
-const isOwner = computed(() => {
-  return user?.id === props.owner.user.id
-})
-
 const isEditBoardModalOpen = ref(false)
+const isOwner = computed(() => user?.id === props.userID)
 
 function setEditBoardModal(value: boolean) {
   isEditBoardModalOpen.value = value
 }
 
-function updateBoards() {
-  emit('refresh-boards')
+//check if the board is secret
+const isSecret = computed(() => owner?.value?.board.secret && user?.id !== props.userID)
+
+//redirect to home if the board is secret
+watch(isSecret, (value) => {
+  if (value) {
+    console.log('board is secret')
+    router.push({ name: 'home' })
+  }
+})
+
+// refetch when the boardID or userID changes
+watch([() => props.boardID, () => props.userID], () => {
+  refetch()
+})
+
+async function fetchBoardOwnerProfile(boardID: number, userID: string) {
+  try {
+    const response = await getBoardOwner(boardID, userID)
+    return response
+  } catch (error: any) {
+    console.log(error.message)
+    throw new Error('Error fetching user profile')
+  }
+}
+
+function refresh() {
+  refetch()
+  setEditBoardModal(false)
 }
 </script>
 
 <template>
-  <article class="flex flex-col justify-center items-center gap-2 p-4 h-full max-w-md mx-auto">
+  <p v-if="isLoading" class="text-center">Loading...</p>
+
+  <p v-else-if="!isLoading && isError" class="text-center text-red-500">{{ error }}</p>
+
+  <article v-else-if="owner" class="flex flex-col justify-center items-center gap-2 p-4 h-full max-w-md mx-auto">
     <h1 class="text-center items-center justify-center flex flex-wrap gap-2">
       <span class="text-4xl font-bold text-center">{{ owner.board.name }}</span>
 
@@ -67,7 +109,7 @@ function updateBoards() {
     </p>
   </article>
 
-  <AppModal @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
-    <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="owner.board.id" @refresh-boards="updateBoards" />
+  <AppModal v-if="owner" @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
+    <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="owner.board.id" @refresh-boards="refresh" />
   </AppModal>
 </template>

@@ -53,12 +53,12 @@ export async function getSavedPinsPreview(userId: string, boardId: number, limit
  * @param userID string
  * @param boardId number
  * @param range [number, number]
- * @returns SavedPinPreview[]
+ * @returns SavedPinPreview
  * @description Returns a range of pins that are saved to given board by given user
  */
-export async function getSavedPinsForBoard(userID: string, boardId: number, range: [number, number]) {
+export async function getSavedPinsForBoard(userID: string, boardId: number, page: number) {
   const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/board/${userID}`, {
-    params: { range, boardId }
+    params: { boardId, range: getRange(page, 10) }
   })
 
   return response.data.data

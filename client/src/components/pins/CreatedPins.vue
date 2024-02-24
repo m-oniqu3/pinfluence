@@ -31,7 +31,7 @@ const { data, isLoading, error, isError, fetchNextPage, refetch, isFetchingNextP
   queryFn: ({ pageParam }) => fetchPins(pageParam, profile),
   initialPageParam: 0,
 
-  // if the last page has 10 items, then there are more pages to fetch so return the next page number to fetch. otherwise, there are no more pages to fetch so return undefined.
+  // if the last page has a length, then there are more pages
   getNextPageParam: (lastPage, allPages) => {
     const nextPage: number | undefined = lastPage?.length ? allPages.length : undefined
     return nextPage

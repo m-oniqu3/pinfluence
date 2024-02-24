@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppNavbar from '@/components/app/AppNavbar.vue'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 // import { useAuthStore } from '@/stores/auth'
 import { RouterView } from 'vue-router'
 // const authStore = useAuthStore()
@@ -52,6 +53,7 @@ import { RouterView } from 'vue-router'
   <div class="mt-24" style="{ minHeight: 'calc(100vh - 96px)' }">
     <RouterView />
   </div>
+  <VueQueryDevtools />
   <!-- </template> -->
 </template>
 

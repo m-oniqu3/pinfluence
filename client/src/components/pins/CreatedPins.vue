@@ -33,7 +33,7 @@ const { data, isLoading, error, isError, fetchNextPage, refetch, isFetchingNextP
 
   // if the last page has 10 items, then there are more pages to fetch so return the next page number to fetch. otherwise, there are no more pages to fetch so return undefined.
   getNextPageParam: (lastPage, allPages) => {
-    const nextPage: number | undefined = lastPage?.length === 10 ? allPages.length : undefined
+    const nextPage: number | undefined = lastPage?.length ? allPages.length : undefined
     return nextPage
   }
 })

@@ -7,12 +7,13 @@ import { getBoards } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
 import { useInfiniteQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const { params } = router.currentRoute.value
-const profileID = params.profile as string
+const id = ref(params.profile as string)
+console.log(id.value)
 
 const authStore = useAuthStore()
 
@@ -21,7 +22,7 @@ const openBoardModal = () => (isBoardModalOpen.value = true)
 const closeBoardModal = () => (isBoardModalOpen.value = false)
 
 const isOwner = computed(() => {
-  return authStore.user?.id === profileID
+  return authStore.user?.id === id.value
 })
 
 const {
@@ -33,12 +34,12 @@ const {
   refetch,
   isFetchingNextPage
 } = useInfiniteQuery({
-  queryKey: ['userBoards', profileID],
-  queryFn: ({ pageParam }) => fetchBoards(pageParam, profileID),
+  queryKey: ['userBoards', id.value],
+  queryFn: ({ pageParam }) => fetchBoards(pageParam, id.value),
   initialPageParam: 0,
 
   getNextPageParam: (lastPage, allPages) => {
-    const nextPage: number | undefined = lastPage?.length === 10 ? allPages.length : undefined
+    const nextPage: number | undefined = lastPage?.length ? allPages.length : undefined
     return nextPage
   }
 })
@@ -61,7 +62,13 @@ async function fetchBoards(pageParam: number, profile: string) {
 }
 
 // watch for changes in the route
-router.afterEach(() => refetch())
+watch(
+  () => router.currentRoute.value.params.profile,
+  async (newProfile) => {
+    id.value = newProfile as string
+    await refetch()
+  }
+)
 </script>
 
 <template>

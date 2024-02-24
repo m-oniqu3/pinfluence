@@ -11,7 +11,7 @@ import BaseButton from '@/components/BaseButton.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 import { useQuery } from '@tanstack/vue-query'
@@ -24,15 +24,15 @@ const allowEditProfile = computed(() => {
 })
 
 const { params } = router.currentRoute.value
-const id = params.profile as string
+const id = ref(params.profile as string)
 
 const {
-  isPending,
+  isLoading,
   isError,
   data: profile,
   error,
   refetch
-} = useQuery({ queryKey: ['profile', id], queryFn: () => getProfile(id), retry: false })
+} = useQuery({ queryKey: ['profile', id], queryFn: () => getProfile(id.value) })
 
 async function getProfile(id: string) {
   try {
@@ -53,12 +53,18 @@ async function getProfile(id: string) {
 }
 
 // watch for changes in the route
-router.afterEach(() => refetch())
+watch(
+  () => router.currentRoute.value.params.profile,
+  async (newProfile) => {
+    id.value = newProfile as string
+    await refetch()
+  }
+)
 </script>
 
 <template>
-  <p v-if="isPending" class="text-center">Loading...</p>
-  <p v-if="!isPending && isError && error" class="text-center">{{ error.message }}</p>
+  <p v-if="isLoading" class="text-center">Loading...</p>
+  <p v-if="!isLoading && isError && error" class="text-center">{{ error.message }}</p>
 
   <header v-else-if="profile" class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">
     <figure>
@@ -94,7 +100,7 @@ router.afterEach(() => refetch())
     </router-link>
   </header>
 
-  <p v-else-if="!isPending && !profile" class="text-center">no profile found</p>
+  <p v-else-if="!isLoading && !profile" class="text-center">no profile found</p>
 </template>
 
 <style scoped>

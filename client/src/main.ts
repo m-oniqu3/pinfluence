@@ -18,6 +18,7 @@ import {
   faCircleArrowUp,
   faCircleUser,
   faEllipsis,
+  faGears,
   faLock,
   faMagnifyingGlass,
   faPen,
@@ -37,7 +38,8 @@ library.add(
   faCircleArrowUp,
   faPen,
   faPlus,
-  faSliders
+  faSliders,
+  faGears
 )
 
 const app = createApp(App)

@@ -63,8 +63,8 @@ const showEditButton = computed(() => {
 </script>
 
 <template>
-  <div
-    @click="router.push({ name: 'board-details', params: { profile: props.board.user_id, boardID: props.board.id } })"
+  <router-link
+    :to="{ name: 'board-details', params: { profile: props.board.user_id, boardID: props.board.id } }"
     class="mx-auto space-y-2 cursor-pointer"
     id="container"
   >
@@ -113,7 +113,7 @@ const showEditButton = computed(() => {
         </span>
       </p>
     </div>
-  </div>
+  </router-link>
 
   <AppModal @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
     <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="board.id" @refresh-boards="updateBoards" />

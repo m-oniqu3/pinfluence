@@ -68,48 +68,60 @@ function refresh() {
 </script>
 
 <template>
-  <p v-if="isLoading" class="text-center">Loading...</p>
+  <section>
+    <p v-if="isLoading" class="text-center">Loading...</p>
 
-  <p v-else-if="!isLoading && isError" class="text-center text-red-500">{{ error }}</p>
+    <p v-else-if="!isLoading && isError" class="text-center text-red-500">{{ error }}</p>
 
-  <article v-else-if="owner" class="flex flex-col justify-center items-center gap-2 p-4 h-full max-w-md mx-auto">
-    <h1 class="text-center items-center justify-center flex flex-wrap gap-2">
-      <span class="text-4xl font-bold text-center">{{ owner.board.name }}</span>
+    <article v-else-if="owner" class="flex flex-col justify-center items-center gap-2 p-4 h-full max-w-md mx-auto">
+      <h1 class="text-center items-center justify-center flex flex-wrap gap-2">
+        <span class="text-4xl font-bold text-center">{{ owner.board.name }}</span>
 
-      <span
+        <span
+          v-if="isOwner"
+          @click="setEditBoardModal(true)"
+          class="w-8 h-8 bg-neutral-200 rounded-full flex justify-center items-center cursor-pointer hover:bg-gray-300 transition-all duration-200 ease-in-out"
+        >
+          <font-awesome-icon :icon="['fas', 'ellipsis']" class="fa-lg" />
+        </span>
+      </h1>
+
+      <router-link :to="{ name: 'profile', params: { profile: owner.user.id } }">
+        <figure class="h-full cursor-pointer flex flex-col justify-center items-center gap-2">
+          <img
+            v-if="owner.user.avatar_url"
+            :src="owner.user.avatar_url"
+            alt=""
+            class="w-12 h-12 object-cover rounded-full"
+          />
+
+          <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-lg text-gray-600" />
+
+          <figcaption v-if="!isOwner" class="text-lg text-center font-medium">{{ owner.user.full_name }}</figcaption>
+        </figure>
+      </router-link>
+
+      <p class="text-center">{{ owner.board.description }}</p>
+
+      <p v-if="owner.board.secret" class="text-black/50">
+        <span>
+          <font-awesome-icon :icon="['fas', 'lock']" />
+        </span>
+
+        <span> Secret Board </span>
+      </p>
+
+      <router-link
         v-if="isOwner"
-        @click="setEditBoardModal(true)"
-        class="w-8 h-8 bg-neutral-200 rounded-full flex justify-center items-center cursor-pointer hover:bg-gray-300 transition-all duration-200 ease-in-out"
+        :to="{ name: 'organize-board', params: { profile: owner.user.id, boardID: owner.board.id } }"
+        class="bg-neutral-200 h-20 w-20 grid place-items-center cursor-pointer rounded-3xl"
       >
-        <font-awesome-icon :icon="['fas', 'ellipsis']" class="fa-lg" />
-      </span>
-    </h1>
+        <font-awesome-icon :icon="['fa', 'gears']" class="fa-2xl" />
+      </router-link>
+    </article>
 
-    <router-link :to="{ name: 'profile', params: { profile: owner.user.id } }">
-      <figure class="h-full cursor-pointer flex flex-col justify-center items-center gap-2">
-        <img
-          v-if="owner.user.avatar_url"
-          :src="owner.user.avatar_url"
-          alt=""
-          class="w-12 h-12 object-cover rounded-full"
-        />
-
-        <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-lg text-gray-600" />
-
-        <figcaption v-if="!isOwner" class="text-lg text-center font-medium">{{ owner.user.full_name }}</figcaption>
-      </figure>
-    </router-link>
-    <p class="text-center">{{ owner.board.description }}</p>
-    <p v-if="owner.board.secret" class="text-black/50">
-      <span>
-        <font-awesome-icon :icon="['fas', 'lock']" />
-      </span>
-
-      <span> Secret Board </span>
-    </p>
-  </article>
-
-  <AppModal v-if="owner" @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
-    <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="owner.board.id" @refresh-boards="refresh" />
-  </AppModal>
+    <AppModal v-if="owner" @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
+      <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="owner.board.id" @refresh-boards="refresh" />
+    </AppModal>
+  </section>
 </template>

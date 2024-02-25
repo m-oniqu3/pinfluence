@@ -1,5 +1,12 @@
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'OrganizeBoard'
+})
+</script>
+
 <script setup lang="ts">
-import BoardProfileHeader from '@/components/boards/BoardHeader.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -8,8 +15,8 @@ const { profile, boardID } = params as { profile: string; boardID: string }
 </script>
 
 <template>
-  <BoardProfileHeader class="mb-8" :boardID="+boardID" :userID="profile" />
-  <!-- <BoardBody :userID="profile" :boardID="+boardID" /> -->
+  <div>
+    {{ profile }}
+    {{ boardID }}
+  </div>
 </template>
-
-<style scoped></style>

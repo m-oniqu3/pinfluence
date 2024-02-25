@@ -85,16 +85,33 @@ const router = createRouter({
       path: '/:profile/:boardID',
       name: 'board-details',
       beforeEnter: (to, _from, next) => {
-        if (to.params.profile && !to.params.boardID) {
-          next({ name: 'profile.saved', params: { profile: to.params.profile } })
-        } else if (!to.params.profile) {
-          next({ name: 'home', query: { ...to.query, showError: 'true' } })
+        if (!to.params.profile || !to.params.boardID) {
+          next({ name: 'home', query: { ...to.query, showError: 'true' }, state: { message: 'Could not find board' } })
         } else {
           next()
         }
       },
 
       component: () => import('../views/BoardView.vue')
+    },
+
+    // /:profile/:board/organize
+    {
+      path: '/:profile/:boardID/organize',
+      name: 'organize-board',
+      beforeEnter: (to, _from, next) => {
+        if (!to.params.profile || !to.params.boardID) {
+          next({
+            name: 'home',
+            query: { ...to.query, showError: 'true' },
+            state: { message: 'Could not find board to organize' }
+          })
+        } else {
+          next()
+        }
+      },
+
+      component: () => import('../views/OrganizeBoard.vue')
     },
 
     {

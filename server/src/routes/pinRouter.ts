@@ -23,12 +23,14 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
 router.get("/created/:userId", getCreatedPins);
+
 router.get("/saved/preview:userId", getSavedPinsLimit);
 
 router.get("/saved/board/:userId", getSavedPinsRange);
 router.get("/:id", getPinById);
 
 router.post("/", requireAuth, upload.single("file"), createPin);
+
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 
 router.delete("/saved/organize", requireAuth, deleteMultipleSavedPins);

@@ -78,9 +78,9 @@ watch([() => boardID, () => profile], () => {
   refetch()
 })
 
-function refreshBoard() {
+async function refreshBoard() {
   deselectAll()
-  refetch()
+  await refetch()
 
   toggleDeleteModal(false)
 }

@@ -61,7 +61,7 @@ async function uploadTags(tags: string, pinId: number) {
 export async function createPin(req: Request, res: Response) {
   try {
     const user = req.user as User;
-    const file = req.file as Express.Multer.File | undefined;
+    const file = req.file;
 
     if (!file || !file.buffer) {
       throw new Error("No file uploaded");
@@ -422,6 +422,8 @@ export async function deleteMultipleSavedPins(req: Request, res: Response) {
       throw new Error("Missing required parameters to delete multiple pins");
     }
 
+    const parsedSavedPinIDs = JSON.parse(savedPinIDs);
+
     console.log("savedPinIDs", JSON.parse(savedPinIDs));
 
     console.log("deleteMultipleSavedPins", savedPinIDs);
@@ -429,17 +431,15 @@ export async function deleteMultipleSavedPins(req: Request, res: Response) {
     const { data, error } = await supabase
       .from("saved-pins")
       .delete()
-      .in("id", JSON.parse(savedPinIDs))
+      .in("id", parsedSavedPinIDs)
       .eq("user_id", user.id)
       .select();
 
-    if (error) throw error;
-
-    if (!data) {
+    if (!data || data.length === 0) {
       return res.status(400).json({ error: "Error deleting pins" });
     }
 
-    console.log(data);
+    if (error) throw error;
 
     return res.status(200).json({ data: "Pins removed from board successfully" });
   } catch (error) {

@@ -121,7 +121,12 @@ function refresh() {
     </article>
 
     <AppModal v-if="owner" @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
-      <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="owner.board.id" @refresh-boards="refresh" />
+      <EditBoard
+        @close-modal="isEditBoardModalOpen = false"
+        :boardId="owner.board.id"
+        @refresh-boards="refresh"
+        @redirect="router.push({ name: 'profile.saved' })"
+      />
     </AppModal>
   </section>
 </template>

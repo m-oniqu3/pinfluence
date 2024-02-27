@@ -1,5 +1,6 @@
 import {
   createPin,
+  deleteMultipleSavedPins,
   deleteSavedPin,
   getCreatedPins,
   getPinById,
@@ -30,6 +31,7 @@ router.get("/:id", getPinById);
 router.post("/", requireAuth, upload.single("file"), createPin);
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 
+router.delete("/saved/organize", requireAuth, deleteMultipleSavedPins);
 router.delete("/saved/:savedPinID", requireAuth, checkSavedPinExistence, deleteSavedPin);
 
 export default router;

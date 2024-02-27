@@ -19,11 +19,11 @@ router.get("/", requireAuth, getCurrentUserBoards);
 
 router.post("/", requireAuth, createBoard);
 
-// get other user boards
-router.get("/user/:userId", getBoards);
-
 // public route to get board owner
 router.get("/:boardID/user/:userID", checkBoardOwner, getBoardOwner);
+
+// get other user boards
+router.get("/user/:userId", getBoards);
 
 router.get("/:id", requireAuth, getBoardById);
 router.put("/:id", requireAuth, checkBoardPermission, updateBoard);

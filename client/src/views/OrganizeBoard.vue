@@ -5,6 +5,8 @@ const router = useRouter()
 
 import BaseButton from '@/components/BaseButton.vue'
 import InfiniteScroll from '@/components/InfiniteScroll.vue'
+import AppModal from '@/components/app/AppModal.vue'
+import MassDeletePins from '@/components/pins/MassDeletePins.vue'
 import PinGrid from '@/components/pins/PinGrid.vue'
 import { getSavedPinsForBoard } from '@/services/pinServices'
 import { useInfiniteQuery } from '@tanstack/vue-query'
@@ -43,7 +45,13 @@ const flattenedPins = computed(() => {
   return data?.value?.pages.flatMap((page) => page.pins) ?? []
 })
 
+// use set for O(1) lookups instead of array for O(n)
 const selectedPins = ref(new Set<number>())
+const isDeleteModalOpen = ref(false)
+
+const toggleDeleteModal = (val: boolean) => {
+  isDeleteModalOpen.value = val
+}
 
 function selectPin(id: number) {
   if (selectedPins.value.has(id)) {
@@ -69,6 +77,13 @@ const selectedPinsCount = computed(() => {
 watch([() => boardID, () => profile], () => {
   refetch()
 })
+
+function refreshBoard() {
+  deselectAll()
+  refetch()
+
+  toggleDeleteModal(false)
+}
 </script>
 <template>
   <div class="wrapper relative">
@@ -143,6 +158,7 @@ watch([() => boardID, () => profile], () => {
         <font-awesome-icon :icon="['fas', 'arrow-right']" class="text-gray-800 fa-xl" />
       </button>
       <button
+        @click="toggleDeleteModal(true)"
         class="bg-white rounded-full w-16 h-16 grid place-items-center shadow-lg border-gray-100 border-[1px] disabled:opacity-70"
         :disabled="!selectedPins.size"
       >
@@ -150,6 +166,15 @@ watch([() => boardID, () => profile], () => {
       </button>
     </section>
   </div>
+
+  <AppModal :open="isDeleteModalOpen" @close-modal="toggleDeleteModal(false)">
+    <MassDeletePins
+      :selectedPins="selectedPins"
+      @close-modal="toggleDeleteModal(false)"
+      @refresh-board="refreshBoard"
+    />
+    >
+  </AppModal>
 </template>
 
 <style scoped>

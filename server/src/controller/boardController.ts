@@ -221,6 +221,10 @@ export async function deleteBoard(req: Request, res: Response) {
       throw error;
     }
 
+    if (!data || data.length === 0) {
+      throw new Error("Could not delete board");
+    }
+
     console.log("board deleted", data);
 
     return res.status(200).json({ data: `Board deleted successfully` });

@@ -406,3 +406,48 @@ export async function deleteSavedPin(req: Request, res: Response) {
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @description Delete multiple saved pins from the board
+ */
+export async function deleteMultipleSavedPins(req: Request, res: Response) {
+  try {
+    const { savedPinIDs } = req.body as { savedPinIDs: string };
+    const user = req.user as User;
+
+    if (!savedPinIDs || !user.id) {
+      throw new Error("Missing required parameters to delete multiple pins");
+    }
+
+    console.log("savedPinIDs", JSON.parse(savedPinIDs));
+
+    console.log("deleteMultipleSavedPins", savedPinIDs);
+
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .delete()
+      .in("id", JSON.parse(savedPinIDs))
+      .eq("user_id", user.id)
+      .select();
+
+    if (error) throw error;
+
+    if (!data) {
+      return res.status(400).json({ error: "Error deleting pins" });
+    }
+
+    console.log(data);
+
+    return res.status(200).json({ data: "Pins removed from board successfully" });
+  } catch (error) {
+    console.log(error.message, "from deleteMultipleSavedPins");
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

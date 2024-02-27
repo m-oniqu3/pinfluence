@@ -11,9 +11,10 @@ const props = defineProps<{
   boardId: number
 }>()
 
-const emit = defineEmits<{ (event: 'closeModal'): void; (event: 'refresh-boards'): void }>()
+const emit = defineEmits<{ (event: 'closeModal'): void; (event: 'refresh-boards'): void; (event: 'redirect'): void }>()
 
 const authStore = useAuthStore()
+
 const originalBoard = reactive({ name: '', secret: false, description: '' })
 const newBoard = reactive({ name: '', secret: false, description: '' })
 const isLoading = ref(false)
@@ -117,8 +118,10 @@ async function removeBoard() {
     //send request to remove board
     const response = await deleteBoard(props.boardId)
     console.log(response)
+
     //close modal and fetch new data
     emit('refresh-boards')
+    emit('redirect')
   } catch (error: any) {
     if (isAxiosError(error)) {
       console.error(error.response?.data)

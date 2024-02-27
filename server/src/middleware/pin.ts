@@ -97,13 +97,13 @@ export async function checkSavedPinExistence(req: Request, res: Response, next: 
       .eq("user_id", user.id)
       .single();
 
-    if (error) {
-      throw error;
-    }
-
     // if saved pin doesn't exist, send a 404 Not Found response
     if (!data || data.id !== +savedPinID) {
       return res.status(404).json({ error: "Saved pin not found" });
+    }
+
+    if (error) {
+      throw error;
     }
 
     console.log("Saved pin exists");
@@ -111,7 +111,11 @@ export async function checkSavedPinExistence(req: Request, res: Response, next: 
     return next();
   } catch (error: any) {
     console.error("Error querying saved pin:", error);
+
     if (error.code) {
+      if (error.code === "PGRST116") {
+        return res.status(404).json({ error: "Saved pin not found" });
+      }
       return res.status(400).json({ error: error.message });
     } else {
       return res.status(500).json({ error: error.message ?? "Internal Server Error" });

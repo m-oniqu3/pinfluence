@@ -13,6 +13,7 @@ import { VueQueryPlugin } from '@tanstack/vue-query'
 import { useAuthStore } from '@/stores/auth'
 import {
   faArrowLeft,
+  faArrowRight,
   faArrowUp,
   faChevronDown,
   faCircleArrowUp,
@@ -24,6 +25,7 @@ import {
   faPen,
   faPlus,
   faSliders,
+  faTrash,
   faXmark
 } from '@fortawesome/free-solid-svg-icons'
 library.add(
@@ -39,7 +41,9 @@ library.add(
   faPen,
   faPlus,
   faSliders,
-  faGears
+  faGears,
+  faArrowRight,
+  faTrash
 )
 
 const app = createApp(App)

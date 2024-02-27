@@ -10,6 +10,14 @@ export type SavedPinPreview = {
   count: number
 }
 
+export type SavedPinBoard = {
+  pins: {
+    id: number
+    pin: PinPreview
+  }
+  count: number
+}
+
 export type PinDetails = {
   id: number
   name: string

@@ -1,5 +1,5 @@
 import { supabase } from "@/lib/supabaseClient";
-import { User } from "@supabase/supabase-js";
+import { PostgrestError, User } from "@supabase/supabase-js";
 import { decode } from "base64-arraybuffer";
 
 import { type Request, type Response } from "express";
@@ -227,51 +227,69 @@ export async function getSavedPinsRange(req: Request, res: Response) {
       range: string;
     };
 
+    console.log(userId, boardId, range);
+
     const [from, to] = String(range).split(",").map(Number);
+
+    console.log(from, to);
 
     if (!userId || !boardId) {
       throw new Error("Missing required parameters");
     }
 
     // Query to get the pin count
-    const { count } = await supabase
+    const { count } = (await supabase
       .from("saved-pins")
       .select("pin_id", { count: "exact" })
       .eq("board_id", boardId)
-      .eq("user_id", userId);
+      .eq("user_id", userId)) as { count: number };
+
+    if (count === 0) {
+      return res.status(200).json({ data: { pins: [], count: 0 } });
+    }
 
     // Query to get pins within the specified range
-    const { data, error } = await supabase
+    const { data: savedPins, error } = await supabase
       .from("saved-pins")
-      .select("pin_id")
+      .select("id, pin_id")
       .eq("board_id", boardId)
       .eq("user_id", userId)
       .range(from, to)
       .order("created_at", { ascending: false });
 
     if (error) throw error;
-    const pinIDs = data as { pin_id: number }[];
 
-    if (count === 0) {
-      return res.status(200).json({ data: { pins: [], count: 0 } });
-    }
+    const pinIds = savedPins.map((p) => p.pin_id);
 
-    const pinData: { id: number; name: string; image: string; user_id: string }[] = [];
+    // get pin details for the saved pins
+    const { data: pinDetails, error: pinError } = (await supabase
+      .from("created-pins")
+      .select("id, name, image, user_id")
+      .in("id", pinIds)) as {
+      data: { id: number; name: string; image: string; user_id: string }[];
+      error: PostgrestError | null;
+    };
 
-    // for of loop instead of supabase.in to include duplicate pins
-    for (let id of pinIDs) {
-      const { data, error } = await supabase
-        .from("created-pins")
-        .select("id, name, image, user_id")
-        .eq("id", id.pin_id)
-        .single();
+    if (pinError) throw pinError;
 
-      if (error) throw error;
+    // use pin id as key for the map
+    const pinDetailsMap = new Map<
+      number,
+      { id: number; name: string; image: string; user_id: string }
+    >();
 
-      if (data) pinData.push(data as { id: number; name: string; image: string; user_id: string });
-    }
+    // add pin details to the map
+    pinDetails.forEach((pin) => pinDetailsMap.set(pin.id, pin));
 
-    return res.status(200).json({ data: { pins: pinData, count } });
+    // combine saved pins with pin details using hashmap lookup
+    // this is to include the id of the saved pin because saved pins are not unique, they can be duplicates
+    // but the id of the saved pin is unique
+    const combinedData = savedPins.map((savedPin) => {
+      const pinDetail = pinDetailsMap.get(savedPin.pin_id as number);
+      return { id: savedPin.id, pin: pinDetail };
+    }) as { id: number; pin: { id: number; name: string; image: string; user_id: string } }[];
+
+    return res.status(200).json({ data: { pins: combinedData, count: count } });
   } catch (error) {
     console.log(error.message);
     if (error.code) {

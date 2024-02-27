@@ -99,19 +99,31 @@ const router = createRouter({
     {
       path: '/:profile/:boardID/organize',
       name: 'organize-board',
+
       beforeEnter: (to, _from, next) => {
+        const auth = useAuthStore()
         if (!to.params.profile || !to.params.boardID) {
           next({
             name: 'home',
             query: { ...to.query, showError: 'true' },
             state: { message: 'Could not find board to organize' }
           })
+        } else if (to.params.profile !== auth.user?.id) {
+          //  check if user is organizer
+          next({
+            name: 'home',
+            query: { ...to.query, showError: 'true' },
+            state: {
+              message: 'Oops! You are not authorized to organize this board.'
+            }
+          })
         } else {
           next()
         }
       },
 
-      component: () => import('../views/OrganizeBoard.vue')
+      component: () => import('../views/OrganizeBoard.vue'),
+      meta: { requiresAuth: true }
     },
 
     {

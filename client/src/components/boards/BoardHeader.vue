@@ -42,7 +42,7 @@ const isSecret = computed(() => owner?.value?.board.secret && user?.id !== props
 watch(isSecret, (value) => {
   if (value) {
     console.log('board is secret')
-    router.push({ name: 'home' })
+    router.push({ name: 'home', query: { showError: 'true' }, state: { message: "We can't find that board" } })
   }
 })
 

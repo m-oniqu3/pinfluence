@@ -78,3 +78,43 @@ export async function checkPinExistence(req: Request, res: Response, next: NextF
     }
   }
 }
+
+//check saved pin existence
+export async function checkSavedPinExistence(req: Request, res: Response, next: NextFunction) {
+  try {
+    const savedPinID = req.params.savedPinID;
+    const user = req.user as User;
+
+    if (!savedPinID) {
+      return res.status(400).json({ error: "Missing savedPinID" });
+    }
+
+    // check if saved pin exists and belongs to the user
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .select("id")
+      .eq("id", +savedPinID)
+      .eq("user_id", user.id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    // if saved pin doesn't exist, send a 404 Not Found response
+    if (!data || data.id !== +savedPinID) {
+      return res.status(404).json({ error: "Saved pin not found" });
+    }
+
+    console.log("Saved pin exists");
+
+    return next();
+  } catch (error: any) {
+    console.error("Error querying saved pin:", error);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: error.message ?? "Internal Server Error" });
+    }
+  }
+}

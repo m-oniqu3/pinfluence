@@ -63,3 +63,9 @@ export async function getSavedPinsForBoard(userID: string, boardId: number, page
 
   return response.data.data
 }
+
+export async function deleteSavedPin(savedPinID: number) {
+  const response = await api.delete<{ data: string }>(`pins/saved/${savedPinID}`)
+
+  return response.data.data
+}

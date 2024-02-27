@@ -373,3 +373,36 @@ export async function savePin(req: Request, res: Response) {
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
+
+export async function deleteSavedPin(req: Request, res: Response) {
+  try {
+    const { savedPinID } = req.params;
+    const user = req.user as User;
+
+    console.log("deleteSavedPin", savedPinID);
+
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .delete()
+      .eq("id", savedPinID)
+      .eq("user_id", user.id)
+      .select();
+
+    if (error) throw error;
+
+    if (!data) {
+      throw new Error("Error deleting pin");
+    }
+
+    console.log(data);
+
+    return res.status(200).json({ data: "Pin removed from board successfully" });
+  } catch (error) {
+    console.log(error.message);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

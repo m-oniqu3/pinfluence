@@ -63,8 +63,8 @@ const showEditButton = computed(() => {
 </script>
 
 <template>
-  <router-link
-    :to="{ name: 'board-details', params: { profile: props.board.user_id, boardID: props.board.id } }"
+  <div
+    @click="router.push({ name: 'board-details', params: { profile: props.board.user_id, boardID: props.board.id } })"
     class="mx-auto space-y-2 cursor-pointer"
     id="container"
   >
@@ -73,8 +73,7 @@ const showEditButton = computed(() => {
       <span
         v-if="showEditButton"
         class="absolute h-8 w-8 rounded-full grid place-items-center bottom-2 right-2 bg-white hover:bg-gray-200 cursor-pointer transition duration-300 ease-in-out z-[1]"
-        @click="toggleEditBoardModal"
-        @click.stop=""
+        @click.stop="toggleEditBoardModal"
       >
         <font-awesome-icon :icon="['fas', 'pen']" />
       </span>
@@ -113,7 +112,7 @@ const showEditButton = computed(() => {
         </span>
       </p>
     </div>
-  </router-link>
+  </div>
 
   <AppModal @close-modal="isEditBoardModalOpen = false" :open="isEditBoardModalOpen">
     <EditBoard @close-modal="isEditBoardModalOpen = false" :boardId="board.id" @refresh-boards="updateBoards" />

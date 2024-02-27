@@ -1,14 +1,5 @@
-<script lang="ts">
-import BaseButton from '@/components/BaseButton.vue'
-import { defineComponent } from 'vue'
-
-export default defineComponent({
-  name: 'DeletePin'
-})
-</script>
-
 <script setup lang="ts">
-import { ref } from 'vue'
+import BaseButton from '@/components/BaseButton.vue'
 
 const props = defineProps<{
   savedPinID: number
@@ -16,24 +7,15 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (event: 'refresh-board'): void
+  (event: 'delete-saved-pin', savedPinID: number): void
   (event: 'close-modal'): void
 }>()
 
-const isLoading = ref(false)
+console.log(props.savedPinID)
 
-async function deletePin() {
-  try {
-    isLoading.value = true
-    console.log(props.savedPinID)
-    // await deletePin(props.savedPinID)
-    // emit('refresh-board')
-    // emit('close-modal')
-  } catch (error) {
-    console.log(error)
-  } finally {
-    isLoading.value = false
-  }
+function deletePin(savedPinID: number) {
+  emit('delete-saved-pin', savedPinID)
+  console.log('delete pin done')
 }
 </script>
 
@@ -51,7 +33,7 @@ async function deletePin() {
 
     <div class="flex gap-2 items-baseline justify-end">
       <BaseButton class="bg-neutral-200 text-black" @click="emit('close-modal')">Cancel</BaseButton>
-      <BaseButton @click="deletePin" class="bg-primary text-neutral">Delete</BaseButton>
+      <BaseButton @click="deletePin(savedPinID)" class="bg-primary text-neutral"> Delete </BaseButton>
     </div>
   </article>
 </template>

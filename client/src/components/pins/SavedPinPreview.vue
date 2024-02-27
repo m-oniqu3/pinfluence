@@ -5,7 +5,7 @@ import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
 import DeletePin from '@/components/pins/DeletePin.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
-import { savePin } from '@/services/pinServices'
+import { deleteSavedPin, savePin } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
 import type { BoardInfo } from '@/types/board'
 import { type PinPreview } from '@/types/pin'
@@ -99,6 +99,17 @@ async function addPinToBoard(board: BoardInfo) {
     }
   }
 }
+
+async function removeSavedPin(savedPinID: number) {
+  try {
+    const response = await deleteSavedPin(savedPinID)
+    console.log(response)
+
+    emit('refresh-board')
+  } catch (error: any) {
+    console.log(error.message)
+  }
+}
 </script>
 
 <template>
@@ -158,6 +169,7 @@ async function addPinToBoard(board: BoardInfo) {
       <DeletePin
         :savedPinID="props.savedPinID"
         :image="pin.image"
+        @delete-saved-pin="removeSavedPin"
         @close-modal="toggleDeleteModal(false)"
         @refresh-board="emit('refresh-board')"
       />

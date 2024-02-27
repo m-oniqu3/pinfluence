@@ -1,5 +1,6 @@
 import {
   createPin,
+  deleteSavedPin,
   getCreatedPins,
   getPinById,
   getSavedPinsLimit,
@@ -7,7 +8,7 @@ import {
   savePin,
 } from "@/controller/pinController";
 import { requireAuth } from "@/middleware/auth";
-import { checkBoardOwnership, checkPinExistence } from "@/middleware/pin";
+import { checkBoardOwnership, checkPinExistence, checkSavedPinExistence } from "@/middleware/pin";
 
 import { Router } from "express";
 import multer from "multer";
@@ -24,10 +25,11 @@ router.get("/created/:userId", getCreatedPins);
 router.get("/saved/preview:userId", getSavedPinsLimit);
 
 router.get("/saved/board/:userId", getSavedPinsRange);
+router.get("/:id", getPinById);
 
 router.post("/", requireAuth, upload.single("file"), createPin);
 router.post("/save/:pinId", requireAuth, checkPinExistence, checkBoardOwnership, savePin);
 
-router.get("/:id", getPinById);
+router.delete("/saved/:savedPinID", requireAuth, checkSavedPinExistence, deleteSavedPin);
 
 export default router;

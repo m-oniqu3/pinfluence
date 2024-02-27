@@ -54,10 +54,17 @@ async function fetchPinsForCurrentBoard(pageParam: number, userID: string, board
 watch([() => props.boardID, () => props.userID], () => {
   refetch()
 })
+
+function refetching() {
+  console.log('refetching')
+
+  refetch()
+}
 </script>
 
 <template>
   <p v-if="isLoading" class="text-center">Loading...</p>
+
   <p v-if="isError" class="text-center">Error: {{ error }}</p>
   <p v-else-if="!flattenedPins.length && !isLoading" class="text-center">No pins saved to this board</p>
 
@@ -73,7 +80,7 @@ watch([() => props.boardID, () => props.userID], () => {
           :key="record.id"
           :savedPinID="record.id"
           :pin="record.pin"
-          @refresh-board="refetch"
+          @refresh-board="refetching"
         />
       </PinGrid>
     </InfiniteScroll>

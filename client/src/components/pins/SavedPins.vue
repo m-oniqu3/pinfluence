@@ -92,10 +92,7 @@ watch(
       class="pt-4 w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto"
     >
       <template v-if="isOwner">
-        <div class="text-center space-y-2">
-          <h1 class="font-bold text-3xl">You don't have any boards yet.</h1>
-          <p>Create one to save your pins!</p>
-        </div>
+        <p class="text-center max-w-sm mx-auto">You don't have any boards yet. Create one to save your pins to!</p>
 
         <div class="h-12 w-12 rounded-full bg-primary grid place-items-center cursor-pointer" @click="openBoardModal">
           <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg text-white" />

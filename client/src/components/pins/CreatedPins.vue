@@ -64,7 +64,12 @@ router.afterEach(() => refetch())
   <p v-else-if="isError && error" class="text-center w-full">{{ error.message }}</p>
 
   <template v-else-if="!data?.pages.flat().length">
-    <p v-if="isOwnProfile" class="text-center w-full">You have not created any pins yet.</p>
+    <div v-if="isOwnProfile" class="pt-4 w-full max-w-sm mx-auto grid place-items-center gap-2">
+      <p class="text-base">Nothing to show...yet! Pins you create will live here.</p>
+      <router-link :to="{ name: 'create' }" class="btn bg-primary text-neutral w-fit font-bold">
+        Create Pin
+      </router-link>
+    </div>
     <p v-else-if="!isOwnProfile" class="text-center w-full">This user has not created any pins yet.</p>
   </template>
 

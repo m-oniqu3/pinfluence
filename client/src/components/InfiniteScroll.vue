@@ -34,8 +34,8 @@ onMounted(() => {
   <div>
     <slot></slot>
 
-    <div ref="observerElement" id="obs" class="h-10">
-      <p v-if="props.isLoadingMore && !props.isLoadingIntial" class="text-center">Loading...</p>
+    <div ref="observerElement" id="obs">
+      <p v-if="props.isLoadingMore && !props.isLoadingIntial" class="text-center h-10">Loading...</p>
     </div>
   </div>
 </template>

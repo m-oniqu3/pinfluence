@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
+import { deleteSavedPin } from '@/services/pinServices'
+import { ref } from 'vue'
 
 const props = defineProps<{
   savedPinID: number
@@ -7,20 +9,32 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (event: 'delete-saved-pin', savedPinID: number): void
+  // (event: 'delete-saved-pin', savedPinID: number): void
+  (event: 'refresh-board'): void
   (event: 'close-modal'): void
 }>()
 
+const isDeletingPin = ref(false)
 console.log(props.savedPinID)
 
-function deletePin(savedPinID: number) {
-  emit('delete-saved-pin', savedPinID)
-  console.log('delete pin done')
+async function removeSavedPin() {
+  try {
+    isDeletingPin.value = true
+    const response = await deleteSavedPin(props.savedPinID)
+    console.log(response)
+
+    emit('refresh-board')
+    emit('close-modal')
+  } catch (error: any) {
+    console.log(error.message)
+  } finally {
+    isDeletingPin.value = false
+  }
 }
 </script>
 
 <template>
-  <article class="relative p-4 bg-white rounded-xl wrapper max-w-lg grid grid-rows-[auto,1fr,auto] gap-4">
+  <article @click.stop class="relative p-4 bg-white rounded-xl wrapper max-w-lg grid grid-rows-[auto,1fr,auto] gap-4">
     <h1 class="text-center h-14 text-2xl font-bold pb-2">Delete this Pin</h1>
 
     <figure class="grid grid-cols-1 place-items-center gap-4 pb-3 max-w-[300px] mx-auto">
@@ -33,7 +47,9 @@ function deletePin(savedPinID: number) {
 
     <div class="flex gap-2 items-baseline justify-end">
       <BaseButton class="bg-neutral-200 text-black" @click="emit('close-modal')">Cancel</BaseButton>
-      <BaseButton @click="deletePin(savedPinID)" class="bg-primary text-neutral"> Delete </BaseButton>
+      <BaseButton @click="removeSavedPin" class="bg-primary text-neutral">
+        {{ isDeletingPin ? 'Deleting...' : 'Delete' }}
+      </BaseButton>
     </div>
   </article>
 </template>

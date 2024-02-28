@@ -1,38 +1,12 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent } from 'vue'
 
 export default defineComponent({
   name: 'ProfileBody'
 })
 </script>
 
-<script setup lang="ts">
-import AppModal from '@/components/app/AppModal.vue'
-import CreateBoard from '@/components/boards/CreateBoard.vue'
-import ProfileMenu from '@/components/profile/ProfileMenu.vue'
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-
-const router = useRouter()
-
-const isMenuOpen = ref(false)
-const isBoardModalOpen = ref(false)
-
-const isSavedPinsPage = computed(() => router.currentRoute.value.name === 'profile.saved')
-
-const openMenu = () => (isMenuOpen.value = true)
-const closeMenu = () => (isMenuOpen.value = false)
-const positions = ref({ x: 0, y: 0 })
-
-const openBoardModal = () => (isBoardModalOpen.value = true)
-const closeBoardModal = () => (isBoardModalOpen.value = false)
-
-function getPosition(event: MouseEvent) {
-  // Get mouse coordinates
-  const { clientX, clientY } = event
-  positions.value = { x: clientX, y: clientY }
-}
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <header class="bg-white sticky top-20 z-[1]">
@@ -48,34 +22,7 @@ function getPosition(event: MouseEvent) {
     </nav>
   </header>
 
-  <div class="h-16">
-    <ul v-show="isSavedPinsPage" class="wrapper h-16 flex justify-between items-center">
-      <li class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
-        <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
-      </li>
-      <li
-        class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
-        :class="isMenuOpen ? 'bg-black rounded-full' : ''"
-        @click="openMenu"
-        @click.prevent="getPosition"
-      >
-        <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg" :class="isMenuOpen ? 'text-white' : ''" />
-      </li>
-    </ul>
-  </div>
-
   <router-view />
-
-  <ProfileMenu
-    :positions="positions"
-    :isMenuOpen="isMenuOpen"
-    @closeMenu="closeMenu"
-    @open-board-modal="openBoardModal"
-  />
-
-  <AppModal @close-modal="closeBoardModal" :open="isBoardModalOpen">
-    <CreateBoard @close-modal="closeBoardModal" />
-  </AppModal>
 </template>
 
 <style scoped>

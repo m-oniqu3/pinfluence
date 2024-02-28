@@ -3,6 +3,7 @@ import InfiniteScroll from '@/components/InfiniteScroll.vue'
 import PreviewGrid from '@/components/PreviewGrid.vue'
 import AppModal from '@/components/app/AppModal.vue'
 import CreateBoard from '@/components/boards/CreateBoard.vue'
+import ProfileMenu from '@/components/profile/ProfileMenu.vue'
 import { getBoards } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
 import { useInfiniteQuery } from '@tanstack/vue-query'
@@ -21,6 +22,16 @@ const isBoardModalOpen = ref(false)
 const openBoardModal = () => (isBoardModalOpen.value = true)
 const closeBoardModal = () => (isBoardModalOpen.value = false)
 
+const isMenuOpen = ref(false)
+const openMenu = () => (isMenuOpen.value = true)
+const closeMenu = () => (isMenuOpen.value = false)
+const positions = ref({ x: 0, y: 0 })
+
+function getPosition(event: MouseEvent) {
+  // Get mouse coordinates
+  const { clientX, clientY } = event
+  positions.value = { x: clientX, y: clientY }
+}
 const isOwner = computed(() => {
   return authStore.user?.id === id.value
 })
@@ -76,20 +87,33 @@ watch(
     <p v-if="isLoading" class="text-center">Loading...</p>
     <p v-else-if="isError && error" class="text-center">{{ error.message }}</p>
 
-    <InfiniteScroll
-      v-else-if="boards?.pages"
-      :isLoadingIntial="isLoading"
-      :isLoadingMore="isFetchingNextPage"
-      @load-more="fetchNextPage"
-    >
-      <article id="saved-pins">
-        <PreviewGrid v-for="board in boards.pages.flat()" :key="board.id" :board="board" @refresh-boards="refetch" />
-      </article>
-    </InfiniteScroll>
+    <template v-else-if="boards?.pages">
+      <div class="h-16">
+        <ul class="h-16 flex justify-between items-center">
+          <li class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer">
+            <font-awesome-icon icon="fa-solid fa-sliders" class="fa-lg" />
+          </li>
+          <li
+            class="w-12 h-12 grid place-items-center hover:bg-neutral-100 hover:rounded-full cursor-pointer"
+            :class="isMenuOpen ? 'bg-black rounded-full' : ''"
+            @click="openMenu"
+            @click.prevent="getPosition"
+          >
+            <font-awesome-icon icon="fa-solid fa-plus" class="fa-lg" :class="isMenuOpen ? 'text-white' : ''" />
+          </li>
+        </ul>
+      </div>
+
+      <InfiniteScroll :isLoadingIntial="isLoading" :isLoadingMore="isFetchingNextPage" @load-more="fetchNextPage">
+        <article id="saved-pins">
+          <PreviewGrid v-for="board in boards.pages.flat()" :key="board.id" :board="board" @refresh-boards="refetch" />
+        </article>
+      </InfiniteScroll>
+    </template>
 
     <article
       v-if="!boards?.pages.flat().length && !isLoading"
-      class="pt-4 w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto"
+      class="w-full flex flex-col justify-start items-center gap-4 max-w-xs mx-auto"
     >
       <template v-if="isOwner">
         <p class="text-center max-w-sm mx-auto">You don't have any boards yet. Create one to save your pins to!</p>
@@ -106,6 +130,13 @@ watch(
         </div>
       </template>
     </article>
+
+    <ProfileMenu
+      :positions="positions"
+      :isMenuOpen="isMenuOpen"
+      @closeMenu="closeMenu"
+      @open-board-modal="openBoardModal"
+    />
 
     <AppModal @close-modal="closeBoardModal" :open="isBoardModalOpen">
       <CreateBoard @close-modal="closeBoardModal" />

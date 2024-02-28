@@ -5,12 +5,17 @@ export type PinPreview = {
   user_id?: string
 }
 
-export type SavedPinPreview = {
+export type PinPreviewSaved = {
+  id: number
+  pin: PinPreview
+}
+
+export type SavedPinsPerGrid = {
   pins: PinPreview[]
   count: number
 }
 
-export type SavedPinBoard = {
+export type SavedPinsPerBoard = {
   pins: {
     id: number
     pin: PinPreview

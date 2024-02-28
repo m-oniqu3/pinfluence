@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import AppModal from '@/components/app/AppModal.vue'
 import EditBoard from '@/components/boards/EditBoard.vue'
-import { getSavedPinsPreview } from '@/services/pinServices'
+import { getSavedPinsForGrid } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
 import type { Board } from '@/types/board'
 import { timeSince } from '@/utils/timeSince'
@@ -32,7 +32,7 @@ const { data } = useQuery({
 
 async function getImagesFromBoard(profileID: string, boardID: number) {
   try {
-    const response = await getSavedPinsPreview(profileID, boardID, 3)
+    const response = await getSavedPinsForGrid(profileID, boardID, 3)
     return response
   } catch (error: any) {
     let message = ''

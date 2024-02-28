@@ -41,8 +41,8 @@ onMounted(async () => {
   const response = await getProfile()
 
   if (response) {
-    const [firstName, lastName] = response.full_name.split(' ')
-    assign(profile, { ...response, firstName, lastName })
+    const [firstName, lastName] = response.full_name?.split(' ') ?? ['', '']
+    assign(profile, { ...response, avatar_url: response.avatar_url ?? '', firstName, lastName })
     assign(originalDetails, { ...profile })
   }
 })

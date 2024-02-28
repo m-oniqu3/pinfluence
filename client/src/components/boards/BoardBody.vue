@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import InfiniteScroll from '@/components/InfiniteScroll.vue'
 import PinGrid from '@/components/pins/PinGrid.vue'
+import PinPreview from '@/components/pins/PinPreview.vue'
 
-import SavedPinPreview from '@/components/pins/SavedPinPreview.vue'
 import { getSavedPinsForBoard } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
 
@@ -55,10 +55,10 @@ watch([() => props.boardID, () => props.userID], () => {
   refetch()
 })
 
-function refetching() {
+async function refetching() {
   console.log('refetching')
 
-  refetch()
+  await refetch()
 }
 </script>
 
@@ -75,13 +75,7 @@ function refetching() {
 
     <InfiniteScroll :isLoadingIntial="isLoading" :isLoadingMore="isFetchingNextPage" @load-more="fetchNextPage">
       <PinGrid class="wrapper py-12">
-        <SavedPinPreview
-          v-for="record in flattenedPins"
-          :key="record.id"
-          :savedPinID="record.id"
-          :pin="record.pin"
-          @refresh-board="refetching"
-        />
+        <PinPreview v-for="record in flattenedPins" :key="record.id" :details="record" @refresh-boards="refetching" />
       </PinGrid>
     </InfiniteScroll>
   </section>

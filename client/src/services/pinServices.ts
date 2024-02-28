@@ -1,5 +1,5 @@
 import { api } from '@/services/api'
-import type { PinDetails, PinPreview, SavedPinBoard, SavedPinPreview } from '@/types/pin'
+import type { PinDetails, PinPreview, SavedPinsPerBoard, SavedPinsPerGrid } from '@/types/pin'
 import { getRange } from '@/utils/paginate'
 
 export async function createPin(formData: FormData) {
@@ -40,8 +40,8 @@ export async function savePin(pinId: number, boardId: number) {
  * @returns SavedPinPreview
  * @description Returns limited number of pins that are saved to given board by given user
  */
-export async function getSavedPinsPreview(userId: string, boardId: number, limit: number) {
-  const response = await api.get<{ data: SavedPinPreview }>(`pins/saved/preview${userId}`, {
+export async function getSavedPinsForGrid(userId: string, boardId: number, limit: number) {
+  const response = await api.get<{ data: SavedPinsPerGrid }>(`pins/saved/preview/${userId}`, {
     params: { boardId, limit }
   })
 
@@ -57,7 +57,7 @@ export async function getSavedPinsPreview(userId: string, boardId: number, limit
  * @description Returns a range of pins that are saved to given board by given user
  */
 export async function getSavedPinsForBoard(userID: string, boardId: number, page: number) {
-  const response = await api.get<{ data: SavedPinBoard }>(`pins/saved/board/${userID}`, {
+  const response = await api.get<{ data: SavedPinsPerBoard }>(`pins/saved/board/${userID}`, {
     params: { boardId, range: getRange(page, 10) }
   })
 

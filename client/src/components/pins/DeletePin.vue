@@ -4,8 +4,8 @@ import { deleteSavedPin } from '@/services/pinServices'
 import { ref } from 'vue'
 
 const props = defineProps<{
-  savedPinID: number
-  image: string
+  pin: { pinID: number; image: string }
+  type: 'saved' | 'created'
 }>()
 
 const emit = defineEmits<{
@@ -15,12 +15,32 @@ const emit = defineEmits<{
 }>()
 
 const isDeletingPin = ref(false)
-console.log(props.savedPinID)
 
-async function removeSavedPin() {
+//call delete function based on the type of pin
+function removePin() {
+  if (props.type === 'saved') {
+    removeSavedPin(props.pin.pinID)
+  } else {
+    removeCreatedPin(props.pin.pinID)
+  }
+}
+
+async function removeCreatedPin(pinID: number) {
   try {
     isDeletingPin.value = true
-    const response = await deleteSavedPin(props.savedPinID)
+    console.log(pinID)
+    console.log('removing created pin')
+  } catch (error: any) {
+    console.log(error.message)
+  } finally {
+    isDeletingPin.value = false
+  }
+}
+
+async function removeSavedPin(pinID: number) {
+  try {
+    isDeletingPin.value = true
+    const response = await deleteSavedPin(pinID)
     console.log(response)
 
     emit('refresh-board')
@@ -42,12 +62,12 @@ async function removeSavedPin() {
         Are you sure you want to delete this pin? This action cannot be undone.
       </figcaption>
 
-      <img :src="image" alt="Pin" class="mx-auto h-36 object-cover rounded-lg" />
+      <img :src="pin.image" alt="Pin" class="mx-auto h-36 object-cover rounded-lg" />
     </figure>
 
     <div class="flex gap-2 items-baseline justify-end">
       <BaseButton class="bg-neutral-200 text-black" @click="emit('close-modal')">Cancel</BaseButton>
-      <BaseButton @click="removeSavedPin" class="bg-primary text-neutral">
+      <BaseButton @click="removePin" class="bg-primary text-neutral">
         {{ isDeletingPin ? 'Deleting...' : 'Delete' }}
       </BaseButton>
     </div>

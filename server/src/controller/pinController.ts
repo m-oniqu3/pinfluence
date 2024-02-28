@@ -216,7 +216,6 @@ export async function getSavedPinsLimit(req: Request, res: Response) {
  *
  * @param req Request
  * @param res Response
- * @returns SavedPinPreview
  * @description Returns a range of pins that are saved to given board by given user
  */
 export async function getSavedPinsRange(req: Request, res: Response) {

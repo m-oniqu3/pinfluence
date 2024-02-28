@@ -88,6 +88,7 @@ router.afterEach(() => refetch())
           image: pin.image,
           name: pin.name
         }"
+        :allow-edit="isOwnProfile"
       />
     </PinGrid>
   </InfiniteScroll>

@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
-import { getPinDetails } from '@/services/pinServices'
+import { editCreatedPin, getPinDetails } from '@/services/pinServices'
 
-import { useQuery } from '@tanstack/vue-query'
-import { ref, watchEffect } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
@@ -16,41 +15,67 @@ const props = defineProps<{
   pinID: number
 }>()
 
-const { data, isLoading, isError, error } = useQuery({
-  queryKey: ['pinDetails', props.pinID],
-  queryFn: () => fetchPinDetails(props.pinID),
-  retry: false
-})
-
+const originalPin = ref({ name: '', description: '', link: '' })
 const pin = ref({ name: '', description: '', link: '' })
-
-//when isSuccess is true, the data is available
-watchEffect(() => {
-  if (data.value) {
-    pin.value = {
-      name: data.value.name,
-      description: data.value.description,
-      link: data.value.link
-    }
-  }
-})
+const isLoading = ref(false)
+const isEditing = ref(false)
+const error = ref('')
 
 async function fetchPinDetails(pinID: number) {
   try {
+    isLoading.value = true
     const response = await getPinDetails(pinID)
-    return response
+    pin.value = {
+      name: response.name,
+      description: response.description,
+      link: response.link
+    }
+    originalPin.value = { ...pin.value }
   } catch (error: any) {
     console.error(error.message)
+    error.value = error.message
+  } finally {
+    isLoading.value = false
   }
 }
+
+const isValidForm = computed(() => {
+  const initalPin = JSON.stringify(originalPin.value)
+  const newPin = JSON.stringify(pin.value)
+
+  // detail changed
+  return initalPin !== newPin
+})
+
+async function updatePin() {
+  try {
+    if (!isValidForm.value) {
+      return
+    }
+
+    isEditing.value = true
+    const response = await editCreatedPin(props.pinID, pin.value)
+    console.log(response)
+    emit('refresh-boards')
+    emit('closeModal')
+  } catch (error: any) {
+    console.error(error.message)
+  } finally {
+    isEditing.value = false
+  }
+}
+
+onMounted(() => {
+  fetchPinDetails(props.pinID)
+})
 </script>
 
 <template>
-  <section class="relative bg-white p-4 shadow-lg w-full h-full max-w-lg ml-auto">
+  <section class="relative bg-white p-4 shadow-lg w-full h-full max-w-lg ml-auto" @click.stop>
     <p v-if="isLoading" class="text-center w-full">Loading...</p>
-    <p v-else-if="isError && error" class="text-center w-full">{{ error.message }}</p>
+    <p v-else-if="error" class="text-center w-full">{{ error }}</p>
 
-    <template v-else-if="data">
+    <template v-else>
       <header class="h-28 grid place-items-center">
         <h1 class="text-2xl font-bold mb-4">Edit Pin</h1>
 
@@ -65,21 +90,27 @@ async function fetchPinDetails(pinID: number) {
       </header>
 
       <form class="space-y-8 h-full">
-        <InputField v-model="pin.name" label="Ttile" name="name" />
+        <InputField v-model.trim="pin.name" label="Ttile" name="name" />
 
         <InputField
-          v-model="pin.description"
+          v-model.trim="pin.description"
           label="Description"
           type="textarea"
           name="description"
           placeholder="What's your board about?"
         />
 
-        <InputField v-model="pin.link" label="Link" name="link" placeholder="Add a link" />
+        <InputField v-model.trim="pin.link" label="Link" name="link" placeholder="Add a link" />
 
         <div class="absolute bottom-2 right-4 flex items-end justify-end">
           <BaseButton class="bg-neutral-200 text-black" @click.stop="emit('deletePin')">Delete</BaseButton>
-          <BaseButton class="bg-primary text-white" @click.stop="">Save</BaseButton>
+          <BaseButton
+            class="bg-primary text-white disabled:opacity-50"
+            @click.stop="updatePin"
+            :disabled="!isValidForm"
+          >
+            {{ isEditing ? 'Editing...' : 'Save' }}
+          </BaseButton>
         </div>
       </form>
     </template>

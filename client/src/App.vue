@@ -53,7 +53,7 @@ import { RouterView } from 'vue-router'
   <div class="mt-24" style="{ minHeight: 'calc(100vh - 96px)' }">
     <RouterView />
   </div>
-  <VueQueryDevtools />
+  <VueQueryDevtools :button-position="'top-left'" />
   <!-- </template> -->
 </template>
 

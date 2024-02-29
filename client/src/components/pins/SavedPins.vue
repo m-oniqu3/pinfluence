@@ -124,10 +124,7 @@ watch(
       </template>
 
       <template v-else>
-        <div class="text-center space-y-2">
-          <h1 class="font-bold text-3xl">This user doesn't have any boards yet.</h1>
-          <p>Check back later!</p>
-        </div>
+        <p class="max-w-sm mx-auto text-center">This user doesn't have any boards yet. Check back later!</p>
       </template>
     </article>
 

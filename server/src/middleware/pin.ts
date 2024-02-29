@@ -122,3 +122,40 @@ export async function checkSavedPinExistence(req: Request, res: Response, next: 
     }
   }
 }
+
+export async function checkPinOwnership(req: Request, res: Response, next: NextFunction) {
+  try {
+    const user = req.user as User;
+    const pinID = req.params.pinID;
+
+    if (!pinID) {
+      return res.status(400).json({ error: "Missing Pin ID" });
+    }
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .select("user_id")
+      .eq("id", pinID)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!data || data.user_id !== user.id) {
+      return res
+        .status(403)
+        .json({ error: "Forbidden. Pin does not exist or does not belong to the user" });
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return next();
+  } catch (error) {
+    console.error("Error chkecking pin ownership:", error);
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: error.message ?? "Internal Server Error" });
+    }
+  }
+}

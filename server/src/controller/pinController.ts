@@ -450,3 +450,44 @@ export async function deleteMultipleSavedPins(req: Request, res: Response) {
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @returns string
+ * @description Edit pin details for the given pin id
+ */
+export async function editPin(req: Request, res: Response) {
+  try {
+    const user = req.user as User;
+    const pinID = req.params.pinID;
+    const pin = req.body.pin as { name: string; description: string; link: string };
+
+    if (!pin) {
+      return res.status(400).json({ error: "Missing pin details" });
+    }
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .update(pin)
+      .eq("id", pinID)
+      .eq("user_id", user.id)
+      .select();
+
+    if (!data) {
+      return res.status(400).json({ error: "Error updating pin" });
+    }
+
+    if (error) throw error;
+
+    return res.status(200).json({ data: "Pin updated successfully" });
+  } catch (error) {
+    console.log(error.message, "from editPin");
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

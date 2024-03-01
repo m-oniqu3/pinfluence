@@ -491,3 +491,5 @@ export async function editPin(req: Request, res: Response) {
     return res.status(500).json({ error: error.message || "Internal server error" });
   }
 }
+
+export async function deleteCreatedPin(_req: Request, _res: Response) {}

@@ -85,7 +85,16 @@ export async function deleteMultipleSavedPins(savedPinIDs: number[]) {
   return response.data.data
 }
 
-export async function deleteCreatedPin(pinID: number) {}
+/**
+ *
+ * @param pinID number
+ * @returns  string
+ * @description Deletes the pin with given id
+ */
+export async function deleteCreatedPin(pinID: number) {
+  const response = await api.delete<{ data: string }>(`pins/${pinID}`)
+  return response.data.data
+}
 
 /**
  *

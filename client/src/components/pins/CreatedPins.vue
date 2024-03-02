@@ -89,6 +89,7 @@ router.afterEach(() => refetch())
           name: pin.name
         }"
         :allow-edit="isOwnProfile"
+        @refresh-boards="refetch"
       />
     </PinGrid>
   </InfiniteScroll>

@@ -492,4 +492,31 @@ export async function editPin(req: Request, res: Response) {
   }
 }
 
-export async function deleteCreatedPin(_req: Request, _res: Response) {}
+export async function deleteCreatedPin(req: Request, res: Response) {
+  try {
+    const user = req.user as User;
+    const pinID = req.params.pinID;
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .delete()
+      .eq("id", pinID)
+      .eq("user_id", user.id)
+      .select();
+
+    if (!data) {
+      return res.status(400).json({ error: "Could not delete created pin" });
+    }
+
+    if (error) throw error;
+
+    return res.status(200).json({ data: "Pin deleted successfully" });
+  } catch (error) {
+    console.log(error.message, "from deleteCreatedPin");
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

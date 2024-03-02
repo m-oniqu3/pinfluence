@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
-import { deleteSavedPin } from '@/services/pinServices'
+import { deleteCreatedPin, deleteSavedPin } from '@/services/pinServices'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -28,8 +28,12 @@ function removePin() {
 async function removeCreatedPin(pinID: number) {
   try {
     isDeletingPin.value = true
-    console.log(pinID)
-    console.log('removing created pin')
+
+    const response = await deleteCreatedPin(pinID)
+    console.log(response)
+
+    emit('refresh-board')
+    emit('close-modal')
   } catch (error: any) {
     console.log(error.message)
   } finally {

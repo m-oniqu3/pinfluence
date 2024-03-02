@@ -102,7 +102,7 @@ onMounted(() => {
 
         <InputField v-model.trim="pin.link" label="Link" name="link" placeholder="Add a link" />
 
-        <div class="absolute bottom-2 right-4 flex items-end justify-end">
+        <div class="absolute bottom-2 right-4 flex items-end justify-end gap-2">
           <BaseButton class="bg-neutral-200 text-black" @click.stop="emit('deletePin')">Delete</BaseButton>
           <BaseButton
             class="bg-primary text-white disabled:opacity-50"

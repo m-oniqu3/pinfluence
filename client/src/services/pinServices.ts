@@ -88,7 +88,7 @@ export async function deleteMultipleSavedPins(savedPinIDs: number[]) {
 /**
  *
  * @param pinID number
- * @returns  string
+ * @returns string
  * @description Deletes the pin with given id
  */
 export async function deleteCreatedPin(pinID: number) {

@@ -502,13 +502,23 @@ export async function deleteCreatedPin(req: Request, res: Response) {
       .delete()
       .eq("id", pinID)
       .eq("user_id", user.id)
-      .select();
+      .select("user_id, image_name")
+      .single();
 
     if (!data) {
       return res.status(400).json({ error: "Could not delete created pin" });
     }
 
     if (error) throw error;
+
+    // remove the image from storage
+    const { error: storageErr } = await supabase.storage
+      .from("created-pins")
+      .remove([`${data.user_id}/${data?.image_name}`]);
+
+    if (storageErr) {
+      console.log("Error deleting file", storageErr.message);
+    }
 
     return res.status(200).json({ data: "Pin deleted successfully" });
   } catch (error) {

@@ -201,16 +201,29 @@ const handleSavePin = (event: MouseEvent) => {
         <!-- avatar -->
         <div class="flex justify-between items-center" v-if="pin.user">
           <figure class="flex items-center gap-4 py-2">
-            <router-link v-if="pin.user.avatar_url" :to="{ name: 'profile', params: { profile: pin.user.id } }">
+            <router-link
+              v-if="pin.user.avatar_url"
+              :to="{ name: 'profile', params: { profile: pin.user.id } }"
+              class="cursor-pointer"
+            >
               <img :src="pin.user.avatar_url" :alt="pin.user.full_name" class="w-12 h-12 object-cover rounded-full" />
             </router-link>
 
-            <p v-else class="w-12 h-12 bg-neutral-200 text-lg rounded-full flex items-center justify-center">
+            <router-link
+              v-else
+              :to="{ name: 'profile', params: { profile: pin.user.id } }"
+              class="w-12 h-12 bg-neutral-200 text-lg rounded-full flex items-center justify-center cursor-pointer"
+            >
               <span class="font-bold">{{ pin.user.full_name.at(0)!.toUpperCase() }}</span>
-            </p>
+            </router-link>
 
             <figcaption class="font-medium relative flex flex-col">
-              <span class="font-medium"> {{ pin.user.full_name }}</span>
+              <router-link
+                :to="{ name: 'profile', params: { profile: pin.user.id } }"
+                class="font-medium cursor-pointer"
+              >
+                {{ pin.user.full_name }}</router-link
+              >
               <span> {{ pin.user.full_name.length }}k followers</span>
             </figcaption>
           </figure>

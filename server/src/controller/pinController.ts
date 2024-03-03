@@ -492,6 +492,13 @@ export async function editPin(req: Request, res: Response) {
   }
 }
 
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @returns string
+ * @description Delete the created pin with the given pin id
+ */
 export async function deleteCreatedPin(req: Request, res: Response) {
   try {
     const user = req.user as User;
@@ -523,6 +530,36 @@ export async function deleteCreatedPin(req: Request, res: Response) {
     return res.status(200).json({ data: "Pin deleted successfully" });
   } catch (error) {
     console.log(error.message, "from deleteCreatedPin");
+    if (error.code) {
+      return res.status(400).json({ error: error.message });
+    }
+
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @returns { data: { id: number, name: string, image: string, user_id: string }[] }
+ * @description  Returns a range of created pins
+ */
+export async function getAllCreatedPins(req: Request, res: Response) {
+  try {
+    const range = String(req.query.range).split(",").map(Number);
+
+    const { data, error } = await supabase
+      .from("created-pins")
+      .select("id, name, image, user_id")
+      .range(range[0], range[1])
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    return res.status(200).json({ data });
+  } catch (error) {
+    console.log(error.message);
     if (error.code) {
       return res.status(400).json({ error: error.message });
     }

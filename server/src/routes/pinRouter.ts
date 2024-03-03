@@ -4,6 +4,7 @@ import {
   deleteMultipleSavedPins,
   deleteSavedPin,
   editPin,
+  getAllCreatedPins,
   getCreatedPins,
   getPinById,
   getSavedPinsLimit,
@@ -32,6 +33,7 @@ const upload = multer({ storage: storage });
 router.get("/created/:userId", getCreatedPins);
 router.get("/saved/preview/:userId", getSavedPinsLimit);
 router.get("/saved/board/:userId", getSavedPinsRange);
+router.get("/", requireAuth, getAllCreatedPins);
 
 router.get("/:id", getPinById);
 

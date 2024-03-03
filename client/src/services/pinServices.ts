@@ -107,3 +107,11 @@ export async function editCreatedPin(pinID: number, pin: { name: string; descrip
   const response = await api.put<{ data: string }>(`pins/${pinID}`, { pin })
   return response.data
 }
+
+export async function getAllCreatedPins(page: number) {
+  const response = await api.get<{ data: PinPreview[] }>('pins', {
+    params: { range: getRange(page, 10) }
+  })
+
+  return response.data.data
+}

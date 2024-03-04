@@ -7,6 +7,7 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
+import NavbarOptionsMenu from '@/components/NavbarOptionsMenu.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
@@ -14,33 +15,22 @@ import { computed, ref } from 'vue'
 
 const auth = useAuthStore()
 const user = computed(() => auth.user)
+const isOptionsMenuOpen = ref(false)
+const positions = ref({ x: 0, y: 0 })
+
+function getPosition(event: MouseEvent) {
+  // Get mouse coordinates
+  const { clientX, clientY } = event
+  positions.value = { x: clientX, y: clientY }
+}
+
+function toggleOptionsMenu(val: boolean) {
+  isOptionsMenuOpen.value = val
+}
 // const profile = useProfileStore()
 
 // random avatar
 const avatar = ref('https://picsum.photos/200')
-
-// async function updateAvatar(url: string) {
-//   const image = await downloadImage(url)
-//   if (image) {
-//     avatar.value = image
-//   }
-// }
-
-// onMounted(async () => {
-//   if (avatar.value && auth.isAuth) {
-//     await updateAvatar(avatar.value)
-//   }
-// })
-
-// watch(
-//   () => profile.details?.avatar_url,
-//   async (newAvatarUrl) => {
-//     console.log('newAvatarUrl', newAvatarUrl)
-//     if (newAvatarUrl && auth.isAuth) {
-//       await updateAvatar(newAvatarUrl)
-//     }
-//   }
-// )
 </script>
 
 <template>
@@ -50,6 +40,7 @@ const avatar = ref('https://picsum.photos/200')
         <AppLogo class="fa-xl" />
       </router-link>
 
+      <!-- PUBLIC NAV -->
       <div class="w-full grid grid-cols-[1fr,auto] gap-2" v-if="!auth.isAuth">
         <SearchBar />
 
@@ -63,6 +54,7 @@ const avatar = ref('https://picsum.photos/200')
         </ul>
       </div>
 
+      <!-- PRIVATE NAV -->
       <template v-else>
         <ul class="xs:hidden sm:flex">
           <li>
@@ -92,11 +84,18 @@ const avatar = ref('https://picsum.photos/200')
             </router-link>
           </template>
 
-          <font-awesome-icon icon="fa-solid fa-chevron-down" class="fa-lg text-gray-600" />
+          <font-awesome-icon
+            icon="fa-solid fa-chevron-down"
+            class="fa-lg text-gray-600 cursor-pointer"
+            @click="toggleOptionsMenu(true)"
+            @click.prevent="getPosition"
+          />
         </div>
       </template>
     </nav>
   </header>
+
+  <NavbarOptionsMenu :positions="positions" :isMenuOpen="isOptionsMenuOpen" @closeMenu="toggleOptionsMenu(false)" />
 </template>
 
 <style scoped>

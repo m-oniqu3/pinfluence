@@ -1,4 +1,3 @@
-import router from '@/router'
 import { useAuthStore } from '@/stores/auth'
 import axios from 'axios'
 
@@ -47,7 +46,7 @@ api.interceptors.response.use(
       authStore.setUser(null)
 
       // redirect to the logout page
-      router.push('/logout')
+      window.location.href = '/logout'
 
       return
     } else if (status === 401 && error.response.data.error.includes('Token expired')) {

@@ -22,11 +22,7 @@ const isActive = computed(() => {
 </script>
 
 <template>
-  <li
-    class="px-2 py-[0.4rem] rounded-lg cursor-pointer"
-    @mouseenter="emit('enter')"
-    :class="isActive"
-  >
+  <li class="px-2 py-[0.4rem] rounded-lg cursor-pointer" @mouseenter="emit('enter')" :class="isActive">
     <slot id="sl" />
   </li>
 </template>
@@ -34,5 +30,6 @@ const isActive = computed(() => {
 <style scoped>
 li {
   transition: background-color 0.2s ease-in-out;
+  list-style: none;
 }
 </style>

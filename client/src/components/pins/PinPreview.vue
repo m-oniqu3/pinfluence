@@ -277,7 +277,7 @@ async function addPinToBoard(board: BoardInfo, pinID: number) {
 
       <AppModal :open="isDeletingPin" @close-modal="toggleDeleteModal(false)">
         <DeletePin
-          :pin="{ pinID: savedPinDetails.pin.id, image: 'savedPinDetails.pin.image' }"
+          :pin="{ pinID: savedPinDetails.pin.id, image: savedPinDetails.pin.image }"
           :type="'saved'"
           @refresh-board="emit('refresh-boards')"
           @close-modal="toggleDeleteModal(false)"

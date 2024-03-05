@@ -45,7 +45,7 @@ router.afterEach(() => refetch())
 
 <template>
   <p v-if="isLoading" class="text-center w-full">Loading...</p>
-  <p v-else-if="isError && error" class="text-center w-full">{{ error.message }}</p>
+  <p v-else-if="!isLoading && isError" class="text-center w-full">{{ error?.message }}</p>
 
   <InfiniteScroll
     v-else-if="data?.pages"

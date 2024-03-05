@@ -101,8 +101,8 @@ watch(
     </div>
 
     <div class="flex gap-2 items-center">
-      <BaseButton v-if="!isOwner" class="btn font-bold bg-primary text-neutral"> Follow </BaseButton>
-      <BaseButton v-if="isOwner" class="btn font-bold bg-neutral-200"> Share </BaseButton>
+      <BaseButton v-if="!isOwner" class="font-bold bg-primary text-neutral"> Follow </BaseButton>
+      <BaseButton v-if="isOwner" class="h-12 font-bold bg-neutral-200"> Share </BaseButton>
 
       <router-link :to="{ name: 'settings.profile' }" v-if="isOwner" class="btn font-bold bg-neutral-200">
         Edit Profile

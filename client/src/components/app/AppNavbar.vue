@@ -11,10 +11,12 @@ import NavbarOptionsMenu from '@/components/NavbarOptionsMenu.vue'
 import SearchBar from '@/components/SearchBar.vue'
 import AppLogo from '@/components/app/AppLogo.vue'
 import { useAuthStore } from '@/stores/auth'
-import { computed, ref } from 'vue'
+import { type Profile } from '@/types/profile'
+import { computed, ref, watchEffect } from 'vue'
 
 const auth = useAuthStore()
 const user = computed(() => auth.user)
+const profile = ref<Profile | null>(null)
 const isOptionsMenuOpen = ref(false)
 const positions = ref({ x: 0, y: 0 })
 
@@ -27,10 +29,15 @@ function getPosition(event: MouseEvent) {
 function toggleOptionsMenu(val: boolean) {
   isOptionsMenuOpen.value = val
 }
-// const profile = useProfileStore()
 
-// random avatar
-const avatar = ref('https://picsum.photos/200')
+//when logged in, fetch user's avatar
+watchEffect(async () => {
+  if (user.value) {
+    console.log(user.value.id)
+    const response = await auth.getUserProfile()
+    profile.value = response
+  }
+})
 </script>
 
 <template>
@@ -75,12 +82,12 @@ const avatar = ref('https://picsum.photos/200')
           <template v-if="user">
             <router-link :to="{ name: 'profile.saved', params: { profile: user.id } }">
               <img
-                v-if="avatar"
-                :src="avatar"
+                v-if="profile?.avatar_url"
+                :src="profile.avatar_url"
                 alt="avatar"
                 class="w-8 h-8 object-cover rounded-full border-2 border-gray-600"
               />
-              <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl text-gray-600" />
+              <font-awesome-icon v-else icon="fa-solid fa-circle-user" class="fa-xl w-8 h-8 text-gray-600" />
             </router-link>
           </template>
 
@@ -95,7 +102,12 @@ const avatar = ref('https://picsum.photos/200')
     </nav>
   </header>
 
-  <NavbarOptionsMenu :positions="positions" :isMenuOpen="isOptionsMenuOpen" @closeMenu="toggleOptionsMenu(false)" />
+  <NavbarOptionsMenu
+    :profile="profile"
+    :positions="positions"
+    :isMenuOpen="isOptionsMenuOpen"
+    @closeMenu="toggleOptionsMenu(false)"
+  />
 </template>
 
 <style scoped>

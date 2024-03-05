@@ -2,11 +2,13 @@
 import AppMenu from '@/components/app/AppMenu.vue'
 import MenuItem from '@/components/menu/MenuItem.vue'
 import MenuOption from '@/components/menu/MenuOption.vue'
+import type { Profile } from '@/types/profile'
 import { ref } from 'vue'
 
 const props = defineProps<{
   positions: { x: number; y: number }
   isMenuOpen: boolean
+  profile: Profile | null
 }>()
 
 const emit = defineEmits<{
@@ -25,13 +27,14 @@ const activeOption = ref(0)
         </template>
 
         <MenuItem :id="0" :activeOption="activeOption" @enter="activeOption = 0">
-          <figure class="flex items-center gap-2">
-            <img src="https://picsum.photos/200" alt="avatar" class="w-14 h-14 rounded-full" />
+          <figure class="flex items-center gap-2 w-64">
+            <img v-if="profile?.avatar_url" :src="profile.avatar_url" alt="avatar" class="w-14 h-14 rounded-full" />
+            <font-awesome-icon v-else :icon="['fas', 'user-circle']" class="w-14 h-14 text-gray-600" />
 
-            <figcaption class="">
-              <h1 class="text-base font-medium">Phineas Flynn</h1>
+            <figcaption class="overflow-hidden">
+              <h1 class="text-base font-medium">{{ profile?.full_name }}</h1>
               <p class="text-sm text-slate-500">Personal</p>
-              <p class="text-sm text-slate-500">vemik83731@cubene.com</p>
+              <p class="text-sm text-slate-500 truncate">{{ profile?.username }}</p>
             </figcaption>
           </figure>
         </MenuItem>

@@ -44,17 +44,17 @@ export async function getUserProfile(req: Request, res: Response) {
       throw new Error("Missing identification for user");
     }
 
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", id)
-      .single();
+    const { data, error } = await supabase.from("profiles").select("*").eq("id", id).single();
+
+    if (!data) {
+      return res.status(404).json({ error: "Profile not found" });
+    }
 
     if (error) {
       throw error;
     }
 
-    return res.status(200).json({ data: profile });
+    return res.status(200).json({ data });
   } catch (error: unknown) {
     if (error instanceof AuthError) {
       return res.status(401).json({ error: error.message });

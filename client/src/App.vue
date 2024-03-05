@@ -2,7 +2,10 @@
 import AppNavbar from '@/components/app/AppNavbar.vue'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 // import { useAuthStore } from '@/stores/auth'
+import { ref } from 'vue'
 import { RouterView } from 'vue-router'
+import NotificationDisplay from './components/notifiy/NotificationDisplay.vue'
+import { useNotificationStore } from './stores/notification'
 // const authStore = useAuthStore()
 // const isLoading = ref(true)
 // const router = useRouter()
@@ -44,15 +47,30 @@ import { RouterView } from 'vue-router'
 //     isLoading.value = false
 //   }
 // })
+
+const notify = useNotificationStore()
+const num = ref(0)
+
+function add() {
+  console.log('from App.vue, adding notification')
+  notify.push({
+    title: 'Notification',
+    message: `Notification ${num.value}`,
+    type: 'success'
+  })
+  num.value++
+}
 </script>
 
 <template>
   <!-- <p v-if="isLoading">Loading...</p> -->
   <!-- <template v-else> -->
   <AppNavbar />
-  <div class="mt-24" style="{ minHeight: 'calc(100vh - 96px)' }">
+  <div class="mt-24" style="min-height: calc(100vh - 96px)">
+    <button @click="add" class="btn bg-gray-300">Add</button>
     <RouterView />
   </div>
+  <NotificationDisplay />
   <VueQueryDevtools :button-position="'top-left'" />
   <!-- </template> -->
 </template>

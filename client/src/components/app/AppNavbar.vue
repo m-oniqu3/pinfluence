@@ -33,7 +33,6 @@ function toggleOptionsMenu(val: boolean) {
 //when logged in, fetch user's avatar
 watchEffect(async () => {
   if (user.value) {
-    console.log(user.value.id)
     const response = await auth.getUserProfile()
     profile.value = response
   }

@@ -3,7 +3,7 @@ import type { Board, BoardOwnerProfile } from '@/types/board'
 import { getRange } from '@/utils/paginate'
 
 export async function createBoard(board: { name: string; secret: boolean }) {
-  const response = await api.post<{ data: number }>('boards', board)
+  const response = await api.post<{ data: string }>('boards', board)
   return response.data.data
 }
 

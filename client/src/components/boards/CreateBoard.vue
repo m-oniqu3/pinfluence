@@ -11,13 +11,15 @@ import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { createBoard } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
-import axios from 'axios'
+import { useNotificationStore } from '@/stores/notification'
+import { isAxiosError } from 'axios'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
 }>()
 
 const auth = useAuthStore()
+const notify = useNotificationStore()
 const boardDetails = ref({ name: '', secret: false })
 const isLoading = ref(false)
 
@@ -39,13 +41,16 @@ async function submit() {
     isLoading.value = true
     const response = await createBoard(boardDetails.value)
 
-    console.log(response)
+    notify.push({ message: response, type: 'success', title: 'Success' })
   } catch (error: any) {
-    if (axios.isAxiosError(error)) {
-      console.log(error.response?.data)
+    let message = ''
+    if (isAxiosError(error)) {
+      message = error.response?.data
     } else {
-      console.log(error)
+      message = error.message
     }
+
+    notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isLoading.value = false
     emit('closeModal')

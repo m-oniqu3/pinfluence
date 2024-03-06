@@ -17,7 +17,11 @@ import {
   faArrowUp,
   faChevronDown,
   faCircleArrowUp,
+  faCircleCheck,
+  faCircleExclamation,
+  faCircleInfo,
   faCircleUser,
+  faCircleXmark,
   faEllipsis,
   faGears,
   faLock,
@@ -43,7 +47,12 @@ library.add(
   faSliders,
   faGears,
   faArrowRight,
-  faTrash
+  faTrash,
+  faCircleCheck,
+  faCircleXmark,
+  faCircleInfo,
+
+  faCircleExclamation
 )
 
 const app = createApp(App)

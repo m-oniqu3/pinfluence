@@ -27,9 +27,9 @@ export async function getPinDetails(id: number) {
 }
 
 export async function savePin(pinId: number, boardId: number) {
-  const response = await api.post(`pins/save/${pinId}`, { boardId })
+  const response = await api.post<{ data: string }>(`pins/save/${pinId}`, { boardId })
 
-  return response.data
+  return response.data.data
 }
 
 /**

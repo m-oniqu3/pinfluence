@@ -17,6 +17,7 @@ import EditPinDetails from '@/components/pins/EditPinDetails.vue'
 import PinSaveMenu from '@/components/pins/PinSaveMenu.vue'
 import { savePin } from '@/services/pinServices'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import type { BoardInfo } from '@/types/board'
 import { type PinPreview, type PinPreviewSaved } from '@/types/pin'
 import { calculateXPosition, calculateYPosition } from '@/utils/menu'
@@ -70,6 +71,7 @@ function isSavedPin(details: PinPreview | PinPreviewSaved): details is PinPrevie
 // variables with inferred types based on type guards
 const regularPinDetails = isRegularPin(props.details) ? props.details : null
 const savedPinDetails = isSavedPin(props.details) ? props.details : null
+const notify = useNotificationStore()
 
 const togglePinList = (val: boolean) => {
   isPinListOpen.value = val
@@ -132,15 +134,18 @@ async function addPinToBoard(board: BoardInfo, pinID: number) {
     if (!board.id || !pinID) return
 
     const response = await savePin(pinID, board.id)
-    console.log(response)
+    notify.push({ type: 'success', message: response, title: 'Success' })
 
     emit('refresh-boards')
   } catch (error: any) {
+    let message = ''
     if (isAxiosError(error)) {
-      console.log(error.response?.data)
+      message = error.response?.data
     } else {
-      console.log(error.message)
+      message = error.message
     }
+
+    notify.push({ type: 'error', message, title: 'Error' })
   }
 }
 </script>

@@ -16,14 +16,18 @@ export async function createBoard(req: Request, res: Response) {
     const { data, error } = await supabase
       .from("boards")
       .insert([{ name, secret, user_id: user.id }])
-      .select("id")
+      .select("name")
       .single();
+
+    if (!data) {
+      return res.status(400).json({ error: "Could not create board" });
+    }
 
     if (error) {
       throw error;
     }
 
-    return res.status(200).json({ data: data.id });
+    return res.status(200).json({ data: "Board created successfully" });
   } catch (error) {
     if (error.code) {
       // postgrest error

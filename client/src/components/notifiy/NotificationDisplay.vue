@@ -13,9 +13,7 @@ const notify = useNotificationStore()
 </script>
 
 <template>
-  <div class="fixed top-20 right-0 z-50" v-if="notify.allMessages.length">
-    <div v-for="{ id, message } in notify.allMessages" :key="id">
-      <NotificationMessage :id="id" :message="message" />
-    </div>
-  </div>
+  <section class="fixed bottom-2 right-0 z-50 m-4 space-y-3" v-if="notify.allMessages.length">
+    <NotificationMessage v-for="{ id, message } in notify.allMessages" :key="id" :id="id" :message="message" />
+  </section>
 </template>

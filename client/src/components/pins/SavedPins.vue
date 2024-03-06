@@ -136,7 +136,7 @@ watch(
     />
 
     <AppModal @close-modal="closeBoardModal" :open="isBoardModalOpen">
-      <CreateBoard @close-modal="closeBoardModal" />
+      <CreateBoard @close-modal="closeBoardModal" @refresh-boards="refetch" />
     </AppModal>
   </section>
 </template>

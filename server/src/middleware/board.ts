@@ -77,3 +77,40 @@ export async function checkBoardOwner(req: Request, res: Response, next: NextFun
     }
   }
 }
+
+export async function checkBoardExists(req: Request, res: Response, next: NextFunction) {
+  try {
+    const name = req.body.name as string;
+    const user = req.user as User;
+
+    if (!name) {
+      return res.status(400).json({ error: "Missing required parameters; board name" });
+    }
+
+    // check if the board already exists
+    const { data, error } = await supabase
+      .from("boards")
+      .select("id")
+      .eq("name", name)
+      .eq("user_id", user.id)
+      .single();
+
+    if (data?.id) {
+      return res.status(409).json({ error: "You already have a board with this name!" });
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    return next();
+  } catch (error) {
+    console.error("Error querying board:", error);
+
+    if (error.code === "PGRST116") {
+      return res.status(409).json({ error: "You already have a board with this name!" });
+    } else {
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  }
+}

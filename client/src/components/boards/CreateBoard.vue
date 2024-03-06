@@ -16,6 +16,7 @@ import { isAxiosError } from 'axios'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
+  (event: 'refresh-boards'): void
 }>()
 
 const auth = useAuthStore()
@@ -42,14 +43,16 @@ async function submit() {
     const response = await createBoard(boardDetails.value)
 
     notify.push({ message: response, type: 'success', title: 'Success' })
+    emit('refresh-boards')
   } catch (error: any) {
     let message = ''
     if (isAxiosError(error)) {
-      message = error.response?.data
+      message = error.response?.data.error
     } else {
       message = error.message
     }
 
+    console.error(error, 'Error creating board')
     notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isLoading.value = false

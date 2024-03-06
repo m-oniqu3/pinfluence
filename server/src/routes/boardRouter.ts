@@ -8,7 +8,7 @@ import {
   updateBoard,
 } from "@/controller/boardController";
 import { requireAuth } from "@/middleware/auth";
-import { checkBoardOwner, checkBoardPermission } from "@/middleware/board";
+import { checkBoardExists, checkBoardOwner, checkBoardPermission } from "@/middleware/board";
 
 import express from "express";
 
@@ -17,7 +17,7 @@ const router = express.Router();
 //get current user boards
 router.get("/", requireAuth, getCurrentUserBoards);
 
-router.post("/", requireAuth, createBoard);
+router.post("/", requireAuth, checkBoardExists, createBoard);
 
 // public route to get board owner
 router.get("/:boardID/user/:userID", checkBoardOwner, getBoardOwner);

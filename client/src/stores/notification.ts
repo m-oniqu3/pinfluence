@@ -16,37 +16,17 @@ export const useNotificationStore = defineStore('notification', () => {
   const messages = ref(new Map<number, Notification>())
 
   const allMessages = computed(() =>
+    // convert the map to an array of objects and limit it to 3
     Array.from(messages.value)
       .map(([id, message]) => ({ id, message }))
-      .slice(0, 4)
+      .slice(0, 3)
   )
-
-  messages.value.set(generateId.next().value as number, {
-    title: 'Account created successfully',
-    message: 'Please check your email to verify your account. Follow the instructions in the email to get started.',
-    type: 'info'
-  })
-
-  messages.value.set(generateId.next().value as number, {
-    title: 'Something went wrong',
-    message: 'Something went wrong, please try again later',
-    type: 'error'
-  })
-  messages.value.set(generateId.next().value as number, {
-    title: 'Account created successfully',
-    message: 'Your account has been created successfully. Welcome!',
-    type: 'success'
-  })
-
-  messages.value.set(generateId.next().value as number, {
-    title: 'Warning',
-    message: 'This is a warning message',
-    type: 'warning'
-  })
 
   function push(message: Notification) {
     const id = generateId.next().value as number
-    messages.value.set(id, message)
+
+    const duration = message.duration || 5000
+    messages.value.set(id, { ...message, duration })
   }
 
   function remove(id: number) {

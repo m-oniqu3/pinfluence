@@ -3,6 +3,7 @@ import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import { deleteBoard, getBoardById, getCurrentUserBoards, updateBoard } from '@/services/boardServices'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import type { Board } from '@/types/board'
 import { isAxiosError } from 'axios'
 import { computed, onMounted, reactive, ref } from 'vue'
@@ -14,6 +15,7 @@ const props = defineProps<{
 const emit = defineEmits<{ (event: 'closeModal'): void; (event: 'refresh-boards'): void; (event: 'redirect'): void }>()
 
 const authStore = useAuthStore()
+const notify = useNotificationStore()
 
 const originalBoard = reactive({ name: '', secret: false, description: '' })
 const newBoard = reactive({ name: '', secret: false, description: '' })
@@ -36,12 +38,15 @@ async function getBoardDetails() {
     isLoading.value = true
     const response = await getBoardById(props.boardId)
     return response
-  } catch (error) {
+  } catch (error: any) {
+    let message = ''
     if (isAxiosError(error)) {
-      console.error(error.response?.data)
+      message = error.response?.data
     } else {
-      console.error(error)
+      message = error.message
     }
+
+    notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isLoading.value = false
   }
@@ -73,7 +78,8 @@ async function submit() {
       secret: newBoard.secret,
       description: newBoard.description
     })
-    console.log(response)
+
+    notify.push({ type: 'success', message: response, title: 'Success' })
 
     //close modal and fetch new data
     emit('refresh-boards')
@@ -88,6 +94,7 @@ async function submit() {
     }
 
     boardError.value = message
+    notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isSubmitting.value = false
   }
@@ -119,15 +126,20 @@ async function removeBoard() {
     const response = await deleteBoard(props.boardId)
     console.log(response)
 
+    notify.push({ type: 'success', message: response, title: 'Success' })
+
     //close modal and fetch new data
     emit('refresh-boards')
     emit('redirect')
   } catch (error: any) {
+    let message = ''
     if (isAxiosError(error)) {
-      console.error(error.response?.data)
+      message = error.response?.data ?? error.message
     } else {
-      console.error(error)
+      message = error.message ?? 'Something went wrong. Could not delete board.'
     }
+
+    notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isSubmitting.value = false
   }

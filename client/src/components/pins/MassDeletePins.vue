@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import { deleteMultipleSavedPins } from '@/services/pinServices'
+import { useNotificationStore } from '@/stores/notification'
 import { ref } from 'vue'
 const props = defineProps<{
   selectedPins: Set<number>
@@ -12,6 +13,7 @@ const emit = defineEmits<{
 }>()
 
 const isDeletingPins = ref(false)
+const notify = useNotificationStore()
 
 async function removePins() {
   try {
@@ -19,11 +21,10 @@ async function removePins() {
 
     const pins = Array.from(props.selectedPins)
     const response = await deleteMultipleSavedPins(pins)
-    console.log(response)
-
+    notify.push({ type: 'success', message: response, title: 'Success' })
     emit('refresh-board')
   } catch (error: any) {
-    console.log(error.message)
+    notify.push({ type: 'error', message: error.message, title: 'Error' })
   } finally {
     isDeletingPins.value = false
   }

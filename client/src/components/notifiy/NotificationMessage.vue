@@ -14,7 +14,7 @@ function dismiss() {
   setTimeout(() => {
     console.log('from NotificationMessage.vue, removing notification')
     notify.remove(props.id)
-  }, 5000)
+  }, props.message.duration)
 }
 
 const icon = computed(() => {

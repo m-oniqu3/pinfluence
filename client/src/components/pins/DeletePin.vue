@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import { deleteCreatedPin, deleteSavedPin } from '@/services/pinServices'
+import { useNotificationStore } from '@/stores/notification'
 import { ref } from 'vue'
 
 const props = defineProps<{
@@ -15,6 +16,7 @@ const emit = defineEmits<{
 }>()
 
 const isDeletingPin = ref(false)
+const notify = useNotificationStore()
 
 //call delete function based on the type of pin
 function removePin() {
@@ -30,12 +32,12 @@ async function removeCreatedPin(pinID: number) {
     isDeletingPin.value = true
 
     const response = await deleteCreatedPin(pinID)
-    console.log(response)
+    notify.push({ type: 'success', message: response, title: 'Success' })
 
     emit('refresh-board')
     emit('close-modal')
   } catch (error: any) {
-    console.log(error.message)
+    notify.push({ type: 'error', message: error.message, title: 'Error' })
   } finally {
     isDeletingPin.value = false
   }
@@ -45,12 +47,12 @@ async function removeSavedPin(pinID: number) {
   try {
     isDeletingPin.value = true
     const response = await deleteSavedPin(pinID)
-    console.log(response)
+    notify.push({ type: 'success', message: response, title: 'Success' })
 
     emit('refresh-board')
     emit('close-modal')
   } catch (error: any) {
-    console.log(error.message)
+    notify.push({ type: 'error', message: error.message, title: 'Error' })
   } finally {
     isDeletingPin.value = false
   }

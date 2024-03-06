@@ -3,12 +3,14 @@ import BaseButton from '@/components/BaseButton.vue'
 import InputField from '@/components/InputField.vue'
 import ProfileAvatar from '@/components/settings/ProfileAvatar.vue'
 import { useAuthStore } from '@/stores/auth'
+import { useNotificationStore } from '@/stores/notification'
 import type { Profile } from '@/types/profile'
 import { assign } from '@sa-net/utils'
 import axios from 'axios'
 import { computed, onMounted, reactive, ref } from 'vue'
 
 const authStore = useAuthStore()
+const notify = useNotificationStore()
 const isLoading = ref(false)
 
 const initial = { firstName: '', lastName: '', username: '', website: '', avatar_url: '', about: '' }
@@ -91,8 +93,18 @@ async function updateProfile() {
 
     assign(profile, { ...response })
     assign(originalDetails, { ...profile })
+
+    notify.push({ type: 'success', message: 'Profile updated successfully', title: 'Success' })
   } catch (error: any) {
-    console.error(error, error.message)
+    let message = ''
+
+    if (axios.isAxiosError(error)) {
+      message = error.response?.data.error ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
+    }
+
+    notify.push({ type: 'error', message, title: 'Error' })
   } finally {
     isLoading.value = false
   }

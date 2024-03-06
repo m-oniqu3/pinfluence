@@ -37,8 +37,8 @@ export async function getBoardById(id: number) {
 }
 
 export async function updateBoard(board: { id: number; name: string; secret: boolean; description: string }) {
-  const response = await api.put(`boards/${board.id}`, board)
-  return response.data
+  const response = await api.put<{ data: string }>(`boards/${board.id}`, board)
+  return response.data.data
 }
 
 /**

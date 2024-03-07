@@ -62,3 +62,9 @@ export async function getBoardOwner(boardID: number, userID: string) {
   const response = await api.get<{ data: BoardOwnerProfile }>(`boards/${boardID}/user/${userID}`)
   return response.data.data
 }
+
+export async function getRecentBoards() {
+  const response = await api.get<{ data: Board[] }>('boards/recents')
+
+  return response.data.data
+}

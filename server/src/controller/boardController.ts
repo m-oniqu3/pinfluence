@@ -294,3 +294,53 @@ export async function getBoardOwner(req: Request, res: Response) {
     }
   }
 }
+
+/**
+ *
+ * @param req Request
+ * @param res Response
+ * @description Returns the most recent boards pins were saved to by the current user
+ */
+export async function getRecentBoards(req: Request, res: Response) {
+  console.log("getting recent boards");
+  try {
+    const user = req.user as User;
+
+    //get recent board ids from saved pins , unique
+    const { data, error } = await supabase
+      .from("saved-pins")
+      .select("board_id")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+
+    if (!data) {
+      return res.status(200).json({ data: [] });
+    }
+
+    if (error) {
+      throw error;
+    }
+
+    const boardIds = data.map((d) => d.board_id);
+
+    // get recent boards
+    const { data: recentBoards, error: recentBoardsError } = await supabase
+      .from("boards")
+      .select("id, name, secret, created_at, user_id")
+      .in("id", boardIds);
+
+    if (recentBoardsError) {
+      throw recentBoardsError;
+    }
+
+    return res.status(200).json({ data: recentBoards });
+  } catch (error) {
+    if (error.code) {
+      // PostgREST error
+      return res.status(400).json({ error: error.message });
+    }
+
+    console.log(error);
+    return res.status(500).json({ error: error.message || "Internal server error" });
+  }
+}

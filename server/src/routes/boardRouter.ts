@@ -5,6 +5,7 @@ import {
   getBoardOwner,
   getBoards,
   getCurrentUserBoards,
+  getRecentBoards,
   updateBoard,
 } from "@/controller/boardController";
 import { requireAuth } from "@/middleware/auth";
@@ -16,6 +17,7 @@ const router = express.Router();
 
 //get current user boards
 router.get("/", requireAuth, getCurrentUserBoards);
+router.get("/recents", requireAuth, getRecentBoards);
 
 router.post("/", requireAuth, checkBoardExists, createBoard);
 

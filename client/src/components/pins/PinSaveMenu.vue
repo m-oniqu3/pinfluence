@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import BoardOption from '@/components/boards/BoardOption.vue'
 import BoardSearch from '@/components/boards/BoardSearch.vue'
-import { getCurrentUserBoards } from '@/services/boardServices'
+import { getCurrentUserBoards, getRecentBoards } from '@/services/boardServices'
 import type { Board, BoardInfo } from '@/types/board'
 import { useQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
@@ -20,6 +20,34 @@ const { data, error, isError, isPending } = useQuery({
   queryFn: fetchBoards,
   retry: false
 })
+
+const recents = useQuery({
+  queryKey: ['recents'],
+  queryFn: fetchRecents,
+  retry: false
+})
+
+console.log(recents.isLoading)
+console.log(recents.isError)
+console.log(recents.error)
+console.log(recents.data)
+
+async function fetchRecents() {
+  try {
+    const response = await getRecentBoards()
+    console.log(response)
+    return response
+  } catch (error) {
+    let message = ''
+    if (isAxiosError(error)) {
+      message = error.response?.data ?? error.message
+    } else {
+      message = 'Something went wrong. Please try again.'
+    }
+
+    throw new Error('Failed to get recent boards. ' + message)
+  }
+}
 
 async function fetchBoards() {
   try {

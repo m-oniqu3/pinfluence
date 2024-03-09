@@ -311,7 +311,8 @@ export async function getRecentBoards(req: Request, res: Response) {
       .from("saved-pins")
       .select("board_id")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(3);
 
     if (!data) {
       return res.status(200).json({ data: [] });

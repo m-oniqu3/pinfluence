@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import BoardOption from '@/components/boards/BoardOption.vue'
-import BoardSearch from '@/components/boards/BoardSearch.vue'
 import { getCurrentUserBoards, getRecentBoards } from '@/services/boardServices'
 import type { Board, BoardInfo } from '@/types/board'
 import { useQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
 import { computed, defineEmits, ref, watch } from 'vue'
+import BoardOption from '../boards/BoardOption.vue'
+import BoardSearch from '../boards/BoardSearch.vue'
 
 const emit = defineEmits<{
   (event: 'closeModal'): void
@@ -21,21 +21,15 @@ const { data, error, isError, isPending } = useQuery({
   retry: false
 })
 
-const recents = useQuery({
+const { data: recents, isLoading: recentsIsLoading } = useQuery({
   queryKey: ['recents'],
   queryFn: fetchRecents,
   retry: false
 })
 
-console.log(recents.isLoading)
-console.log(recents.isError)
-console.log(recents.error)
-console.log(recents.data)
-
 async function fetchRecents() {
   try {
     const response = await getRecentBoards()
-    console.log(response)
     return response
   } catch (error) {
     let message = ''
@@ -120,7 +114,21 @@ function selectBoard(board: BoardInfo) {
 
       <ul class="px-3 py-4 overflow-scroll">
         <li v-if="!boards.length" class="text-gray-500">No boards found.</li>
-        <li v-else class="text-xs py-2 px-2">All Boards</li>
+
+        <li v-if="recentsIsLoading" class="text-gray-500">Loading...</li>
+
+        <template v-if="recents && !searchInput">
+          <li class="text-xs py-2 px-2">Top Choices</li>
+          <BoardOption
+            v-for="board in recents"
+            :key="board.id"
+            :board="board"
+            @close-menu="emit('closeModal')"
+            @select-board="selectBoard"
+          />
+        </template>
+
+        <li v-if="boards" class="text-xs py-2 px-2">All Boards</li>
 
         <BoardOption
           v-for="board in boards"

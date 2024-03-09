@@ -63,6 +63,10 @@ export async function getBoardOwner(boardID: number, userID: string) {
   return response.data.data
 }
 
+/**
+ * @returns Board[]
+ * @description Returns the most recent boards pins were saved to
+ */
 export async function getRecentBoards() {
   const response = await api.get<{ data: Board[] }>('boards/recents')
 

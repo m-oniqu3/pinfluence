@@ -10,6 +10,7 @@ import { useInfiniteQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
 import { computed, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import PreviewGridSkeleton from './PreviewGridSkeleton.vue'
 
 const router = useRouter()
 const { params } = router.currentRoute.value
@@ -84,8 +85,8 @@ watch(
 
 <template>
   <section class="wrapper pb-8">
-    <p v-if="isLoading" class="text-center">Loading...</p>
-    <p v-else-if="isError && error" class="text-center">{{ error.message }}</p>
+    <PreviewGridSkeleton v-if="isLoading" />
+    <p v-else-if="!isLoading && isError && error" class="text-center">{{ error.message }}</p>
 
     <template v-else-if="boards?.pages">
       <div class="h-16">

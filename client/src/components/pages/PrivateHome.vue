@@ -8,6 +8,7 @@ import { getAllCreatedPins } from '@/services/pinServices'
 
 import { useInfiniteQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
+import AppSpinner from '../app/AppSpinner.vue'
 
 const router = useRouter()
 
@@ -44,7 +45,11 @@ router.afterEach(() => refetch())
 </script>
 
 <template>
-  <p v-if="isLoading" class="text-center w-full">Loading...</p>
+  <article v-if="isLoading" class="wrapper flex flex-col items-center justify-center gap-4 h-52">
+    <h2 class="font-semibold text-xl text-center">We're adding new ideas to your feed</h2>
+    <AppSpinner />
+  </article>
+
   <p v-else-if="!isLoading && isError" class="text-center w-full">{{ error?.message }}</p>
 
   <InfiniteScroll

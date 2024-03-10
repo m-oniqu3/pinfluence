@@ -1,6 +1,7 @@
 <script lang="ts">
 import BaseButton from '@/components/BaseButton.vue'
 import { defineComponent } from 'vue'
+import ProfileHeaderSkeleton from './ProfileHeaderSkeleton.vue'
 
 export default defineComponent({
   name: 'ProfileHeader'
@@ -63,7 +64,7 @@ watch(
 </script>
 
 <template>
-  <p v-if="isLoading" class="text-center">Loading...</p>
+  <ProfileHeaderSkeleton v-if="isLoading" />
   <p v-if="!isLoading && isError && error" class="text-center">{{ error.message }}</p>
 
   <header v-else-if="profile" class="wrapper flex flex-col gap-2 items-center text-center my-4 max-w-sm">

@@ -95,7 +95,11 @@ export async function checkBoardExists(req: Request, res: Response, next: NextFu
       .eq("user_id", user.id)
       .single();
 
-    if (data?.id) {
+    if (!data) {
+      return next();
+    }
+
+    if (data !== null) {
       return res.status(409).json({ error: "You already have a board with this name!" });
     }
 

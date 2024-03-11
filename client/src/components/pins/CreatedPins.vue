@@ -1,6 +1,7 @@
 <script lang="ts">
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
+import AppSpinner from '../app/AppSpinner.vue'
 
 export default defineComponent({
   name: 'CreatedPins'
@@ -60,7 +61,9 @@ router.afterEach(() => refetch())
 </script>
 
 <template>
-  <p v-if="isLoading" class="text-center w-full">Loading...</p>
+  <div v-if="isLoading" class="h-40 flex items-center justify-center w-full">
+    <AppSpinner />
+  </div>
   <p v-else-if="isError && error" class="text-center w-full">{{ error.message }}</p>
 
   <template v-else-if="!data?.pages.flat().length">

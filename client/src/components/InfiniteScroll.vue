@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineEmits, defineProps, onMounted, ref } from 'vue'
+import AppSpinner from './app/AppSpinner.vue'
 
 const props = defineProps<{
   isLoadingIntial: boolean
@@ -18,7 +19,6 @@ const observer = new IntersectionObserver(handleIntersection, {
 function handleIntersection(entries: IntersectionObserverEntry[]) {
   entries.forEach((entry) => {
     if (entry.isIntersecting && (!props.isLoadingMore || !props.isLoadingIntial)) {
-      console.log('intersecting')
       emit('load-more')
     }
   })
@@ -35,7 +35,9 @@ onMounted(() => {
     <slot></slot>
 
     <div ref="observerElement" id="obs">
-      <p v-if="props.isLoadingMore && !props.isLoadingIntial" class="text-center h-10">Loading...</p>
+      <div v-if="props.isLoadingMore && !props.isLoadingIntial" class="text-center h-10">
+        <AppSpinner />
+      </div>
     </div>
   </div>
 </template>

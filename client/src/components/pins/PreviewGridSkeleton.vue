@@ -12,13 +12,13 @@ const skeletons = Array.from({ length: 16 }, (_, i) => i)
 
 <template>
   <div id="saved-pins">
-    <section id="container" class="mx-auto" v-for="skeleton in skeletons" :key="skeleton">
+    <div id="container" class="mx-auto" v-for="skeleton in skeletons" :key="skeleton">
       <div id="grid-wrapper" class="bg-white rounded-2xl">
         <div id="preview-grid-1" class="rounded-tl-2xl rounded-bl-2xl bg-neutral-200" />
         <div id="preview-grid-2" class="rounded-tr-2xl bg-neutral-200" />
         <div id="preview-grid-3" class="rounded-br-2xl bg-neutral-200" />
       </div>
-    </section>
+    </div>
   </div>
 </template>
 

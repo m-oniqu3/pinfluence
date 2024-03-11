@@ -4,6 +4,7 @@ import type { Board, BoardInfo } from '@/types/board'
 import { useQuery } from '@tanstack/vue-query'
 import { isAxiosError } from 'axios'
 import { computed, defineEmits, ref, watch } from 'vue'
+import AppSpinner from '../app/AppSpinner.vue'
 import BoardOption from '../boards/BoardOption.vue'
 import BoardSearch from '../boards/BoardSearch.vue'
 
@@ -101,7 +102,9 @@ function selectBoard(board: BoardInfo) {
 
 <template>
   <div class="bg-white wrapper rounded-2xl" @click.stop id="section">
-    <p v-if="isPending" class="grid place-items-center h-full w-full">Loading...</p>
+    <div v-if="isPending" class="grid place-items-center h-full w-full">
+      <AppSpinner />
+    </div>
 
     <p v-else-if="isError" class="grid place-items-center h-full w-full text-red-500">
       {{ error }}
